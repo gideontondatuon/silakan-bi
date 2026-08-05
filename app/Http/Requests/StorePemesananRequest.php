@@ -180,7 +180,7 @@ class StorePemesananRequest extends FormRequest
 
             'file_disposisi' => [
 
-                'nullable',
+                'required',
 
                 'file',
 
@@ -212,6 +212,16 @@ class StorePemesananRequest extends FormRequest
 
             'jumlah_tamu.min' =>
                 'Jumlah tamu minimal 1 orang.',
+
+
+            'file_disposisi.required' =>
+                'Lembar disposisi / nota dinas wajib diunggah.',
+
+            'file_disposisi.mimes' =>
+                'Format file disposisi harus berupa PDF, JPG, atau PNG.',
+
+            'file_disposisi.max' =>
+                'Ukuran file disposisi tidak boleh melebihi 5MB.',
 
         ];
 

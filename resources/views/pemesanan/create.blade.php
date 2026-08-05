@@ -182,12 +182,47 @@
 
             {{-- Row 6: Upload Lembar Disposisi --}}
             <div class="form-group">
-                <label>Upload Lembar Disposisi <small style="color:#64748b;font-weight:400;">(PDF / PNG / JPG, Max 5MB)</small></label>
-                <input type="file" name="file_disposisi" accept=".pdf,.png,.jpg,.jpeg">
+                <label>Upload Lembar Disposisi <span style="color:#dc2626;font-weight:700;">*</span> <small style="color:#64748b;font-weight:400;">(Wajib — PDF / PNG / JPG, Max 5MB)</small></label>
+                <div style="border:2px dashed #cbd5e1;border-radius:10px;padding:20px;text-align:center;background:#f8fafc;cursor:pointer;transition:border-color .2s;" id="dropzone-disposisi" onclick="document.getElementById('file_disposisi_input').click()">
+                    <div id="dropzone-placeholder">
+                        <i class="bi bi-cloud-upload" style="font-size:26px;color:#005baa;display:block;margin-bottom:6px;"></i>
+                        <p style="margin:0;font-size:13px;color:#64748b;">Klik atau seret file ke sini untuk mengunggah</p>
+                        <p style="margin:4px 0 0 0;font-size:11px;color:#94a3b8;">PDF, JPG, JPEG, PNG — Maksimal 5MB</p>
+                    </div>
+                    <div id="dropzone-preview" style="display:none;">
+                        <i class="bi bi-file-earmark-check" style="font-size:26px;color:#16a34a;display:block;margin-bottom:4px;"></i>
+                        <p id="dropzone-filename" style="margin:0;font-size:13px;color:#16a34a;font-weight:600;"></p>
+                        <p style="margin:4px 0 0 0;font-size:11px;color:#94a3b8;">Klik untuk mengganti file</p>
+                    </div>
+                </div>
+                <input type="file" id="file_disposisi_input" name="file_disposisi" accept=".pdf,.png,.jpg,.jpeg" required style="display:none;">
                 @error('file_disposisi')
                     <span class="form-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
                 @enderror
             </div>
+
+            <script>
+            document.getElementById('file_disposisi_input').addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    document.getElementById('dropzone-placeholder').style.display = 'none';
+                    document.getElementById('dropzone-preview').style.display = 'block';
+                    document.getElementById('dropzone-filename').textContent = file.name;
+                    document.getElementById('dropzone-disposisi').style.borderColor = '#16a34a';
+                    document.getElementById('dropzone-disposisi').style.background = '#f0fdf4';
+                }
+            });
+            // Drag & Drop support
+            const dz = document.getElementById('dropzone-disposisi');
+            dz.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = '#005baa'; });
+            dz.addEventListener('dragleave', function() { this.style.borderColor = '#cbd5e1'; });
+            dz.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('file_disposisi_input');
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            });
+            </script>
 
             {{-- Actions --}}
             <div class="form-action" style="margin-top:16px;border-top:1px solid #f1f5f9;padding-top:20px;">
