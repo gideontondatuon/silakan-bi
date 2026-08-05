@@ -3,18 +3,11 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\SimpleType\Jc;
-use PhpOffice\PhpWord\Style\Font;
 
 class ExportManualBookWord extends Command
 {
-    /**
-     * Nama dan deskripsi perintah artisan.
-     */
     protected $signature = 'export:manual-word';
-    protected $description = 'Mengkonversi MANUAL_BOOK_SILAKAN.md menjadi dokumen Microsoft Word (.docx) berformat resmi Bank Indonesia';
+    protected $description = 'Mengkonversi MANUAL_BOOK_SILAKAN.md menjadi dokumen Microsoft Word (.doc / .docx) berformat resmi Bank Indonesia';
 
     public function handle()
     {
@@ -27,165 +20,271 @@ class ExportManualBookWord extends Command
         $this->info('Membaca berkas MANUAL_BOOK_SILAKAN.md...');
         $content = file_get_contents($mdPath);
 
-        $this->info('Menggenerasi dokumen Microsoft Word (.docx)...');
+        // Convert Markdown content into styled Word HTML
+        $htmlContent = $this->markdownToWordHtml($content);
 
-        $phpWord = new PhpWord();
+        // Save as .doc and .docx
+        $docPath = base_path('MANUAL_BOOK_SILAKAN.doc');
+        $docxPath = base_path('MANUAL_BOOK_SILAKAN.docx');
+        $publicDocPath = public_path('MANUAL_BOOK_SILAKAN.doc');
+        $publicDocxPath = public_path('MANUAL_BOOK_SILAKAN.docx');
 
-        // ---------------------------------------------------------
-        // Styling Dokumen Resmi Bank Indonesia
-        // ---------------------------------------------------------
-        $phpWord->setDefaultFontName('Segoe UI');
-        $phpWord->setDefaultFontSize(11);
+        file_put_contents($docPath, $htmlContent);
+        file_put_contents($docxPath, $htmlContent);
+        file_put_contents($publicDocPath, $htmlContent);
+        file_put_contents($publicDocxPath, $htmlContent);
 
-        // Header & Title Styles
-        $phpWord->addTitleStyle(1, ['name' => 'Segoe UI', 'size' => 18, 'bold' => true, 'color' => '003B73'], ['spaceBefore' => 240, 'spaceAfter' => 120]);
-        $phpWord->addTitleStyle(2, ['name' => 'Segoe UI', 'size' => 14, 'bold' => true, 'color' => '005BAA'], ['spaceBefore' => 200, 'spaceAfter' => 100]);
-        $phpWord->addTitleStyle(3, ['name' => 'Segoe UI', 'size' => 12, 'bold' => true, 'color' => '0F172A'], ['spaceBefore' => 160, 'spaceAfter' => 80]);
+        $this->info("✅ Berhasil mengkonversi Manual Book ke Microsoft Word!");
+        $this->info("📄 Berkas disimpan di: " . $docPath);
+        $this->info("📄 Berkas docx disimpan di: " . $docxPath);
 
-        $section = $phpWord->addSection([
-            'marginTop' => 1440, // 1 inch
-            'marginBottom' => 1440,
-            'marginLeft' => 1440,
-            'marginRight' => 1440,
-        ]);
+        return 0;
+    }
 
-        // ---------------------------------------------------------
-        // Header & Footer Dokumen Resmi
-        // ---------------------------------------------------------
-        $header = $section->addHeader();
-        $headerTable = $header->addTable();
-        $headerTable->addRow();
-        $headerTable->addCell(5000)->addText('BANK INDONESIA — KPwBI Prov. Sulut', ['size' => 9, 'bold' => true, 'color' => '003B73']);
-        $headerTable->addCell(4000)->addText('SILAKAN Manual Book', ['size' => 9, 'color' => '64748B'], ['alignment' => Jc::RIGHT]);
+    private function markdownToWordHtml(string $markdown): string
+    {
+        $lines = explode("\n", $markdown);
+        $body = '';
 
-        $footer = $section->addFooter();
-        $footer->addPreserveText('Halaman {PAGE} dari {NUMPAGES}', ['size' => 9, 'color' => '64748B'], ['alignment' => Jc::CENTER]);
-
-        // ---------------------------------------------------------
-        // Cover / Judul Utama
-        // ---------------------------------------------------------
-        $section->addText('BUKU PANDUAN PENGGUNAAN SISTEM', ['size' => 22, 'bold' => true, 'color' => '003B73'], ['alignment' => Jc::CENTER, 'spaceAfter' => 60]);
-        $section->addText('SILAKAN — Sistem Informasi Layanan Kantor', ['size' => 16, 'bold' => true, 'color' => '005BAA'], ['alignment' => Jc::CENTER, 'spaceAfter' => 40]);
-        $section->addText('Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara', ['size' => 12, 'color' => '475569', 'italic' => true], ['alignment' => Jc::CENTER, 'spaceAfter' => 300]);
-        $section->addTextBreak(1);
-
-        // ---------------------------------------------------------
-        // Parse Markdown Content Line by Line
-        // ---------------------------------------------------------
-        $lines = explode("\n", $content);
         $inTable = false;
-        $tableData = [];
+        $tableRows = [];
 
         foreach ($lines as $line) {
             $trimmed = trim($line);
 
-            // Skip title heading lines already covered by Cover
-            if (str_contains($trimmed, 'BUKU PANDUAN PENGGUNAAN SISTEM') || str_contains($trimmed, 'Sistem Informasi Layanan Kantor')) {
+            if (empty($trimmed)) {
+                if ($inTable) {
+                    $body .= $this->buildHtmlTable($tableRows);
+                    $tableRows = [];
+                    $inTable = false;
+                }
+                continue;
+            }
+
+            // Image Callout Boxes
+            if (str_contains($trimmed, '🖼️') || str_contains($trimmed, '[TANGKAPAN LAYAR')) {
+                if ($inTable) {
+                    $body .= $this->buildHtmlTable($tableRows);
+                    $tableRows = [];
+                    $inTable = false;
+                }
+                $cleanText = htmlspecialchars(preg_replace('/[>#*`]/', '', $trimmed));
+                $body .= '
+                <div class="image-box">
+                    <p class="image-box-title">🖼️ SISIPKAN GAMBAR / TANGKAPAN LAYAR:</p>
+                    <p class="image-box-desc">' . $cleanText . '</p>
+                </div>';
                 continue;
             }
 
             // Headings
             if (str_starts_with($trimmed, '# ')) {
-                $text = trim(substr($trimmed, 2));
-                $section->addTitle($text, 1);
+                $body .= '<h1>' . htmlspecialchars(substr($trimmed, 2)) . '</h1>';
                 continue;
             }
             if (str_starts_with($trimmed, '## ')) {
-                $text = trim(substr($trimmed, 3));
-                $section->addTitle($text, 1);
+                $body .= '<h2>' . htmlspecialchars(substr($trimmed, 3)) . '</h2>';
                 continue;
             }
             if (str_starts_with($trimmed, '### ')) {
-                $text = trim(substr($trimmed, 4));
-                $section->addTitle($text, 2);
+                $body .= '<h3>' . htmlspecialchars(substr($trimmed, 4)) . '</h3>';
                 continue;
             }
             if (str_starts_with($trimmed, '#### ')) {
-                $text = trim(substr($trimmed, 5));
-                $section->addTitle($text, 3);
+                $body .= '<h4>' . htmlspecialchars(substr($trimmed, 5)) . '</h4>';
                 continue;
             }
 
-            // Image Placeholder Callouts
-            if (str_contains($trimmed, '🖼️') || str_contains($trimmed, '[TANGKAPAN LAYAR')) {
-                $boxTable = $section->addTable(['borderColor' => '005BAA', 'borderSize' => 6, 'cellMargin' => 120]);
-                $boxTable->addRow();
-                $cell = $boxTable->addCell(9000, ['bgColor' => 'F0Fdf4']);
-                $cell->addText('🖼️ SISIPKAN GAMBAR / TANGKAPAN LAYAR:', ['bold' => true, 'color' => '005BAA', 'size' => 10]);
-                $cleanText = preg_replace('/[>#*`]/', '', $trimmed);
-                $cell->addText($cleanText, ['italic' => true, 'color' => '1E293B', 'size' => 9.5]);
-                $section->addTextBreak(1);
-                continue;
-            }
-
-            // Tables (Markdown pipe format |)
+            // Tables
             if (str_starts_with($trimmed, '|')) {
                 if (!str_contains($trimmed, '---')) {
                     $cols = array_values(array_filter(array_map('trim', explode('|', $trimmed))));
                     if (count($cols) > 0) {
-                        $tableData[] = $cols;
+                        $tableRows[] = $cols;
                     }
                 }
                 $inTable = true;
                 continue;
-            } else if ($inTable && !empty($tableData)) {
-                // Render Table accumulated
-                $wordTable = $section->addTable(['borderColor' => 'CBD5E1', 'borderSize' => 4, 'cellMargin' => 100]);
-                foreach ($tableData as $rowIndex => $row) {
-                    $wordTable->addRow();
-                    $isHeader = ($rowIndex === 0);
-                    foreach ($row as $cellText) {
-                        $bgColor = $isHeader ? 'F1F5F9' : ($rowIndex % 2 === 0 ? 'F8FAFC' : 'FFFFFF');
-                        $cell = $wordTable->addCell(3000, ['bgColor' => $bgColor]);
-                        $cell->addText($cellText, ['bold' => $isHeader, 'size' => 9.5, 'color' => '1E293B']);
-                    }
-                }
-                $section->addTextBreak(1);
-                $tableData = [];
+            } else if ($inTable) {
+                $body .= $this->buildHtmlTable($tableRows);
+                $tableRows = [];
                 $inTable = false;
             }
 
-            // List items
+            // Bullet Lists
             if (str_starts_with($trimmed, '- ') || str_starts_with($trimmed, '* ')) {
-                $itemText = preg_replace('/^[-*]\s+/', '', $trimmed);
-                $itemText = preg_replace('/\*\*(.*?)\*\*/', '$1', $itemText);
-                $section->addListItem($itemText, 0, ['size' => 10.5, 'color' => '334155']);
+                $item = htmlspecialchars(preg_replace('/^[-*]\s+/', '', $trimmed));
+                $item = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $item);
+                $body .= '<ul><li>' . $item . '</li></ul>';
                 continue;
             }
 
-            // Numbered list items
+            // Numbered Lists
             if (preg_match('/^\d+\.\s+(.*)/', $trimmed, $matches)) {
-                $itemText = preg_replace('/\*\*(.*?)\*\*/', '$1', $matches[1]);
-                $section->addListItem($itemText, 0, ['size' => 10.5, 'color' => '334155'], \PhpOffice\PhpWord\Style\ListItem::TYPE_NUMBER);
+                $item = htmlspecialchars($matches[1]);
+                $item = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $item);
+                $body .= '<ol><li>' . $item . '</li></ol>';
                 continue;
             }
 
-            // Horizontal Line
+            // Horizontal Rules
             if ($trimmed === '---' || $trimmed === '***') {
-                $section->addTextBreak(1);
+                $body .= '<hr>';
                 continue;
             }
 
-            // Normal Paragraph
-            if (!empty($trimmed)) {
-                $cleanParagraph = preg_replace('/\*\*(.*?)\*\*/', '$1', $trimmed);
-                $cleanParagraph = str_replace(['#', '`', '>'], '', $cleanParagraph);
-                $section->addText(trim($cleanParagraph), ['size' => 10.5, 'color' => '1E293B'], ['spaceAfter' => 120, 'lineSpacing' => 1.15]);
-            }
+            // Paragraphs
+            $p = htmlspecialchars($trimmed);
+            $p = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $p);
+            $body .= '<p>' . $p . '</p>';
         }
 
-        // Save Word Document
-        $outputPath = base_path('MANUAL_BOOK_SILAKAN.docx');
-        $publicPath = public_path('MANUAL_BOOK_SILAKAN.docx');
+        if ($inTable && !empty($tableRows)) {
+            $body .= $this->buildHtmlTable($tableRows);
+        }
 
-        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $objWriter->save($outputPath);
-        $objWriter->save($publicPath);
+        return '<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>MANUAL BOOK SILAKAN BI SULUT</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page {
+    size: 21cm 29.7cm;
+    margin: 2.54cm 2.54cm 2.54cm 2.54cm;
+    mso-header-margin: 1.27cm;
+    mso-footer-margin: 1.27cm;
+}
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.4;
+    color: #1e293b;
+}
+h1 {
+    font-size: 18pt;
+    color: #003b73;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-bottom: 8pt;
+    border-bottom: 2pt solid #003b73;
+    padding-bottom: 4pt;
+}
+h2 {
+    font-size: 14pt;
+    color: #005baa;
+    font-weight: bold;
+    margin-top: 14pt;
+    margin-bottom: 6pt;
+}
+h3 {
+    font-size: 12pt;
+    color: #0f172a;
+    font-weight: bold;
+    margin-top: 10pt;
+    margin-bottom: 4pt;
+}
+h4 {
+    font-size: 11pt;
+    color: #334155;
+    font-weight: bold;
+}
+p {
+    margin-top: 0;
+    margin-bottom: 6pt;
+    text-align: justify;
+}
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 6pt;
+    padding-left: 20pt;
+}
+li {
+    margin-bottom: 3pt;
+}
+.image-box {
+    background-color: #f0fdf4;
+    border: 1.5pt solid #005baa;
+    padding: 8pt 12pt;
+    margin-top: 10pt;
+    margin-bottom: 10pt;
+    border-radius: 4pt;
+}
+.image-box-title {
+    font-weight: bold;
+    color: #005baa;
+    font-size: 10pt;
+    margin: 0 0 4pt 0;
+}
+.image-box-desc {
+    font-size: 9.5pt;
+    color: #1e293b;
+    font-style: italic;
+    margin: 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8pt;
+    margin-bottom: 12pt;
+}
+th {
+    background-color: #f1f5f9;
+    color: #003b73;
+    font-weight: bold;
+    border: 1pt solid #cbd5e1;
+    padding: 6pt 8pt;
+    font-size: 9.5pt;
+    text-align: left;
+}
+td {
+    border: 1pt solid #cbd5e1;
+    padding: 6pt 8pt;
+    font-size: 9.5pt;
+}
+tr:nth-child(even) td {
+    background-color: #f8fafc;
+}
+hr {
+    border: 0;
+    border-top: 1pt solid #cbd5e1;
+    margin-top: 12pt;
+    margin-bottom: 12pt;
+}
+</style>
+</head>
+<body>
+' . $body . '
+</body>
+</html>';
+    }
 
-        $this->info("✅ Berhasil mengkonversi Manual Book ke Microsoft Word!");
-        $this->info("📄 Berkas disimpan di: " . $outputPath);
-        $this->info("🌐 Berkas publik disimpan di: " . $publicPath);
-
-        return 0;
+    private function buildHtmlTable(array $rows): string
+    {
+        if (empty($rows)) return '';
+        $html = '<table>';
+        foreach ($rows as $index => $row) {
+            $html .= '<tr>';
+            $isHeader = ($index === 0);
+            $tag = $isHeader ? 'th' : 'td';
+            foreach ($row as $cell) {
+                $html .= "<{$tag}>" . htmlspecialchars($cell) . "</{$tag}>";
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</table>';
+        return $html;
     }
 }
