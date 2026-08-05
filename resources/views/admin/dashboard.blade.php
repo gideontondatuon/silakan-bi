@@ -175,16 +175,28 @@
             <h2><i class="bi bi-sun"></i> Agenda Hari Ini</h2>
         </div>
         @forelse($kegiatanHariIni as $item)
-        <div class="agenda-card" style="padding:14px 16px;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:12px;background:#ffffff;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        @php
+            $isSelesai = \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s') > $item->waktu_selesai;
+            $isBerlangsung = \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s') >= $item->waktu_mulai
+                          && \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s') <= $item->waktu_selesai;
+        @endphp
+        <div class="agenda-card" style="padding:14px 16px;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:12px;background:{{ $isSelesai ? '#f8fafc' : '#ffffff' }};box-shadow:0 2px 8px rgba(0,0,0,0.03);opacity:{{ $isSelesai ? '0.72' : '1' }};">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
                 <strong style="color:#003b73;font-size:13px;"><i class="bi bi-building"></i> {{ $item->ruangan->nama_ruangan }}</strong>
-                <span class="badge badge-info" style="font-size:11px;padding:3px 9px;border-radius:6px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-weight:600;">
-                    <i class="bi bi-people-fill"></i> {{ $item->user->nama_unit ?? $item->user->name }}
-                </span>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    @if($isSelesai)
+                        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;font-weight:600;"><i class="bi bi-check-circle-fill"></i> Selesai</span>
+                    @elseif($isBerlangsung)
+                        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:#dcfce7;color:#15803d;border:1px solid #86efac;font-weight:600;"><i class="bi bi-broadcast"></i> Berlangsung</span>
+                    @endif
+                    <span class="badge badge-info" style="font-size:11px;padding:3px 9px;border-radius:6px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-weight:600;">
+                        <i class="bi bi-people-fill"></i> {{ $item->user->nama_unit ?? $item->user->name }}
+                    </span>
+                </div>
             </div>
-            <p style="margin:0 0 6px 0;font-weight:700;color:#0f172a;font-size:13.5px;line-height:1.35;">{{ $item->judul_kegiatan }}</p>
+            <p style="margin:0 0 6px 0;font-weight:700;color:{{ $isSelesai ? '#94a3b8' : '#0f172a' }};font-size:13.5px;line-height:1.35;">{{ $item->judul_kegiatan }}</p>
             <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#64748b;flex-wrap:wrap;gap:6px;">
-                <span style="color:#005baa;font-weight:600;"><i class="bi bi-clock"></i> {{ $item->waktu_mulai }} – {{ $item->waktu_selesai }} WITA</span>
+                <span style="color:{{ $isSelesai ? '#94a3b8' : '#005baa' }};font-weight:600;"><i class="bi bi-clock"></i> {{ $item->waktu_mulai }} – {{ $item->waktu_selesai }} WITA</span>
                 @if($item->pic_kegiatan)
                     <span style="color:#475569;font-weight:500;"><i class="bi bi-person-fill"></i> PIC: {{ $item->pic_kegiatan }}</span>
                 @endif
