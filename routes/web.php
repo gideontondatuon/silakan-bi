@@ -56,6 +56,16 @@ Route::get('/download-manual-book', function() {
     ]);
 })->name('download.manual-book');
 
+Route::get('/download-sdd', function() {
+    $path = base_path('SDD_SILAKAN.doc');
+    if (!file_exists($path)) {
+        \Illuminate\Support\Facades\Artisan::call('export:sdd-word');
+    }
+    return response()->download($path, 'Software_Design_Document_SILAKAN_KPwBI_Sulut.doc', [
+        'Content-Type' => 'application/msword',
+    ]);
+})->name('download.sdd');
+
 
 /*
 |--------------------------------------------------------------------------

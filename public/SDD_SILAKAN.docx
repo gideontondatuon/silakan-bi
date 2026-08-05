@@ -1,0 +1,106 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>SOFTWARE DESIGN DOCUMENT SILAKAN BI SULUT</title>
+<!--[if gte mso 9]>
+<xml>
+ <w:WordDocument>
+  <w:View>Print</w:View>
+  <w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+ </w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page {
+    size: 21cm 29.7cm;
+    margin: 2.54cm 2.54cm 2.54cm 2.54cm;
+    mso-header-margin: 1.27cm;
+    mso-footer-margin: 1.27cm;
+}
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.4;
+    color: #1e293b;
+}
+h1 {
+    font-size: 18pt;
+    color: #003b73;
+    font-weight: bold;
+    margin-top: 18pt;
+    margin-bottom: 8pt;
+    border-bottom: 2pt solid #003b73;
+    padding-bottom: 4pt;
+}
+h2 {
+    font-size: 14pt;
+    color: #005baa;
+    font-weight: bold;
+    margin-top: 14pt;
+    margin-bottom: 6pt;
+}
+h3 {
+    font-size: 12pt;
+    color: #0f172a;
+    font-weight: bold;
+    margin-top: 10pt;
+    margin-bottom: 4pt;
+}
+h4 {
+    font-size: 11pt;
+    color: #334155;
+    font-weight: bold;
+}
+p {
+    margin-top: 0;
+    margin-bottom: 6pt;
+    text-align: justify;
+}
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 6pt;
+    padding-left: 20pt;
+}
+li {
+    margin-bottom: 3pt;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8pt;
+    margin-bottom: 12pt;
+}
+th {
+    background-color: #f1f5f9;
+    color: #003b73;
+    font-weight: bold;
+    border: 1pt solid #cbd5e1;
+    padding: 6pt 8pt;
+    font-size: 9.5pt;
+    text-align: left;
+}
+td {
+    border: 1pt solid #cbd5e1;
+    padding: 6pt 8pt;
+    font-size: 9.5pt;
+}
+tr:nth-child(even) td {
+    background-color: #f8fafc;
+}
+hr {
+    border: 0;
+    border-top: 1pt solid #cbd5e1;
+    margin-top: 12pt;
+    margin-bottom: 12pt;
+}
+</style>
+</head>
+<body>
+<h1>📐 DOKUMEN DESAIN PERANGKAT LUNAK (SOFTWARE DESIGN DOCUMENT - SDD)</h1><h2>**SILAKAN — Sistem Informasi Layanan Kantor**</h2><h3>**Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara**</h3><hr><h2>📑 **DAFTAR ISI**</h2><ol><li>[BAB I: PENDAHULUAN](#bab-i-pendahuluan)</li></ol><ul><li>1.1 Tujuan Dokumen</li></ul><ul><li>1.2 Cakupan Sistem (System Scope)</li></ul><ul><li>1.3 Definisi &amp; Akronim</li></ul><ol><li>[BAB II: ARSITEKTUR SISTEM KESELURUHAN](#bab-ii-arsitektur-sistem-keseluruhan)</li></ol><ul><li>2.1 Pola Arsitektur MVC (Model-View-Controller)</li></ul><ul><li>2.2 Diagram Blok Arsitektur Tingkat Tinggi (High-Level Architecture)</li></ul><ul><li>2.3 Technology Stack &amp; Lingkungan Pengembangan</li></ul><ol><li>[BAB III: DESAIN DATABASE &amp; DESAIN DATA](#bab-iii-desain-database--desain-data)</li></ol><ul><li>3.1 Entity Relationship Diagram (ERD) &amp; Relasi Data</li></ul><ul><li>3.2 Spesifikasi &amp; Kamus Data Tabel Database</li></ul><ul><li>3.3 Enumerasi &amp; Casting Data (`Role` &amp; `PemesananStatus`)</li></ul><ul><li>3.4 Pengecekan Integritas &amp; Database Transaction Control</li></ul><ol><li>[BAB IV: DESAIN KOMPONEN &amp; ARSITEKTUR KODE](#bab-iv-desain-komponen--arsitektur-kode)</li></ol><ul><li>4.1 Action Pattern Layer (Business Logic Scoping)</li></ul><ul><li>4.2 Controller &amp; Routing Layer</li></ul><ul><li>4.3 Form Request Validation Layer</li></ul><ul><li>4.4 Shared Service Layer (Audit Log &amp; WhatsApp Gateway)</li></ul><ol><li>[BAB V: DESAIN ANTARMUKA &amp; PERILAKU PENGGUNA](#bab-v-desain-antarmuka--perilaku-pengguna)</li></ol><ul><li>5.1 System Design Tokens &amp; Branding (Warna Khas BI)</li></ul><ul><li>5.2 Antarmuka Pengguna (User Interface) &amp; Smart Filtering</li></ul><ul><li>5.3 Antarmuka Layar Kiosk TV Lobby (`/display`)</li></ul><ul><li>5.4 Peta Route &amp; Endpoint URL Sistem</li></ul><ol><li>[BAB VI: ARSITEKTUR KEAMANAN SISTEM](#bab-vi-arsitektur-keamanan-sistem)</li></ol><ul><li>6.1 Autentikasi &amp; Otorisasi Berbasis Role</li></ul><ul><li>6.2 Proteksi Injeksi Data, CSRF &amp; Upload Hygiene</li></ul><ul><li>6.3 Proteksi Sesi Active Self-Delete Guard</li></ul><ol><li>[BAB VII: ARSITEKTUR DEPLOYMENT &amp; KONTAINERISASI](#bab-vii-arsitektur-deployment--kontainerisasi)</li></ol><ul><li>7.1 Kontainerisasi Docker (`Dockerfile`)</li></ul><ul><li>7.2 Panduan Deploy Cloud &amp; Database Managed Service</li></ul><hr><h2>📌 **BAB I: PENDAHULUAN**</h2><h3>**1.1 Tujuan Dokumen**</h3><p>Dokumen Desain Perangkat Lunak (<strong>Software Design Document - SDD</strong>) ini disusun sebagai acuan teknis komprehensif yang menguraikan struktur arsitektur, desain basis data, pola kode, mekanisme keamanan, dan antarmuka dari sistem <strong>SILAKAN (Sistem Informasi Layanan Kantor)</strong> di <strong>Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara (KPwBI Prov. Sulut)</strong>.</p><h3>**1.2 Cakupan Sistem (System Scope)**</h3><p>Sistem SILAKAN mencakup modul operasional utama:</p><ol><li><strong>Modul Pemesanan Ruangan Rapat</strong>: Pengajuan pemesanan ruangan, pengecekan bentrok jam otomatis (WITA), penyesuaian kapasitas &amp; layout dinamis, serta lampiran disposisi.</li></ol><ol><li><strong>Modul Approval &amp; Tinjauan Admin</strong>: Peninjauan berkas, persetujuan/penolakan dengan catatan, serta notifikasi otomatis via WhatsApp &amp; Web.</li></ol><ol><li><strong>Modul Live Monitoring &amp; TV Lobby Kiosk</strong>: Pemantauan ruangan aktif dengan *Live Countdown Timer* dan layar TV Lobby auto-refresh real-time.</li></ol><ol><li><strong>Modul Master Data &amp; Sistem</strong>: Pengelolaan Data Ruangan, Layout, Hari Libur/Sync API, Users, Audit Log, dan Laporan Rekapitulasi PDF/Excel.</li></ol><h3>**1.3 Definisi &amp; Akronim**</h3><ul><li><strong>KPwBI Prov. Sulut</strong>: Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara.</li></ul><ul><li><strong>SILAKAN</strong>: Sistem Informasi Layanan Kantor.</li></ul><ul><li><strong>MVC</strong>: Model-View-Controller (Pola arsitektur lunak Laravel).</li></ul><ul><li><strong>WITA</strong>: Waktu Indonesia Tengah (UTC+8).</li></ul><ul><li><strong>ERD</strong>: Entity Relationship Diagram.</li></ul><hr><h2>📌 **BAB II: ARSITEKTUR SISTEM KESELURUHAN**</h2><h3>**2.1 Pola Arsitektur MVC (Model-View-Controller)**</h3><p>SILAKAN dibangun di atas framework <strong>Laravel 12</strong> menggunakan prinsip pembagian tugas (*Separation of Concerns*):</p><ul><li><strong>Model</strong>: Mengelola objek bisnis, relasi Eloquent, casting enum, dan pemanggilan database scope.</li></ul><ul><li><strong>View</strong>: Menyajikan antarmuka responsif berbasis Blade Templating Engine &amp; Vite CSS/JS bundler.</li></ul><ul><li><strong>Controller &amp; Action</strong>: Mengatur alur logika bisnis, validasi request, serta eksekusi transaksi database.</li></ul><p>+-----------------------------------+</p><table><tr><th>HTTP Request (User)</th></tr></table><p>+-----------------------------------+</p><p>v</p><p>+-----------------------------------+</p><table><tr><th>Middleware &amp; Routing</th></tr><tr><td>(auth, role:admin/user)</td></tr></table><p>+-----------------------------------+</p><p>v</p><p>+-----------------------------------+</p><table><tr><th>Controllers &amp; Actions Layer</th></tr><tr><td>(CreatePemesanan, Approve, etc.)</td></tr></table><p>+-----------------------------------+</p><p>/            |            \</p><p>/             |             \</p><p>v              v              v</p><p>+------------------+ +--------------+ +--------------------+</p><table><tr><th>Database / DB</th><th>View (Blade)</th><th>Services (WhatsApp</th></tr><tr><td>Transaction Lock</td><td>&amp; CSS Tokens</td><td>&amp; Audit Log)</td></tr></table><p>+------------------+ +--------------+ +--------------------+</p><h3>**2.2 Technology Stack &amp; Lingkungan Pengembangan**</h3><ul><li><strong>Framework Utama</strong>: Laravel 12.0 (PHP 8.2+).</li></ul><ul><li><strong>Frontend &amp; Asset Bundler</strong>: Vite v6.4, Custom Vanilla CSS (Sistem Tokoh Warna Bank Indonesia), Bootstrap Icons.</li></ul><ul><li><strong>Database Engine</strong>: MySQL 8.0+ / SQLite.</li></ul><ul><li><strong>Pustaka Ekspor &amp; Cetak</strong>: `barryvdh/laravel-dompdf`, `maatwebsite/excel`, `phpoffice/phpword`.</li></ul><ul><li><strong>Kontainerisasi</strong>: Docker &amp; Docker Compose.</li></ul><hr><h2>📌 **BAB III: DESAIN DATABASE &amp; DESAIN DATA**</h2><h3>**3.1 Entity Relationship Diagram (ERD) &amp; Relasi Data**</h3><p>Database SILAKAN tersusun atas 8 tabel utama yang saling terhubung:</p><ol><li><strong>`users`</strong> 1 — N <strong>`pemesanan`</strong> (Pengguna mengajukan banyak pemesanan).</li></ol><ol><li><strong>`ruangan`</strong> 1 — N <strong>`pemesanan`</strong> (Satu ruangan memiliki banyak riwayat pemesanan).</li></ol><ol><li><strong>`ruangan`</strong> N — N <strong>`layout_ruangan`</strong> via pivot <strong>`ruangan_layout`</strong> (Relasi dinamis layout per ruangan).</li></ol><ol><li><strong>`layout_ruangan`</strong> 1 — N <strong>`pemesanan`</strong> (Satu pemesanan memilih satu layout spesifik).</li></ol><ol><li><strong>`users`</strong> 1 — N <strong>`audit_logs`</strong> (Catatan aktivitas audit per pengguna).</li></ol><hr><h3>**3.2 Spesifikasi &amp; Kamus Data Tabel Database**</h3><h4>**Tabel `ruangan`**</h4><table><tr><th>Field</th><th>Tipe Data</th><th>Aturan / Keterangan</th></tr><tr><td>`id`</td><td>BigInt (PK)</td><td>Auto Increment</td></tr><tr><td>`nama_ruangan`</td><td>Varchar(255)</td><td>Nama Ruangan Rapat (e.g. Balai Kerapuan, Bunaken)</td></tr><tr><td>`lokasi`</td><td>Varchar(255)</td><td>Gedung / Lantai</td></tr><tr><td>`kapasitas`</td><td>Integer</td><td>Kapasitas Maksimal Tamu/Peserta</td></tr><tr><td>`status`</td><td>Varchar(50)</td><td>Status Ruangan (`aktif` / `nonaktif`)</td></tr><tr><td>`foto`</td><td>Varchar(255)</td><td>Path Berkas Foto Ruangan</td></tr></table><h4>**Tabel `layout_ruangan`**</h4><table><tr><th>Field</th><th>Tipe Data</th><th>Aturan / Keterangan</th></tr><tr><td>`id`</td><td>BigInt (PK)</td><td>Auto Increment</td></tr><tr><td>`nama_layout`</td><td>Varchar(255)</td><td>Opsi Layout (U-Shape, Classroom, Teater, etc)</td></tr><tr><td>`deskripsi`</td><td>Text</td><td>Penjelasan/Keterangan Tambahan</td></tr><tr><td>`ruangan_id`</td><td>BigInt (FK)</td><td>Nullable Foreign Key</td></tr></table><h4>**Tabel `pemesanan`**</h4><table><tr><th>Field</th><th>Tipe Data</th><th>Aturan / Keterangan</th></tr><tr><td>`id`</td><td>BigInt (PK)</td><td>Auto Increment</td></tr><tr><td>`kode_pemesanan`</td><td>Varchar(50)</td><td>Unique Code (`SIL-YYYYMMDD-XXXXX`)</td></tr><tr><td>`user_id`</td><td>BigInt (FK)</td><td>Relasi ke `users.id`</td></tr><tr><td>`ruangan_id`</td><td>BigInt (FK)</td><td>Relasi ke `ruangan.id`</td></tr><tr><td>`layout_ruangan_id`</td><td>BigInt (FK)</td><td>Nullable Relasi ke `layout_ruangan.id`</td></tr><tr><td>`tanggal_kegiatan`</td><td>Date</td><td>Tanggal Pelaksanaan Rapat</td></tr><tr><td>`waktu_mulai`</td><td>Time</td><td>Jam Mulai (WITA)</td></tr><tr><td>`waktu_selesai`</td><td>Time</td><td>Jam Selesai (WITA)</td></tr><tr><td>`judul_kegiatan`</td><td>Varchar(150)</td><td>Nama Agenda Rapat</td></tr><tr><td>`pic_kegiatan`</td><td>Varchar(255)</td><td>Penanggung Jawab Rapat</td></tr><tr><td>`jenis_pic`</td><td>Enum</td><td>`Organik` / `Non Organik`</td></tr><tr><td>`no_wa_pic`</td><td>Varchar(20)</td><td>Nomor WhatsApp PIC</td></tr><tr><td>`jumlah_tamu`</td><td>Integer</td><td>Jumlah Orang (Min: 1)</td></tr><tr><td>`file_disposisi`</td><td>Varchar(255)</td><td>Path Berkas Upload Disposisi</td></tr><tr><td>`status`</td><td>Varchar(50)</td><td>Enum Status (`PENDING`, `DISETUJUI`, `DITOLAK`, `DIBATALKAN`)</td></tr></table><hr><h3>**3.3 Enumerasi &amp; Casting Data (`Role` &amp; `PemesananStatus`)**</h3><ul><li><strong>Enum `Role`</strong> (`app/Enums/Role.php`):</li></ul><ul><li>`ADMIN = &#039;admin&#039;` (Administrator System)</li></ul><ul><li>`USER = &#039;user&#039;` (Pegawai Unit Kerja)</li></ul><ul><li><strong>Enum `PemesananStatus`</strong> (`app/Enums/PemesananStatus.php`):</li></ul><ul><li>`PENDING = &#039;PENDING&#039;`</li></ul><ul><li>`DISETUJUI = &#039;DISETUJUI&#039;`</li></ul><ul><li>`DITOLAK = &#039;DITOLAK&#039;`</li></ul><ul><li>`DIBATALKAN = &#039;DIBATALKAN&#039;`</li></ul><hr><h3>**3.4 Pengecekan Integritas &amp; Database Transaction Control**</h3><p>Proses transaksi pembuatan dan persetujuan pemesanan dibungkus menggunakan `DB::transaction()` dan pessimistic row locking `lockForUpdate()` untuk mencegah *race condition* (dua pengajuan yang masuk secara bersamaan pada mili-detik yang sama).</p><hr><h2>📌 **BAB IV: DESAIN KOMPONEN &amp; ARSITEKTUR KODE**</h2><h3>**4.1 Action Pattern Layer (Business Logic Scoping)**</h3><p>Pola Action digunakan untuk memisahkan eksekusi bisnis inti dari Controller:</p><ul><li>`CreatePemesananAction.php`: Mengunci ruangan, validasi kapasitas, pengecekan bentrok jam rapat, pembuatan record `pemesanan`, perekaman `AuditLogService`, dan mentrigger notifikasi WhatsApp &amp; Web.</li></ul><ul><li>`ApprovePemesananAction.php`: Mengubah status menjadi `DISETUJUI`, mengunci ketersediaan jadwal, dan mengirim notifikasi WhatsApp persetujuan.</li></ul><ul><li>`RejectPemesananAction.php`: Mengubah status menjadi `DITOLAK`, mencatat alasan penolakan, dan mentrigger notifikasi penolakan.</li></ul><ul><li>`CancelPemesananAction.php`: Mengubah status menjadi `DIBATALKAN` atas permintaan pengguna.</li></ul><hr><h3>**4.2 Controller &amp; Routing Layer**</h3><ul><li>`PemesananController.php`: Menangani halaman pengajuan user, pembatalan, dan API pengecekan bentrok real-time (`/api/pemesanan/check-conflict`).</li></ul><ul><li>`LayoutController.php`: Menampilkan API JSON layout terikat ruangan (`/api/ruangan/{id}/layouts`) tanpa *fallback error*.</li></ul><ul><li>`ApprovalController.php`: Menangani antarmuka tinjauan admin untuk menyetujui atau menolak pemesanan.</li></ul><ul><li>`DisplayController.php`: Menangani layar TV Lobby (`/display`) dan API polling 30 detik (`/api/display-data`).</li></ul><hr><h3>**4.3 Form Request Validation Layer (`StorePemesananRequest.php`)**</h3><p>Menangani validasi input form pemesanan secara ketat:</p><p>protected function prepareForValidation(): void</p><p>{</p><p>if (empty($this-&gt;layout_ruangan_id)) {</p><p>$this-&gt;merge([&#039;layout_ruangan_id&#039; =&gt; null]);</p><p>}</p><p>}</p><p>Metode ini secara otomatis mengonversi opsi kosong layout (`&quot;&quot;`) menjadi `null` sebelum proses validasi database.</p><hr><h3>**4.4 Shared Service Layer**</h3><ul><li><strong>`AuditLogService`</strong> (`app/Services/AuditLogService.php`): Perekam log aktivitas sistem terpusat (Mencatat Waktu, User, Modul, IP, dan Keterangan).</li></ul><ul><li><strong>`WhatsAppService`</strong> (`app/Services/WhatsAppService.php`): Integrasi gateway pengiriman notifikasi WhatsApp otomatis ke PIC &amp; Admin.</li></ul><hr><h2>📌 **BAB V: DESAIN ANTARMUKA &amp; PERILAKU PENGGUNA**</h2><h3>**5.1 System Design Tokens &amp; Branding BI**</h3><p>Palet warna utama SILAKAN mengikuti standar identitas visual Bank Indonesia:</p><ul><li><strong>BI Deep Blue (Primary)</strong>: `#003B73`</li></ul><ul><li><strong>BI Blue (Secondary)</strong>: `#005BAA`</li></ul><ul><li><strong>BI Light Blue (Accent)</strong>: `#0EA5E9`</li></ul><ul><li><strong>BI Dark Gray (Text)</strong>: `#0F172A`</li></ul><ul><li><strong>Status Green (Approved)</strong>: `#10B981`</li></ul><ul><li><strong>Status Red (Rejected)</strong>: `#EF4444`</li></ul><hr><h3>**5.2 Antarmuka Pengguna &amp; Smart Filtering**</h3><ul><li><strong>Dropdown Layout Dinamis</strong>: Saat user memilih ruangan, skrip JavaScript secara otomatis melakukan fetch API ke `/api/ruangan/{id}/layouts`. Jika ruangan memiliki 0 layout (seperti *Ruangan Bunaken*), dropdown tetap tampil namun berisi pesan `-- Tidak ada layout khusus untuk ruangan ini --`.</li></ul><ul><li><strong>Badge Rounded Layout Checkbox</strong>: Pada form admin ruangan, pilihan layout dilengkapi badge bulat biru dengan ikon centang `✓` interaktif.</li></ul><hr><h3>**5.3 Antarmuka Layar Kiosk TV Lobby (`/display`)**</h3><p>Menggunakan mode tampilan *Dark Mode Kiosk* dengan KOP Bank Indonesia. Halaman ini mengeksekusi skrip AJAX polling ke `/api/display-data` setiap 30 detik untuk memperbarui status rapat secara otomatis tanpa reload browser.</p><hr><h2>📌 **BAB VI: ARSITEKTUR KEAMANAN SISTEM**</h2><h3>**6.1 Autentikasi &amp; Otorisasi Berbasis Role**</h3><p>Dilindungi oleh Middleware Laravel:</p><ul><li>`auth`: Memastikan user telah terautentikasi.</li></ul><ul><li>`role:admin`: Membatasi seluruh route `/admin/*` hanya untuk role `ADMIN`.</li></ul><ul><li>`role:user`: Membatasi dashboard khusus unit pengguna.</li></ul><h3>**6.2 Proteksi Injeksi Data, CSRF &amp; Upload Hygiene**</h3><ul><li><strong>CSRF Token</strong>: Seluruh form POST/PUT/DELETE wajib menyertakan `@csrf`.</li></ul><ul><li><strong>SQL Injection Prevention</strong>: Menggunakan Eloquent ORM &amp; PDO Prepared Statements.</li></ul><ul><li><strong>Upload Hygiene</strong>: Unggahan berkas disposisi dibatasi ekstensi `pdf,jpg,jpeg,png` dengan ukuran maksimal 5120 KB (5MB).</li></ul><h3>**6.3 Proteksi Sesi Active Self-Delete Guard**</h3><p>Pada `UserController::destroy()`, sistem mengeksekusi proteksi:</p><p>if ($user-&gt;id === auth()-&gt;id()) {</p><p>return back()-&gt;with(&#039;error&#039;, &#039;Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif.&#039;);</p><p>}</p><p>Mencegah Admin yang sedang aktif login terhapus secara tidak sengaja.</p><hr><h2>📌 **BAB VII: ARSITEKTUR DEPLOYMENT &amp; KONTAINERISASI**</h2><h3>**7.1 Kontainerisasi Docker (`Dockerfile`)**</h3><p>Sistem dilengkapi `Dockerfile` berbasis `php:8.2-cli` yang memuat Node.js, Composer, ekstensi `pdo_mysql`, dan otomatis menjalankan migrasi &amp; seeder saat kontainer di-spin up.</p><h3>**7.2 Panduan Deploy Cloud &amp; Database Managed Service**</h3><p>Aplikasi dapat dideploy dengan mudah di platform cloud (seperti Render / Koyeb / InfinityFree) dan dihubungkan ke Managed Cloud Database MySQL (seperti Aiven.io / TiDB Cloud).</p>
+</body>
+</html>
