@@ -57,7 +57,7 @@ Route::get('/download-manual-book', function() {
 })->name('download.manual-book');
 
 Route::get('/download-sdd', function() {
-    $path = base_path('SDD_SILAKAN.doc');
+    $path = base_path('SDD_SILAKAN_v2.doc');
     if (!file_exists($path)) {
         \Illuminate\Support\Facades\Artisan::call('export:sdd-word');
     }

@@ -22,10 +22,10 @@ class ExportSddWord extends Command
 
         $htmlContent = $this->markdownToWordHtml($content);
 
-        $docPath = base_path('SDD_SILAKAN.doc');
-        $docxPath = base_path('SDD_SILAKAN.docx');
-        $publicDocPath = public_path('SDD_SILAKAN.doc');
-        $publicDocxPath = public_path('SDD_SILAKAN.docx');
+        $docPath = base_path('SDD_SILAKAN_v2.doc');
+        $docxPath = base_path('SDD_SILAKAN_v2.docx');
+        $publicDocPath = public_path('SDD_SILAKAN_v2.doc');
+        $publicDocxPath = public_path('SDD_SILAKAN_v2.docx');
 
         file_put_contents($docPath, $htmlContent);
         file_put_contents($docxPath, $htmlContent);
@@ -33,8 +33,8 @@ class ExportSddWord extends Command
         file_put_contents($publicDocxPath, $htmlContent);
 
         $this->info("✅ Berhasil mengkonversi Software Design Document ke Microsoft Word!");
-        $this->info("📄 Berkas disimpan di: " . $docPath);
-        $this->info("📄 Berkas docx disimpan di: " . $docxPath);
+        $this->info("📄 Berkas .doc disimpan di: " . $docPath);
+        $this->info("📄 Berkas .docx disimpan di: " . $docxPath);
 
         return 0;
     }
