@@ -16,9 +16,9 @@
         </label>
         <div style="position:relative;">
             @if($isAdmin)
-                <input type="text" name="name" value="{{ old('name', $user->name) }}" required style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;font-weight:600;" placeholder="Masukkan Nama Administrator">
+                <input type="text" name="name" value="{{ old('name', $user->name) }}" required style="width:100%;padding:10px 14px 10px 42px !important;padding-left:42px !important;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;font-weight:600;" placeholder="Masukkan Nama Administrator">
             @else
-                <input type="text" value="{{ $user->name }}" readonly disabled style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;font-size:13.5px;cursor:not-allowed;">
+                <input type="text" value="{{ $user->name }}" readonly disabled style="width:100%;padding:10px 14px 10px 42px !important;padding-left:42px !important;border:1px solid #cbd5e1;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;font-size:13.5px;cursor:not-allowed;">
             @endif
             <i class="bi bi-building" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#005baa;font-size:15px;"></i>
         </div>
@@ -43,9 +43,9 @@
         </label>
         <div style="position:relative;">
             @if($isAdmin)
-                <input type="text" name="username" value="{{ old('username', $user->username) }}" required style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;font-weight:600;" placeholder="Masukkan Username Admin">
+                <input type="text" name="username" value="{{ old('username', $user->username) }}" required style="width:100%;padding:10px 14px 10px 42px !important;padding-left:42px !important;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;font-weight:600;" placeholder="Masukkan Username Admin">
             @else
-                <input type="text" value="{{ $user->username }}" readonly disabled style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;font-size:13.5px;cursor:not-allowed;">
+                <input type="text" value="{{ $user->username }}" readonly disabled style="width:100%;padding:10px 14px 10px 42px !important;padding-left:42px !important;border:1px solid #cbd5e1;border-radius:10px;background:#f1f5f9;color:#475569;font-weight:600;font-size:13.5px;cursor:not-allowed;">
             @endif
             <i class="bi bi-person-badge" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#005baa;font-size:15px;"></i>
         </div>
@@ -60,7 +60,7 @@
     <div class="form-group" style="margin-bottom:0;">
         <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px;">Alamat Email <small style="color:#64748b;font-weight:400;">(Opsional)</small></label>
         <div style="position:relative;">
-            <input type="email" name="email" value="{{ old('email', $user->email) }}" style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;" placeholder="nama@bi.go.id (opsional)">
+            <input type="email" name="email" value="{{ old('email', $user->email) }}" style="width:100%;padding:10px 14px 10px 42px !important;padding-left:42px !important;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;" placeholder="nama@bi.go.id (opsional)">
             <i class="bi bi-envelope" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#005baa;font-size:15px;"></i>
         </div>
         @error('email')
@@ -72,7 +72,7 @@
     <div class="form-group" style="margin-bottom:0;">
         <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px;">Nomor WhatsApp</label>
         <div style="position:relative;">
-            <input type="text" name="no_wa" value="{{ old('no_wa', $user->no_wa) }}" style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;" placeholder="Contoh: 081340693458">
+            <input type="text" name="no_wa" value="{{ old('no_wa', $user->no_wa) }}" style="width:100%;padding:10px 14px 10px 42px !important;padding-left:42px !important;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;transition:all .2s;" placeholder="Contoh: 081340693458">
             <i class="bi bi-whatsapp" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#25d366;font-size:15px;"></i>
         </div>
         <span style="display:block;font-size:11.5px;color:#64748b;margin-top:5px;">Menerima notifikasi WhatsApp resmi pengajuan &amp; status pemesanan.</span>

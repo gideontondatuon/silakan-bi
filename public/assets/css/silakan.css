@@ -2565,8 +2565,18 @@ body.sidebar-collapsed .user-info {
     select,
     textarea {
         font-size: 16px !important; /* Prevents iOS auto-zoom on input focus */
-        padding: 12px 14px !important;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        padding-right: 14px !important;
+        padding-left: 14px;
         touch-action: manipulation;
+    }
+
+    /* Guarantee inputs with left icons keep 42px left padding on mobile */
+    div[style*="position:relative"] > input,
+    div[style*="position: relative"] > input,
+    .input-has-icon input {
+        padding-left: 42px !important;
     }
 
     .form-action {
