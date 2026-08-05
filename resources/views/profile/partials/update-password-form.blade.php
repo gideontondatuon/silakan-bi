@@ -1,48 +1,53 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Update Password') }}
-        </h2>
+<form method="post" action="{{ route('password.update') }}" style="display:flex;flex-direction:column;gap:18px;">
+    @csrf
+    @method('put')
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Ensure your account is using a long, random password to stay secure.') }}
-        </p>
-    </header>
-
-    <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
-        @csrf
-        @method('put')
-
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full" autocomplete="current-password" />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+    {{-- Password Saat Ini --}}
+    <div class="form-group" style="margin-bottom:0;">
+        <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px;" class="required">Password Saat Ini</label>
+        <div style="position:relative;">
+            <input type="password" name="current_password" required autocomplete="current-password" style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;" placeholder="Masukkan password saat ini">
+            <i class="bi bi-key" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#005baa;font-size:15px;"></i>
         </div>
+        @error('current_password', 'updatePassword')
+            <span style="color:#dc2626;font-size:12px;margin-top:4px;display:block;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
+        @enderror
+    </div>
 
-        <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+    {{-- Password Baru --}}
+    <div class="form-group" style="margin-bottom:0;">
+        <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px;" class="required">Password Baru</label>
+        <div style="position:relative;">
+            <input type="password" name="password" required autocomplete="new-password" style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;" placeholder="Minimal 8 karakter">
+            <i class="bi bi-lock" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#005baa;font-size:15px;"></i>
         </div>
+        @error('password', 'updatePassword')
+            <span style="color:#dc2626;font-size:12px;margin-top:4px;display:block;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
+        @enderror
+    </div>
 
-        <div>
-            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" autocomplete="new-password" />
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+    {{-- Konfirmasi Password --}}
+    <div class="form-group" style="margin-bottom:0;">
+        <label style="display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:6px;" class="required">Konfirmasi Password Baru</label>
+        <div style="position:relative;">
+            <input type="password" name="password_confirmation" required autocomplete="new-password" style="width:100%;padding:10px 14px 10px 38px;border:1px solid #cbd5e1;border-radius:10px;font-size:13.5px;outline:none;" placeholder="Ulangi password baru">
+            <i class="bi bi-shield-check" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#005baa;font-size:15px;"></i>
         </div>
+        @error('password_confirmation', 'updatePassword')
+            <span style="color:#dc2626;font-size:12px;margin-top:4px;display:block;"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
+        @enderror
+    </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+    {{-- Submit Button & Notification --}}
+    <div style="display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap;">
+        <button type="submit" class="btn-primary" style="padding:10px 20px;font-weight:600;display:inline-flex;align-items:center;gap:6px;background:#005baa;border-radius:10px;">
+            <i class="bi bi-shield-lock"></i> Perbarui Password
+        </button>
 
-            @if (session('status') === 'password-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
-        </div>
-    </form>
-</section>
+        @if (session('status') === 'password-updated')
+            <span style="color:#059669;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+                <i class="bi bi-check-circle-fill"></i> Password berhasil diubah.
+            </span>
+        @endif
+    </div>
+</form>

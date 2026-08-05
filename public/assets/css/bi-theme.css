@@ -1,0 +1,416 @@
+/* =====================================================
+   BI-THEME.CSS — Bank Indonesia Premium Theme
+   SILAKAN System v2.0
+   ===================================================== */
+
+/* =====================================================
+   SIDEBAR ICON COLORS (enhanced)
+   ===================================================== */
+
+.sidebar-menu a i {
+    width: 22px;
+    font-size: 17px;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-menu a span {
+    flex: 1;
+}
+
+/* Sidebar badge for notification counts */
+.sidebar-badge {
+    margin-left: auto;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+}
+
+/* =====================================================
+   NAVBAR — BI Enhanced
+   ===================================================== */
+
+.navbar-brand-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #f0f6ff, #ffffff);
+    border-radius: 12px;
+    border: 1px solid #e8f1fb;
+}
+
+.navbar-brand-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #d4af37;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.navbar-brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.navbar-brand-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #003b73;
+}
+
+.navbar-brand-sub {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+/* =====================================================
+   STAT CARDS — Color Variants
+   ===================================================== */
+
+.stat-card-blue .stat-icon {
+    background: linear-gradient(135deg, #e8f1fb, #cce0f5);
+    color: #005baa;
+}
+
+.stat-card-green .stat-icon {
+    background: linear-gradient(135deg, #ecfdf5, #a7f3d0);
+    color: #059669;
+}
+
+.stat-card-yellow .stat-icon {
+    background: linear-gradient(135deg, #fffbeb, #fde68a);
+    color: #d97706;
+}
+
+.stat-card-red .stat-icon {
+    background: linear-gradient(135deg, #fff1f2, #fecdd3);
+    color: #dc2626;
+}
+
+.stat-card-purple .stat-icon {
+    background: linear-gradient(135deg, #f5f3ff, #ddd6fe);
+    color: #7c3aed;
+}
+
+.stat-card-teal .stat-icon {
+    background: linear-gradient(135deg, #f0fdfa, #99f6e4);
+    color: #0d9488;
+}
+
+/* =====================================================
+   TABLE ENHANCEMENTS
+   ===================================================== */
+
+/* Add row number */
+.data-table tbody td:first-child {
+    position: relative;
+}
+
+/* Sortable header */
+.data-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.data-table th.sortable:hover {
+    background: linear-gradient(180deg, #eef4fb, #e8f1fb);
+    color: #003b73;
+}
+
+/* =====================================================
+   FORM ENHANCEMENTS
+   ===================================================== */
+
+/* Focus animation */
+.form-group input:focus ~ label,
+.form-group textarea:focus ~ label {
+    color: #005baa;
+}
+
+/* Required marker */
+.form-group label.required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+/* =====================================================
+   BUTTON RIPPLE EFFECT
+   ===================================================== */
+
+.btn-primary,
+.btn-danger,
+.btn-success {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::after,
+.btn-danger::after,
+.btn-success::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.25) 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 0.8s;
+}
+
+.btn-primary:active::after,
+.btn-danger:active::after,
+.btn-success:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+}
+
+/* =====================================================
+   DASHBOARD SPECIFIC
+   ===================================================== */
+
+/* Table inside dashboard sections — no extra wrapper needed */
+.dashboard-section table.data-table {
+    margin: 0;
+}
+
+/* Dashboard section heading fix */
+.dashboard-section > h2 {
+    padding: 16px 24px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #003b73;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =====================================================
+   DETAIL CARD — BI Enhanced
+   ===================================================== */
+
+.detail-card .detail-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 16px;
+    background: linear-gradient(180deg, #005baa, #d4af37);
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* =====================================================
+   APPROVAL PAGE
+   ===================================================== */
+
+.approval-status-pending {
+    background: linear-gradient(135deg, #fffbeb, #fef9c3);
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #92400e;
+    font-weight: 600;
+    font-size: 13.5px;
+}
+
+.approval-status-approved {
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border: 1px solid #a7f3d0;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #065f46;
+    font-weight: 600;
+    font-size: 13.5px;
+}
+
+.approval-status-rejected {
+    background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+    border: 1px solid #fecdd3;
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #9f1239;
+    font-weight: 600;
+    font-size: 13.5px;
+}
+
+/* =====================================================
+   LAPORAN PAGE
+   ===================================================== */
+
+.laporan-filter {
+    background: linear-gradient(135deg, #f0f6ff, white);
+    border: 1px solid #e8f1fb;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.laporan-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.laporan-summary-card {
+    text-align: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.laporan-summary-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #003b73;
+}
+
+.laporan-summary-card .label {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+/* =====================================================
+   AUDIT LOG
+   ===================================================== */
+
+.audit-row-create td {
+    background: rgba(16, 185, 129, 0.04);
+}
+
+.audit-row-update td {
+    background: rgba(245, 158, 11, 0.04);
+}
+
+.audit-row-delete td {
+    background: rgba(239, 68, 68, 0.04);
+}
+
+/* =====================================================
+   PEMESANAN (BOOKING) FORM
+   ===================================================== */
+
+.booking-ruangan-preview {
+    background: linear-gradient(135deg, #f0f6ff, #eef4fb);
+    border: 1.5px solid #cce0f5;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-top: 12px;
+    display: none;
+    animation: fadeInDown 0.3s ease;
+}
+
+.booking-ruangan-preview.show {
+    display: block;
+}
+
+.booking-ruangan-preview h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #003b73;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.booking-facility-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.booking-facility-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: white;
+    border: 1px solid #cce0f5;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #005baa;
+}
+
+/* =====================================================
+   WELCOME / LANDING PAGE OVERRIDE
+   ===================================================== */
+
+/* Keep welcome page isolated from app styles */
+
+/* =====================================================
+   PROFILE PAGE
+   ===================================================== */
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #005baa, #003b73);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0, 91, 170, 0.3);
+    flex-shrink: 0;
+}
+
+/* =====================================================
+   MOBILE IMPROVEMENTS
+   ===================================================== */
+
+@media (max-width: 768px) {
+    .live-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .laporan-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .navbar-brand-banner {
+        display: none;
+    }
+}
