@@ -46,6 +46,14 @@ Route::get('/display', [DisplayController::class, 'index'])->name('display.index
 Route::get('/kiosk', [DisplayController::class, 'index'])->name('display.kiosk');
 Route::get('/api/display-data', [DisplayController::class, 'apiData'])->name('api.display-data');
 
+Route::get('/download-manual-book', function() {
+    $path = base_path('MANUAL_BOOK_SILAKAN.docx');
+    if (!file_exists($path)) {
+        \Illuminate\Support\Facades\Artisan::call('export:manual-word');
+    }
+    return response()->download($path, 'Manual_Book_SILAKAN_KPwBI_Sulut.docx');
+})->name('download.manual-book');
+
 
 /*
 |--------------------------------------------------------------------------
