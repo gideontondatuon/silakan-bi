@@ -70,19 +70,31 @@
                         <small style="color:#64748b;"><i class="bi bi-hdd-network"></i> IP: {{ $log->ip_address ?? '127.0.0.1' }}</small>
                     </td>
                     <td style="padding:14px 18px;">
-                        <strong style="color:#003b73;display:block;">{{ $log->user->name ?? 'Sistem' }}</strong>
-                        <small style="color:#64748b;">{{ $log->user->nama_unit ?? ($log->user->role->label() ?? 'System') }}</small>
+                        <strong style="color:#003b73;display:block;">{{ $log->user?->name ?? 'Sistem' }}</strong>
+                        <small style="color:#64748b;">{{ $log->user?->nama_unit ?? $log->user?->role?->label() ?? 'System' }}</small>
                     </td>
                     <td style="padding:14px 18px;">
-                        <span class="badge badge-info" style="font-size:11.5px;padding:4px 9px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-weight:700;">
-                            {{ $log->aktivitas }}
+                        @php
+                            $aksiText = $log->aksi ?? $log->aktivitas ?? '-';
+                            $aksiLower = strtolower($aksiText);
+                            $bg = '#e0f2fe'; $color = '#0369a1'; $border = '#bae6fd';
+                            if (str_contains($aksiLower, 'tambah') || str_contains($aksiLower, 'approve') || str_contains($aksiLower, 'setuju') || str_contains($aksiLower, 'simpan') || str_contains($aksiLower, 'create')) {
+                                $bg = '#dcfce7'; $color = '#15803d'; $border = '#bbf7d0';
+                            } elseif (str_contains($aksiLower, 'hapus') || str_contains($aksiLower, 'reject') || str_contains($aksiLower, 'batal') || str_contains($aksiLower, 'delete')) {
+                                $bg = '#fee2e2'; $color = '#b91c1c'; $border = '#fecaca';
+                            } elseif (str_contains($aksiLower, 'edit') || str_contains($aksiLower, 'update') || str_contains($aksiLower, 'ubah')) {
+                                $bg = '#fef3c7'; $color = '#b45309'; $border = '#fde68a';
+                            }
+                        @endphp
+                        <span class="badge" style="font-size:11.5px;padding:4px 9px;background:{{ $bg }};color:{{ $color }};border:1px solid {{ $border }};font-weight:700;border-radius:6px;display:inline-block;">
+                            {{ $aksiText }}
                         </span>
                     </td>
                     <td style="padding:14px 18px;font-weight:600;color:#334155;">
                         {{ $log->modul ?? '-' }}
                     </td>
                     <td style="padding:14px 18px;color:#475569;line-height:1.4;">
-                        {{ $log->deskripsi }}
+                        {{ $log->keterangan ?? $log->deskripsi ?? ($aksiText !== '-' ? $aksiText . ' pada modul ' . ($log->modul ?? 'Sistem') : '-') }}
                     </td>
                 </tr>
                 @empty

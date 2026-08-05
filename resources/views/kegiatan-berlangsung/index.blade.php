@@ -123,7 +123,7 @@
             <div class="live-monitor-card-header">
                 <div class="live-monitor-room-badge">
                     <i class="bi bi-building"></i>
-                    {{ $item->ruangan->nama_ruangan }}
+                    {{ $item->ruangan?->nama_ruangan ?? 'Ruangan' }}
                 </div>
                 <div class="live-monitor-status-pill">
                     <span style="width: 7px; height: 7px; background: #dc2626; border-radius: 50%; animation: pulseRed 1.5s infinite;"></span>
@@ -151,7 +151,7 @@
                     </div>
                     <div class="live-monitor-meta-item">
                         <i class="bi bi-person-badge-fill"></i>
-                        <span>Pemohon / PIC: <strong style="color:#005baa;">{{ $item->pic_kegiatan ?: $item->user->name }}</strong> ({{ $item->user->nama_unit ?? $item->user->name }})</span>
+                        <span>Pemohon / PIC: <strong style="color:#005baa;">{{ $item->pic_kegiatan ?: ($item->user?->name ?? 'User') }}</strong> ({{ $item->user?->nama_unit ?? $item->user?->name ?? 'Unit' }})</span>
                     </div>
                     <div class="live-monitor-meta-item">
                         <i class="bi bi-grid-3x3-gap-fill"></i>

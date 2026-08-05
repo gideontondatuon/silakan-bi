@@ -140,7 +140,7 @@
                 <td>{{ $item->waktu_mulai }} - {{ $item->waktu_selesai }} WITA</td>
                 <td><strong>{{ $item->ruangan->nama_ruangan ?? '-' }}</strong></td>
                 <td>{{ $item->judul_kegiatan }}</td>
-                <td>{{ $item->user->nama_unit ?? $item->user->name }}</td>
+                <td>{{ $item->user?->nama_unit ?? $item->user?->name ?? 'User' }}</td>
                 <td>{{ $item->pic_kegiatan }}</td>
                 <td>
                     @php

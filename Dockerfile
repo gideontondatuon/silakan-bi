@@ -1,38 +1,37 @@
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# Install system dependencies & PHP extensions
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
+    git \
+    curl \
     libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
     zip \
     unzip \
-    git \
-    sqlite3 \
-    libsqlite3-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_sqlite pdo_mysql
+    nodejs \
+    npm \
+    libzip-dev
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Set Working Directory
-WORKDIR /var/www/html
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Set working directory
+WORKDIR /var/www
+
+# Copy existing application directory contents
 COPY . .
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies and build Vite assets
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+RUN npm install && npm run build
 
-# Set Apache document root to public/
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Permissions
+RUN chmod -R 777 storage bootstrap/cache
 
-# Set permissions for storage and bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+EXPOSE 8080
 
-EXPOSE 80
+# Run migrations, seeder, and serve application
+CMD php artisan storage:link || true; php artisan migrate --force; php artisan db:seed --force; php artisan serve --host=0.0.0.0 --port=8080

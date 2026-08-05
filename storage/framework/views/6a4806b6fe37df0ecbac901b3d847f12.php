@@ -66,6 +66,11 @@
                         <p>Tidak ada notifikasi baru.</p>
                     </div>
                 <?php endif; ?>
+                <div class="notification-footer" style="padding:10px 14px;text-align:center;border-top:1px solid #f1f5f9;background:#f8fafc;border-radius:0 0 12px 12px;">
+                    <a href="<?php echo e(route('notifications.index')); ?>" style="font-size:12.5px;font-weight:700;color:#005baa;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                        <i class="bi bi-arrow-right-circle-fill"></i> Lihat Semua Notifikasi
+                    </a>
+                </div>
             </div>
         </div>
 

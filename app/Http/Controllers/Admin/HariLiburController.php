@@ -24,7 +24,9 @@ class HariLiburController extends Controller
         }
 
         $hariLibur = $query->orderBy('tanggal', 'asc')->paginate(15);
-        $tahunList = HariLibur::selectRaw('YEAR(tanggal) as tahun')
+        $driver = \Illuminate\Support\Facades\DB::getDriverName();
+        $yearExpr = $driver === 'sqlite' ? "strftime('%Y', tanggal)" : "YEAR(tanggal)";
+        $tahunList = HariLibur::selectRaw("{$yearExpr} as tahun")
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');

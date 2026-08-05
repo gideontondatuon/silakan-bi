@@ -172,7 +172,7 @@ class DashboardController extends Controller
         $chartRuanganLabels = [];
         $chartRuanganData   = [];
         foreach ($ruanganTerpopuler as $rt) {
-            $chartRuanganLabels[] = $rt->ruangan->nama_ruangan ?? 'Ruangan ' . $rt->ruangan_id;
+            $chartRuanganLabels[] = $rt->ruangan?->nama_ruangan ?? 'Ruangan ' . $rt->ruangan_id;
             $chartRuanganData[]   = $rt->total;
         }
 
@@ -187,7 +187,7 @@ class DashboardController extends Controller
         $chartUnitLabels = [];
         $chartUnitData   = [];
         foreach ($unitDistribution as $ud) {
-            $chartUnitLabels[] = $ud->user->nama_unit ?? $ud->user->name;
+            $chartUnitLabels[] = $ud->user?->nama_unit ?? $ud->user?->name ?? 'User (Dihapus)';
             $chartUnitData[]   = $ud->total;
         }
 

@@ -48,35 +48,17 @@ class NotificationController extends Controller
 
 
 
-        $pemesananId =
-            $notification
-            ->data['pemesanan_id'];
+        $pemesananId = $notification->data['pemesanan_id'] ?? null;
 
-
-
-        if(
-            auth()->user()->role->value === 'admin'
-        ) {
-
-
-            return redirect()
-
-                ->route(
-                    'admin.approval.show',
-                    $pemesananId
-                );
-
-
+        if (!$pemesananId) {
+            return redirect()->route('notifications.index');
         }
 
+        if (auth()->user()->role->value === 'admin') {
+            return redirect()->route('admin.approval.show', $pemesananId);
+        }
 
-
-        return redirect()
-
-            ->route(
-                'pemesanan.show',
-                $pemesananId
-            );
+        return redirect()->route('pemesanan.show', $pemesananId);
 
 
     }
@@ -101,5 +83,20 @@ class NotificationController extends Controller
 
     }
 
+    public function destroy(string $id): RedirectResponse
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->delete();
 
+        return back()->with('success', 'Notifikasi berhasil dihapus.');
+    }
+
+    public function destroyAll(): RedirectResponse
+    {
+        auth()->user()->notifications()->delete();
+
+        return redirect()
+            ->route('notifications.index')
+            ->with('success', 'Semua riwayat notifikasi berhasil dihapus.');
+    }
 }

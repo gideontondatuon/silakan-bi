@@ -18,6 +18,15 @@ class StorePemesananRequest extends FormRequest
         return auth()->check();
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (empty($this->layout_ruangan_id)) {
+            $this->merge([
+                'layout_ruangan_id' => null,
+            ]);
+        }
+    }
+
 
 
     public function rules(): array

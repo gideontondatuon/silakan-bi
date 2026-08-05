@@ -54,9 +54,9 @@ class DisplayController extends Controller
                 return [
                     'id' => $item->id,
                     'kode' => $item->kode_pemesanan,
-                    'ruangan' => $item->ruangan->nama_ruangan ?? '-',
+                    'ruangan' => $item->ruangan?->nama_ruangan ?? '-',
                     'judul' => $item->judul_kegiatan,
-                    'unit' => $item->user->nama_unit ?? $item->user->name,
+                    'unit' => $item->user?->nama_unit ?? $item->user?->name ?? 'Unit Internal',
                     'pic' => $item->pic_kegiatan,
                     'waktu' => $item->waktu_mulai . ' - ' . $item->waktu_selesai . ' WITA',
                     'end_time' => $item->tanggal_kegiatan->format('Y-m-d') . 'T' . $item->waktu_selesai,
@@ -72,9 +72,9 @@ class DisplayController extends Controller
                 return [
                     'id' => $item->id,
                     'kode' => $item->kode_pemesanan,
-                    'ruangan' => $item->ruangan->nama_ruangan ?? '-',
+                    'ruangan' => $item->ruangan?->nama_ruangan ?? '-',
                     'judul' => $item->judul_kegiatan,
-                    'unit' => $item->user->nama_unit ?? $item->user->name,
+                    'unit' => $item->user?->nama_unit ?? $item->user?->name ?? 'Unit Internal',
                     'pic' => $item->pic_kegiatan,
                     'waktu' => $item->waktu_mulai . ' - ' . $item->waktu_selesai . ' WITA',
                     'status' => is_object($item->status) ? $item->status->value : $item->status,

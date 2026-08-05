@@ -207,43 +207,58 @@
 const oldLayoutId = "{{ old('layout_ruangan_id') }}";
 
 function loadLayouts(ruanganId) {
+    const layoutGroup = document.getElementById('layout-select-group');
     const layout = document.getElementById('layout_ruangan_id');
     const singleLayoutInfo = document.getElementById('single-layout-info');
 
-    layout.style.display = 'block';
+    if (layout) layout.style.display = 'block';
     if (singleLayoutInfo) singleLayoutInfo.style.display = 'none';
 
     if (!ruanganId) {
-        layout.innerHTML = '<option value="">-- Pilih Ruangan Dahulu --</option>';
+        if (layout) {
+            layout.style.display = 'block';
+            layout.innerHTML = '<option value="">-- Pilih Ruangan Dahulu --</option>';
+            layout.value = '';
+        }
+        if (singleLayoutInfo) singleLayoutInfo.style.display = 'none';
         return;
     }
 
-    layout.innerHTML = '<option value="">Memuat layout...</option>';
+    if (layout) layout.innerHTML = '<option value="">Memuat layout...</option>';
 
     fetch(`/api/ruangan/${ruanganId}/layouts`)
         .then(response => response.json())
         .then(result => {
             if (result.length === 0) {
-                layout.style.display = 'block';
+                // Tampilkan keterangan bahwa tidak ada layout khusus (tanpa memuat 6 layout umum)
+                if (layout) {
+                    layout.style.display = 'block';
+                    layout.innerHTML = '<option value="">-- Tidak ada layout khusus untuk ruangan ini --</option>';
+                    layout.value = '';
+                }
                 if (singleLayoutInfo) singleLayoutInfo.style.display = 'none';
-                layout.innerHTML = '<option value="">-- Tidak ada layout khusus --</option>';
             } else if (result.length === 1) {
-                layout.innerHTML = `<option value="${result[0].id}" selected>${result[0].nama_layout}</option>`;
-                layout.style.display = 'none';
+                if (layout) {
+                    layout.innerHTML = `<option value="${result[0].id}" selected>${result[0].nama_layout}</option>`;
+                    layout.value = result[0].id;
+                    layout.style.display = 'none';
+                }
 
                 if (singleLayoutInfo) {
                     singleLayoutInfo.style.display = 'block';
                     singleLayoutInfo.innerHTML = `<i class="bi bi-info-circle-fill" style="margin-right: 6px;"></i> Layout Otomatis: <strong>${result[0].nama_layout}</strong>`;
                 }
             } else {
-                layout.style.display = 'block';
-                if (singleLayoutInfo) singleLayoutInfo.style.display = 'none';
-                layout.innerHTML = '<option value="">-- Pilih Layout --</option>';
+                if (layout) {
+                    layout.style.display = 'block';
+                    layout.innerHTML = '<option value="">-- Pilih Layout --</option>';
 
-                result.forEach(item => {
-                    const isSelected = oldLayoutId && oldLayoutId == item.id ? 'selected' : '';
-                    layout.innerHTML += `<option value="${item.id}" ${isSelected}>${item.nama_layout}</option>`;
-                });
+                    result.forEach(item => {
+                        const isSelected = oldLayoutId && oldLayoutId == item.id ? 'selected' : '';
+                        layout.innerHTML += `<option value="${item.id}" ${isSelected}>${item.nama_layout}</option>`;
+                    });
+                }
+                if (singleLayoutInfo) singleLayoutInfo.style.display = 'none';
             }
 
             if (typeof checkCapacity === 'function') {
@@ -251,9 +266,10 @@ function loadLayouts(ruanganId) {
             }
         })
         .catch(() => {
-            layout.style.display = 'block';
-            if (singleLayoutInfo) singleLayoutInfo.style.display = 'none';
-            layout.innerHTML = '<option value="">Gagal memuat layout</option>';
+            if (layout) {
+                layout.style.display = 'block';
+                layout.innerHTML = '<option value="">Gagal memuat layout</option>';
+            }
         });
 }
 

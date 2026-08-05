@@ -47,7 +47,7 @@ class CreatePemesananAction
                 'kode_pemesanan' => $this->generateKodePemesanan(),
                 'user_id' => $user->id,
                 'ruangan_id' => $data['ruangan_id'],
-                'layout_ruangan_id' => $data['layout_ruangan_id'] ?? null,
+                'layout_ruangan_id' => !empty($data['layout_ruangan_id']) ? $data['layout_ruangan_id'] : null,
                 'tanggal_kegiatan' => $data['tanggal_kegiatan'],
                 'waktu_mulai' => $data['waktu_mulai'],
                 'waktu_selesai' => $data['waktu_selesai'],

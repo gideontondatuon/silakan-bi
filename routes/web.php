@@ -126,6 +126,16 @@ Route::middleware('auth')->group(function () {
         [NotificationController::class, 'readAll']
     )->name('notifications.readAll');
 
+    Route::delete(
+        '/notification/{id}',
+        [NotificationController::class, 'destroy']
+    )->name('notification.destroy');
+
+    Route::delete(
+        '/notifications/destroy-all',
+        [NotificationController::class, 'destroyAll']
+    )->name('notifications.destroyAll');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -157,11 +167,6 @@ Route::middleware('auth')->group(function () {
         '/pemesanan/{pemesanan}/cancel',
         [PemesananController::class, 'cancel']
     )->name('pemesanan.cancel');
-
-    Route::post(
-        '/pemesanan/{pemesanan}/reschedule',
-        [PemesananController::class, 'reschedule']
-    )->name('pemesanan.reschedule');
 
 
     /*
@@ -305,16 +310,6 @@ Route::middleware([
             '/approval/{pemesanan}/reject',
             [ApprovalController::class, 'reject']
         )->name('approval.reject');
-
-        Route::post(
-            '/approval/{pemesanan}/reschedule/approve',
-            [ApprovalController::class, 'approveReschedule']
-        )->name('approval.reschedule.approve');
-
-        Route::post(
-            '/approval/{pemesanan}/reschedule/reject',
-            [ApprovalController::class, 'rejectReschedule']
-        )->name('approval.reschedule.reject');
 
 
         /*

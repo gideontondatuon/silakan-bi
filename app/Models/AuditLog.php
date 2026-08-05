@@ -39,5 +39,15 @@ class AuditLog extends Model
 
     }
 
+    public function getAktivitasAttribute()
+    {
+        return $this->attributes['aksi'] ?? $this->attributes['aktivitas'] ?? '-';
+    }
+
+    public function getDeskripsiAttribute()
+    {
+        return $this->attributes['keterangan'] ?? $this->attributes['deskripsi'] ?? '-';
+    }
+
 
 }

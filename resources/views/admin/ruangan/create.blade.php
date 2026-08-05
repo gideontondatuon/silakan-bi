@@ -54,10 +54,11 @@
                 <p class="form-hint">Centang layout yang berlaku untuk ruangan ini. Jika hanya 1 layout, pengguna tidak perlu memilih layout saat membuat pemesanan.</p>
                 <div class="facility-list" style="margin-top:10px;">
                     @foreach($layouts as $layoutItem)
-                    <label>
+                    <label style="cursor:pointer;user-select:none;position:relative;">
                         <input type="checkbox" name="layouts[]" value="{{ $layoutItem->id }}"
                                {{ in_array($layoutItem->id, old('layouts', [])) ? 'checked' : '' }}>
-                        {{ $layoutItem->nama_layout }}
+                        <span class="custom-check-badge"><i class="bi bi-check-lg"></i></span>
+                        <span>{{ $layoutItem->nama_layout }}</span>
                     </label>
                     @endforeach
                 </div>

@@ -34,8 +34,8 @@
                         </span>
                     </td>
                     <td>
-                        <strong style="color:#003b73;">{{ $item->user->name }}</strong><br>
-                        <small style="color:#64748b;">{{ $item->user->nama_unit ?? '-' }}</small>
+                        <strong style="color:#003b73;">{{ $item->user?->name ?? 'User (Dihapus)' }}</strong><br>
+                        <small style="color:#64748b;">{{ $item->user?->nama_unit ?? '-' }}</small>
                     </td>
                     <td>
                         <strong>{{ $item->judul_kegiatan }}</strong><br>
@@ -47,8 +47,10 @@
                         @endif
                     </td>
                     <td>
-                        <strong style="color:#005baa;">{{ $item->ruangan->nama_ruangan }}</strong><br>
-                        <small style="color:#64748b;">{{ $item->layout?->nama_layout ?? '-' }}</small>
+                        <strong style="color:#005baa;">{{ $item->ruangan->nama_ruangan }}</strong>
+                        @if($item->layout)
+                            <br><small style="color:#64748b;">{{ $item->layout->nama_layout }}</small>
+                        @endif
                     </td>
                     <td>
                         <strong>{{ $item->tanggal_kegiatan->isoFormat('ddd, D MMM YYYY') }}</strong><br>
@@ -86,69 +88,5 @@
     </div>
     @endif
 </div>
-
-{{-- Pengajuan Reschedule --}}
-@if(isset($rescheduleList) && $rescheduleList->count() > 0)
-<div class="dashboard-section" style="margin-top:32px;">
-    <div class="section-header" style="margin-bottom:16px;">
-        <h2 style="color:#003b73;font-size:16px;display:flex;align-items:center;gap:8px;">
-            <i class="bi bi-calendar-event" style="color:#f59e0b;"></i> Pengajuan Perubahan Jadwal (Reschedule)
-            <span class="badge badge-warning" style="font-size:11px;padding:3px 8px;">{{ $rescheduleList->count() }} Baru</span>
-        </h2>
-    </div>
-    <div class="table-wrapper">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Kode</th>
-                    <th>Pemohon</th>
-                    <th>Jadwal Lama</th>
-                    <th>Jadwal Baru Diahjukan</th>
-                    <th>Alasan Reschedule</th>
-                    <th>Aksi Admin</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($rescheduleList as $res)
-                <tr>
-                    <td><strong style="color:#003b73;">{{ $res->kode_pemesanan }}</strong></td>
-                    <td>
-                        <strong>{{ $res->user->name }}</strong><br>
-                        <small style="color:#64748b;">{{ $res->user->nama_unit ?? '-' }}</small>
-                    </td>
-                    <td>
-                        <span style="color:#dc2626;font-weight:600;"><i class="bi bi-calendar-x"></i> {{ $res->tanggal_kegiatan->format('d/m/Y') }}</span><br>
-                        <small style="color:#64748b;">{{ $res->waktu_mulai }} - {{ $res->waktu_selesai }}</small>
-                    </td>
-                    <td>
-                        <span style="color:#16a34a;font-weight:700;"><i class="bi bi-calendar-check-fill"></i> {{ \Carbon\Carbon::parse($res->reschedule_tanggal)->format('d/m/Y') }}</span><br>
-                        <strong style="color:#0284c7;">{{ $res->reschedule_waktu_mulai }} - {{ $res->reschedule_waktu_selesai }} WITA</strong>
-                    </td>
-                    <td style="max-width:240px;font-size:12.5px;color:#475569;">
-                        "{{ $res->reschedule_alasan }}"
-                    </td>
-                    <td>
-                        <div style="display:flex;gap:6px;">
-                            <form action="{{ route('admin.approval.reschedule.approve', $res) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Setujui Reschedule', message: 'Apakah Anda yakin ingin menyetujui perubahan jadwal untuk <strong>{{ $res->kode_pemesanan }}</strong>?', type: 'info', confirmText: 'Ya, Setujui' })">
-                                @csrf
-                                <button type="submit" class="btn-success btn-sm" style="background:#16a34a;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">
-                                    <i class="bi bi-check-circle-fill"></i> Setujui
-                                </button>
-                            </form>
-                            <form action="{{ route('admin.approval.reschedule.reject', $res) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Tolak Reschedule', message: 'Apakah Anda yakin ingin menolak pengajuan reschedule ini?', type: 'danger', confirmText: 'Tolak' })">
-                                @csrf
-                                <button type="submit" class="btn-danger btn-sm" style="padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">
-                                    <i class="bi bi-x-circle-fill"></i> Tolak
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-@endif
 
 </x-app-layout>

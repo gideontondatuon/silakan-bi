@@ -10,14 +10,16 @@ class LayoutController extends Controller
 {
     public function index(Ruangan $ruangan)
     {
-        $layouts = $ruangan
+        $pivotLayouts = $ruangan
             ->layouts()
-            ->select('layout_ruangan.id', 'layout_ruangan.nama_layout', 'layout_ruangan.kapasitas_layout')
+            ->select('layout_ruangan.id', 'layout_ruangan.nama_layout')
             ->get();
 
-        if ($layouts->isEmpty()) {
-            $layouts = LayoutRuangan::select('id', 'nama_layout', 'kapasitas_layout')->get();
-        }
+        $directLayouts = LayoutRuangan::where('ruangan_id', $ruangan->id)
+            ->select('id', 'nama_layout')
+            ->get();
+
+        $layouts = $pivotLayouts->merge($directLayouts)->unique('id')->values();
 
         return response()->json($layouts);
     }
@@ -26,18 +28,13 @@ class LayoutController extends Controller
     {
         $ruangan = Ruangan::find($ruangan_id);
         if (!$ruangan) {
-            return response()->json(LayoutRuangan::select('id', 'nama_layout')->get());
+            return response()->json([]);
         }
 
         $pivotLayouts = $ruangan->layouts()->select('layout_ruangan.id', 'layout_ruangan.nama_layout')->get();
         $directLayouts = LayoutRuangan::where('ruangan_id', $ruangan_id)->select('id', 'nama_layout')->get();
 
         $layouts = $pivotLayouts->merge($directLayouts)->unique('id')->values();
-
-        // Fallback: If room has no specific layouts assigned, return all general layouts
-        if ($layouts->isEmpty()) {
-            $layouts = LayoutRuangan::select('id', 'nama_layout')->get();
-        }
 
         return response()->json($layouts);
     }

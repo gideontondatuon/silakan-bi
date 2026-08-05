@@ -10,7 +10,8 @@
     <title>SILAKAN | KPwBI Prov. Sulut</title>
 
     {{-- Favicon --}}
-    <link rel="icon" type="image/png" href="{{ asset('images/logo-bi1.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-bi2.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo-bi2.png') }}">
 
     {{-- Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

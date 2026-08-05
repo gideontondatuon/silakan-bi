@@ -50,26 +50,27 @@
 </a>
 
 
-<a href="{{ route('admin.laporan.index') }}"
-   class="{{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+<a href="{{ route('notifications.index') }}"
+   class="{{ request()->routeIs('notifications.*', 'notification.*') ? 'active' : '' }}">
 
-    <i class="bi bi-file-earmark-bar-graph"></i>
-
-    <span>
-        Laporan & Ekspor
-    </span>
-
-</a>
-
-
-<a href="{{ route('admin.audit-log.index') }}"
-   class="{{ request()->routeIs('admin.audit-log.*') ? 'active' : '' }}">
-
-    <i class="bi bi-shield-check"></i>
+    <i class="bi bi-bell"></i>
 
     <span>
-        Audit Log
+        Notifikasi
     </span>
+
+    @php
+        $unreadNotification = auth()
+            ->user()
+            ->unreadNotifications()
+            ->count();
+    @endphp
+
+    @if($unreadNotification > 0)
+        <small class="sidebar-badge">
+            {{ $unreadNotification }}
+        </small>
+    @endif
 
 </a>
 

@@ -6,12 +6,21 @@
         <p>Riwayat informasi dan aktivitas pemesanan ruangan Anda.</p>
     </div>
     @if(isset($notifications) && $notifications->count() > 0)
-    <form method="POST" action="{{ route('notifications.readAll') }}">
-        @csrf
-        <button type="submit" class="btn-secondary">
-            <i class="bi bi-check-all" style="font-size:18px;"></i> Tandai Semua Dibaca
-        </button>
-    </form>
+    <div style="display:flex;gap:10px;align-items:center;">
+        <form method="POST" action="{{ route('notifications.readAll') }}">
+            @csrf
+            <button type="submit" class="btn-secondary">
+                <i class="bi bi-check-all" style="font-size:18px;"></i> Tandai Semua Dibaca
+            </button>
+        </form>
+        <form method="POST" action="{{ route('notifications.destroyAll') }}" onsubmit="return submitFormWithConfirm(this, { title: 'Hapus Semua Notifikasi', message: 'Apakah Anda yakin ingin menghapus seluruh riwayat notifikasi?', type: 'danger', confirmText: 'Ya, Hapus Semua' })">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn-secondary" style="color:#dc2626;border-color:#fecdd3;background:#fff1f2;">
+                <i class="bi bi-trash-fill" style="color:#dc2626;"></i> Hapus Semua
+            </button>
+        </form>
+    </div>
     @endif
 </div>
 
@@ -25,33 +34,44 @@
 
     <div class="notification-list">
         @forelse($notifications as $notification)
-        <a href="{{ route('notification.read', $notification->id) }}"
-           class="notification-card {{ !$notification->read_at ? 'unread' : 'read' }}">
-            <div class="notification-card-icon">
-                @if(str_contains(strtolower($notification->data['judul'] ?? ''), 'disetujui'))
-                    <i class="bi bi-check-circle-fill" style="color:#10b981;"></i>
-                @elseif(str_contains(strtolower($notification->data['judul'] ?? ''), 'ditolak'))
-                    <i class="bi bi-x-circle-fill" style="color:#ef4444;"></i>
-                @else
-                    <i class="bi bi-bell-fill" style="color:#005baa;"></i>
-                @endif
-            </div>
-
-            <div class="notification-card-body">
-                <div class="notification-card-top">
-                    <strong class="notification-card-title">{{ $notification->data['judul'] ?? 'Notifikasi' }}</strong>
-                    @if(!$notification->read_at)
-                        <span class="badge badge-warning"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Baru</span>
+        <div class="notification-card-wrapper" style="position:relative;margin-bottom:12px;">
+            <a href="{{ route('notification.read', $notification->id) }}"
+               class="notification-card {{ !$notification->read_at ? 'unread' : 'read' }}" style="padding-right:60px;">
+                <div class="notification-card-icon">
+                    @if(str_contains(strtolower($notification->data['judul'] ?? ''), 'disetujui'))
+                        <i class="bi bi-check-circle-fill" style="color:#10b981;"></i>
+                    @elseif(str_contains(strtolower($notification->data['judul'] ?? ''), 'ditolak'))
+                        <i class="bi bi-x-circle-fill" style="color:#ef4444;"></i>
                     @else
-                        <span class="badge badge-secondary"><i class="bi bi-check2"></i> Dibaca</span>
+                        <i class="bi bi-bell-fill" style="color:#005baa;"></i>
                     @endif
                 </div>
-                <p class="notification-card-message">{{ $notification->data['pesan'] ?? '' }}</p>
-                <small class="notification-card-time">
-                    <i class="bi bi-clock"></i> {{ $notification->data['waktu'] ?? $notification->created_at->diffForHumans() }}
-                </small>
-            </div>
-        </a>
+
+                <div class="notification-card-body">
+                    <div class="notification-card-top">
+                        <strong class="notification-card-title">{{ $notification->data['judul'] ?? 'Notifikasi' }}</strong>
+                        @if(!$notification->read_at)
+                            <span class="badge badge-warning"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Baru</span>
+                        @else
+                            <span class="badge badge-secondary"><i class="bi bi-check2"></i> Dibaca</span>
+                        @endif
+                    </div>
+                    <p class="notification-card-message">{{ $notification->data['pesan'] ?? '' }}</p>
+                    <small class="notification-card-time">
+                        <i class="bi bi-clock"></i> {{ $notification->data['waktu'] ?? $notification->created_at->diffForHumans() }}
+                    </small>
+                </div>
+            </a>
+
+            {{-- Single Delete Action --}}
+            <form action="{{ route('notification.destroy', $notification->id) }}" method="POST" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);z-index:10;" onsubmit="return submitFormWithConfirm(this, { title: 'Hapus Notifikasi', message: 'Apakah Anda yakin ingin menghapus notifikasi ini?', type: 'danger', confirmText: 'Hapus' })">
+                @csrf
+                @method('DELETE')
+                <button type="submit" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:8px;border-radius:8px;transition:all 0.2s ease;" onmouseover="this.style.color='#ef4444';this.style.background='#fff1f2';" onmouseout="this.style.color='#94a3b8';this.style.background='none';" title="Hapus Notifikasi Ini">
+                    <i class="bi bi-trash-fill" style="font-size:16px;"></i>
+                </button>
+            </form>
+        </div>
         @empty
         <div class="empty-state">
             <i class="bi bi-bell-slash"></i>

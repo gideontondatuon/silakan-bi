@@ -7,6 +7,7 @@ use App\Actions\CreatePemesananAction;
 use App\Http\Requests\StorePemesananRequest;
 use App\Models\Pemesanan;
 use App\Models\Ruangan;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -130,32 +131,5 @@ class PemesananController extends Controller
             'day_name' => $dayName,
             'message' => 'Jadwal ruangan tersedia!' . $extraNote
         ]);
-    }
-
-    /**
-     * Mengajukan perubahan jadwal rapat (reschedule).
-     */
-    public function reschedule(Request $request, Pemesanan $pemesanan)
-    {
-        if ($pemesanan->user_id !== auth()->id() && auth()->user()->role->value !== 'admin') {
-            abort(403);
-        }
-
-        $request->validate([
-            'reschedule_tanggal' => ['required', 'date', 'after_or_equal:today'],
-            'reschedule_waktu_mulai' => ['required'],
-            'reschedule_waktu_selesai' => ['required', 'after:reschedule_waktu_mulai'],
-            'reschedule_alasan' => ['required', 'string', 'max:500'],
-        ]);
-
-        $pemesanan->update([
-            'reschedule_status' => 'Pending',
-            'reschedule_tanggal' => $request->reschedule_tanggal,
-            'reschedule_waktu_mulai' => $request->reschedule_waktu_mulai,
-            'reschedule_waktu_selesai' => $request->reschedule_waktu_selesai,
-            'reschedule_alasan' => $request->reschedule_alasan,
-        ]);
-
-        return back()->with('success', 'Pengajuan perubahan jadwal berhasil terkirim dan sedang menunggu persetujuan Admin.');
     }
 }

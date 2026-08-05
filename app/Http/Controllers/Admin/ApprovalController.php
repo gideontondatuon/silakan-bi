@@ -31,14 +31,9 @@ class ApprovalController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'pending_page');
 
-        $rescheduleList = Pemesanan::with(['user', 'ruangan', 'layout'])
-            ->where('reschedule_status', 'Pending')
-            ->latest()
-            ->get();
-
         return view(
             'admin.approval.index',
-            compact('pemesanan', 'rescheduleList')
+            compact('pemesanan')
         );
     }
 
@@ -161,34 +156,5 @@ class ApprovalController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
-    }
-
-    public function approveReschedule(Pemesanan $pemesanan): RedirectResponse
-    {
-        if ($pemesanan->reschedule_status !== 'Pending') {
-            return back()->with('error', 'Tidak ada pengajuan reschedule yang dapat diproses.');
-        }
-
-        $pemesanan->update([
-            'tanggal_kegiatan' => $pemesanan->reschedule_tanggal,
-            'waktu_mulai' => $pemesanan->reschedule_waktu_mulai,
-            'waktu_selesai' => $pemesanan->reschedule_waktu_selesai,
-            'reschedule_status' => 'Disetujui',
-        ]);
-
-        return back()->with('success', 'Pengajuan reschedule berhasil disetujui. Tanggal dan jam kegiatan telah diperbarui.');
-    }
-
-    public function rejectReschedule(Pemesanan $pemesanan): RedirectResponse
-    {
-        if ($pemesanan->reschedule_status !== 'Pending') {
-            return back()->with('error', 'Tidak ada pengajuan reschedule yang dapat diproses.');
-        }
-
-        $pemesanan->update([
-            'reschedule_status' => 'Ditolak',
-        ]);
-
-        return back()->with('success', 'Pengajuan reschedule ditolak.');
     }
 }
