@@ -31,24 +31,11 @@ class AppServiceProvider extends ServiceProvider
         View::composer(
             'components.navbar',
             function ($view) {
+                $notifications = auth()->check()
+                    ? auth()->user()->unreadNotifications()->latest()->take(5)->get()
+                    : collect();
 
-                if(auth()->check()) {
-
-                    $notifications =
-                        auth()->user()
-                        ->unreadNotifications()
-                        ->latest()
-                        ->take(5)
-                        ->get();
-
-
-                    $view->with(
-                        'notifications',
-                        $notifications
-                    );
-
-                }
-
+                $view->with('notifications', $notifications);
             }
         );
 

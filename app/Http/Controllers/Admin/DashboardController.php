@@ -12,6 +12,8 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
+        Pemesanan::markFinishedAgendas();
+
         /*
         |--------------------------------------------------------------------------
         | Summary Card
@@ -143,8 +145,8 @@ class DashboardController extends Controller
             'ruangan',
             'layout',
         ])
-            ->where('tanggal_kegiatan', '>=', today())
-            ->where('status', PemesananStatus::DISETUJUI->value)
+            ->approved()
+            ->upcoming()
             ->orderBy('tanggal_kegiatan')
             ->orderBy('waktu_mulai')
             ->limit(10)

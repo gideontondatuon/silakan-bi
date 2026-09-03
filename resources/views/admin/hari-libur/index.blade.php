@@ -16,13 +16,6 @@
     </div>
 </div>
 
-@if(session('success'))
-<div class="alert alert-success">
-    <i class="bi bi-check-circle-fill"></i>
-    {{ session('success') }}
-</div>
-@endif
-
 <div class="dashboard-grid">
 
     {{-- Form Tambah Manual --}}

@@ -34,6 +34,8 @@ class DashboardController extends Controller
      */
     public function user(): View
     {
+        Pemesanan::markFinishedAgendas();
+
         $userId = auth()->id();
 
         // Stats
@@ -42,7 +44,7 @@ class DashboardController extends Controller
         $approvedPemesanan = Pemesanan::where('user_id', $userId)->approved()->count();
         $upcomingPemesanan = Pemesanan::where('user_id', $userId)
             ->approved()
-            ->where('tanggal_kegiatan', '>=', now()->toDateString())
+            ->upcoming()
             ->count();
 
         // 5 Pemesanan Terbaru Milik User

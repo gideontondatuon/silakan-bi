@@ -29,6 +29,8 @@ class CancelPemesananAction
 
             $pemesanan->update([
                 'status' => PemesananStatus::CANCEL->value,
+                'cancelled_by' => $user->id,
+                'cancelled_at' => now(),
             ]);
 
             PemesananStatusHistory::create([

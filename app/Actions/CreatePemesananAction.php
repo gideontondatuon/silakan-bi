@@ -25,7 +25,7 @@ class CreatePemesananAction
             }
 
             $bentrok = Pemesanan::where('ruangan_id', $data['ruangan_id'])
-                ->where('tanggal_kegiatan', $data['tanggal_kegiatan'])
+                ->whereDate('tanggal_kegiatan', $data['tanggal_kegiatan'])
                 ->where('status', PemesananStatus::DISETUJUI->value)
                 ->where(function ($query) use ($data) {
                     $query->where('waktu_mulai', '<', $data['waktu_selesai'])

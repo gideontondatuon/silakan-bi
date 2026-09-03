@@ -55,7 +55,7 @@
         <table class="data-table" style="width:100%;border-collapse:collapse;">
             <thead>
                 <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;text-align:left;font-size:12px;color:#475569;text-transform:uppercase;">
-                    <th style="padding:14px 18px;">Waktu &amp; IP</th>
+                    <th style="padding:14px 18px;">Waktu Kejadian</th>
                     <th style="padding:14px 18px;">Pelaku (User/Admin)</th>
                     <th style="padding:14px 18px;">Aktivitas</th>
                     <th style="padding:14px 18px;">Modul</th>
@@ -67,7 +67,7 @@
                 <tr style="border-bottom:1px solid #f1f5f9;font-size:13px;">
                     <td style="padding:14px 18px;white-space:nowrap;">
                         <strong style="color:#0f172a;display:block;">{{ $log->created_at ? $log->created_at->format('d/m/Y H:i:s') : '-' }} WITA</strong>
-                        <small style="color:#64748b;"><i class="bi bi-hdd-network"></i> IP: {{ $log->ip_address ?? '127.0.0.1' }}</small>
+                        <small style="color:#64748b;"><i class="bi bi-clock-history"></i> {{ $log->created_at ? $log->created_at->diffForHumans() : '-' }}</small>
                     </td>
                     <td style="padding:14px 18px;">
                         <strong style="color:#003b73;display:block;">{{ $log->user?->name ?? 'Sistem' }}</strong>

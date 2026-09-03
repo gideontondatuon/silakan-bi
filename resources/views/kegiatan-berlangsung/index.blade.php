@@ -158,6 +158,24 @@
                         <span>Layout Ruangan: <strong style="color:#0f172a;">{{ $item->layout?->nama_layout ?? '-' }}</strong></span>
                     </div>
                 </div>
+
+                <div style="margin-top:16px;text-align:right;">
+                    @if(auth()->user()->role->value === 'admin')
+                    <form action="{{ route('admin.approval.selesai-awal', $item) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $item->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="display:inline-block;margin:0;">
+                        @csrf
+                        <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                            <i class="bi bi-check2-circle"></i> Selesaikan Rapat Sekarang
+                        </button>
+                    </form>
+                    @elseif($item->user_id === auth()->id())
+                    <form action="{{ route('pemesanan.selesai-awal', $item) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $item->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="display:inline-block;margin:0;">
+                        @csrf
+                        <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                            <i class="bi bi-check2-circle"></i> Selesaikan Rapat Sekarang
+                        </button>
+                    </form>
+                    @endif
+                </div>
             </div>
         </div>
         @endforeach

@@ -84,8 +84,7 @@ class RuanganController extends Controller
             'nama_ruangan' => ['required', 'string', 'max:100'],
             'lokasi' => ['required', 'string', 'max:150'],
             'kapasitas' => ['required', 'integer', 'min:1'],
-            'status' => ['nullable', 'in:aktif,nonaktif,perawatan'],
-            'deskripsi' => ['nullable', 'string'],
+            'status' => ['required', 'in:aktif,nonaktif,perawatan'],
             'layouts' => ['nullable', 'array'],
             'layouts.*' => ['exists:layout_ruangan,id'],
         ]);
@@ -94,71 +93,36 @@ class RuanganController extends Controller
 
         $ruangan->layouts()->sync($request->layouts ?? []);
 
-
-
         AuditLogService::create(
-
             'Memperbarui Ruangan',
-
             'Master Ruangan',
-
-            'Memperbarui data ruangan '
-            . $ruangan->nama_ruangan
-
+            'Memperbarui data ruangan ' . $ruangan->nama_ruangan
         );
 
-
-
         return redirect()
-
             ->route('admin.ruangan.index')
-
-            ->with(
-                'success',
-                'Ruangan diperbarui'
-            );
-
+            ->with('success', 'Ruangan berhasil diperbarui.');
     }
 
-
-
-    public function destroy(
-        Ruangan $ruangan
-    )
+    public function destroy(Ruangan $ruangan)
     {
+        if ($ruangan->pemesanan()->exists()) {
+            return back()->with('error', "Ruangan '{$ruangan->nama_ruangan}' tidak dapat dihapus karena memiliki riwayat pemesanan. Anda dapat mengubah status ruangan menjadi Nonaktif.");
+        }
 
-
-        $namaRuangan =
-            $ruangan->nama_ruangan;
-
-
+        $namaRuangan = $ruangan->nama_ruangan;
 
         $ruangan->delete();
 
-
-
         AuditLogService::create(
-
             'Menghapus Ruangan',
-
             'Master Ruangan',
-
-            'Menghapus ruangan '
-            . $namaRuangan
-
+            'Menghapus ruangan ' . $namaRuangan
         );
 
-
-
         return redirect()
-
             ->route('admin.ruangan.index')
-
-            ->with(
-                'success',
-                'Ruangan dihapus'
-            );
-
+            ->with('success', 'Ruangan berhasil dihapus.');
     }
 
 

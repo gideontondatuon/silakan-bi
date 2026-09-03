@@ -53,13 +53,23 @@
                 </div>
             </div>
             <div class="live-card-title" style="font-size:16px;font-weight:700;color:#ffffff;margin:8px 0 10px 0;"><?php echo e($live->judul_kegiatan); ?></div>
-            <div class="live-card-pic" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,0.9);padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
-                <span><i class="bi bi-people-fill" style="color:#93c5fd;margin-right:4px;"></i> Unit Penyelenggara: <strong style="color:#ffffff;"><?php echo e($live->user->nama_unit ?? $live->user->name); ?></strong></span>
-                <?php if($live->pic_kegiatan): ?>
-                    <span><i class="bi bi-person-badge-fill" style="color:#93c5fd;margin-right:4px;"></i> PIC: <strong style="color:#ffffff;"><?php echo e($live->pic_kegiatan); ?></strong></span>
-                <?php endif; ?>
-                <?php if($live->layout): ?>
-                    <span><i class="bi bi-grid-3x3-gap-fill" style="color:#93c5fd;margin-right:4px;"></i> Layout: <strong style="color:#ffffff;"><?php echo e($live->layout->nama_layout); ?></strong></span>
+            <div class="live-card-pic" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,0.9);padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                    <span><i class="bi bi-people-fill" style="color:#93c5fd;margin-right:4px;"></i> Unit: <strong style="color:#ffffff;"><?php echo e($live->user->nama_unit ?? $live->user->name); ?></strong></span>
+                    <?php if($live->pic_kegiatan): ?>
+                        <span><i class="bi bi-person-badge-fill" style="color:#93c5fd;margin-right:4px;"></i> PIC: <strong style="color:#ffffff;"><?php echo e($live->pic_kegiatan); ?></strong></span>
+                    <?php endif; ?>
+                    <?php if($live->layout): ?>
+                        <span><i class="bi bi-grid-3x3-gap-fill" style="color:#93c5fd;margin-right:4px;"></i> Layout: <strong style="color:#ffffff;"><?php echo e($live->layout->nama_layout); ?></strong></span>
+                    <?php endif; ?>
+                </div>
+                <?php if($live->user_id === auth()->id()): ?>
+                <form action="<?php echo e(route('pemesanan.selesai-awal', $live)); ?>" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong><?php echo e($live->ruangan->nama_ruangan); ?></strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="margin:0;">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+                        <i class="bi bi-check2-circle"></i> Selesaikan Rapat
+                    </button>
+                </form>
                 <?php endif; ?>
             </div>
         </div>
@@ -205,7 +215,9 @@
                             <small style="color:#64748b;"><i class="bi bi-clock"></i> <?php echo e($item->waktu_mulai); ?> – <?php echo e($item->waktu_selesai); ?></small>
                         </td>
                         <td>
-                            <?php if($item->status->value == 'Pending'): ?>
+                            <?php if($item->status->value == 'Selesai' || $item->is_finished): ?>
+                                <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;"><i class="bi bi-check2-all"></i> Selesai</span>
+                            <?php elseif($item->status->value == 'Pending'): ?>
                                 <span class="badge badge-warning"><i class="bi bi-clock"></i> Pending</span>
                             <?php elseif($item->status->value == 'Disetujui'): ?>
                                 <span class="badge badge-success"><i class="bi bi-check-circle"></i> Disetujui</span>
@@ -255,17 +267,29 @@
                 <h2><i class="bi bi-calendar-day"></i> Agenda Hari Ini</h2>
             </div>
             <?php $__empty_1 = true; $__currentLoopData = $kegiatanHariIni; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-            <div class="agenda-card" style="padding:14px 16px;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:12px;background:#ffffff;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+            <?php
+                $isSelesai = \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s') > $item->waktu_selesai;
+                $isBerlangsung = \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s') >= $item->waktu_mulai
+                              && \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s') <= $item->waktu_selesai;
+            ?>
+            <div class="agenda-card" style="padding:14px 16px;border-radius:12px;border:1px solid <?php echo e($isSelesai ? '#e2e8f0' : '#e2e8f0'); ?>;margin-bottom:12px;background:<?php echo e($isSelesai ? '#f8fafc' : '#ffffff'); ?>;box-shadow:0 2px 8px rgba(0,0,0,0.03);opacity:<?php echo e($isSelesai ? '0.72' : '1'); ?>;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
                     <strong style="color:#003b73;font-size:13px;"><i class="bi bi-building"></i> <?php echo e($item->ruangan->nama_ruangan); ?></strong>
-                    <span class="badge badge-info" style="font-size:11px;padding:3px 9px;border-radius:6px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-weight:600;">
-                        <i class="bi bi-people-fill"></i> <?php echo e($item->user->nama_unit ?? $item->user->name); ?>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <?php if($isSelesai): ?>
+                            <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;font-weight:600;"><i class="bi bi-check-circle-fill"></i> Selesai</span>
+                        <?php elseif($isBerlangsung): ?>
+                            <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:#dcfce7;color:#15803d;border:1px solid #86efac;font-weight:600;"><i class="bi bi-broadcast"></i> Berlangsung</span>
+                        <?php endif; ?>
+                        <span class="badge badge-info" style="font-size:11px;padding:3px 9px;border-radius:6px;background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-weight:600;">
+                            <i class="bi bi-people-fill"></i> <?php echo e($item->user->nama_unit ?? $item->user->name); ?>
 
-                    </span>
+                        </span>
+                    </div>
                 </div>
-                <p style="margin:0 0 6px 0;font-weight:700;color:#0f172a;font-size:13.5px;line-height:1.35;"><?php echo e($item->judul_kegiatan); ?></p>
+                <p style="margin:0 0 6px 0;font-weight:700;color:<?php echo e($isSelesai ? '#94a3b8' : '#0f172a'); ?>;font-size:13.5px;line-height:1.35;"><?php echo e($item->judul_kegiatan); ?></p>
                 <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#64748b;flex-wrap:wrap;gap:6px;">
-                    <span style="color:#005baa;font-weight:600;"><i class="bi bi-clock"></i> <?php echo e($item->waktu_mulai); ?> – <?php echo e($item->waktu_selesai); ?> WITA</span>
+                    <span style="color:<?php echo e($isSelesai ? '#94a3b8' : '#005baa'); ?>;font-weight:600;"><i class="bi bi-clock"></i> <?php echo e($item->waktu_mulai); ?> – <?php echo e($item->waktu_selesai); ?> WITA</span>
                     <?php if($item->pic_kegiatan): ?>
                         <span style="color:#475569;font-weight:500;"><i class="bi bi-person-fill"></i> PIC: <?php echo e($item->pic_kegiatan); ?></span>
                     <?php endif; ?>

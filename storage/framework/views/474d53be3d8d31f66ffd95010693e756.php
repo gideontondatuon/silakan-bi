@@ -26,34 +26,6 @@
 
     <div style="padding:28px 32px;">
 
-        
-        <?php if(session('success')): ?>
-        <div class="alert alert-success" style="padding:14px 18px;border-radius:10px;margin-bottom:20px;font-weight:600;display:flex;align-items:center;gap:10px;background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;">
-            <i class="bi bi-check-circle-fill" style="font-size:1.2rem;"></i>
-            <div><?php echo e(session('success')); ?></div>
-        </div>
-        <?php endif; ?>
-
-        <?php if(session('error')): ?>
-        <div class="alert alert-danger" style="padding:14px 18px;border-radius:10px;margin-bottom:20px;font-weight:600;display:flex;align-items:center;gap:10px;background:#fff1f2;border:1px solid #fecdd3;color:#be123c;">
-            <i class="bi bi-exclamation-triangle-fill" style="font-size:1.2rem;"></i>
-            <div><?php echo e(session('error')); ?></div>
-        </div>
-        <?php endif; ?>
-
-        <?php if($errors->any()): ?>
-        <div class="alert alert-danger" style="padding:16px 20px;border-radius:10px;margin-bottom:24px;background:#fff1f2;border:1px solid #fecdd3;color:#be123c;">
-            <div style="font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                <i class="bi bi-x-circle-fill" style="font-size:1.2rem;"></i>
-                <span>Pengajuan pemesanan gagal dikirim. Silakan periksa kesalahan berikut:</span>
-            </div>
-            <ul style="margin:0;padding-left:24px;font-size:13.5px;font-weight:500;">
-                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <li><?php echo e($error); ?></li>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-            </ul>
-        </div>
-        <?php endif; ?>
 
         <form method="POST" action="<?php echo e(route('pemesanan.store')); ?>" enctype="multipart/form-data">
             <?php echo csrf_field(); ?>
@@ -106,7 +78,7 @@ unset($__errorArgs, $__bag); ?>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;" class="form-row-3">
                 <div class="form-group">
                     <label class="required">Tanggal Kegiatan</label>
-                    <input type="date" name="tanggal_kegiatan" value="<?php echo e(old('tanggal_kegiatan')); ?>" required>
+                    <input type="date" name="tanggal_kegiatan" id="tanggal_kegiatan" value="<?php echo e(old('tanggal_kegiatan')); ?>" min="<?php echo e(now('Asia/Makassar')->toDateString()); ?>" required>
                     <?php $__errorArgs = ['tanggal_kegiatan'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -275,8 +247,20 @@ unset($__errorArgs, $__bag); ?>
 
             
             <div class="form-group">
-                <label>Upload Lembar Disposisi <small style="color:#64748b;font-weight:400;">(PDF / PNG / JPG, Max 5MB)</small></label>
-                <input type="file" name="file_disposisi" accept=".pdf,.png,.jpg,.jpeg">
+                <label>Upload Lembar Disposisi <span style="color:#dc2626;font-weight:700;">*</span> <small style="color:#64748b;font-weight:400;">(Wajib — PDF / PNG / JPG, Max 5MB)</small></label>
+                <div style="border:2px dashed #cbd5e1;border-radius:10px;padding:20px;text-align:center;background:#f8fafc;cursor:pointer;transition:border-color .2s;" id="dropzone-disposisi" onclick="document.getElementById('file_disposisi_input').click()">
+                    <div id="dropzone-placeholder">
+                        <i class="bi bi-cloud-upload" style="font-size:26px;color:#005baa;display:block;margin-bottom:6px;"></i>
+                        <p style="margin:0;font-size:13px;color:#64748b;">Klik atau seret file ke sini untuk mengunggah</p>
+                        <p style="margin:4px 0 0 0;font-size:11px;color:#94a3b8;">PDF, JPG, JPEG, PNG — Maksimal 5MB</p>
+                    </div>
+                    <div id="dropzone-preview" style="display:none;">
+                        <i class="bi bi-file-earmark-check" style="font-size:26px;color:#16a34a;display:block;margin-bottom:4px;"></i>
+                        <p id="dropzone-filename" style="margin:0;font-size:13px;color:#16a34a;font-weight:600;"></p>
+                        <p style="margin:4px 0 0 0;font-size:11px;color:#94a3b8;">Klik untuk mengganti file</p>
+                    </div>
+                </div>
+                <input type="file" id="file_disposisi_input" name="file_disposisi" accept=".pdf,.png,.jpg,.jpeg" required style="display:none;">
                 <?php $__errorArgs = ['file_disposisi'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -288,6 +272,29 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
             </div>
+
+            <script>
+            document.getElementById('file_disposisi_input').addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    document.getElementById('dropzone-placeholder').style.display = 'none';
+                    document.getElementById('dropzone-preview').style.display = 'block';
+                    document.getElementById('dropzone-filename').textContent = file.name;
+                    document.getElementById('dropzone-disposisi').style.borderColor = '#16a34a';
+                    document.getElementById('dropzone-disposisi').style.background = '#f0fdf4';
+                }
+            });
+            // Drag & Drop support
+            const dz = document.getElementById('dropzone-disposisi');
+            dz.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = '#005baa'; });
+            dz.addEventListener('dragleave', function() { this.style.borderColor = '#cbd5e1'; });
+            dz.addEventListener('drop', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('file_disposisi_input');
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            });
+            </script>
 
             
             <div class="form-action" style="margin-top:16px;border-top:1px solid #f1f5f9;padding-top:20px;">
@@ -450,6 +457,45 @@ function checkScheduleAvailability() {
     const tanggal = tanggalInput ? tanggalInput.value : '';
     const waktuMulai = waktuMulaiInput ? waktuMulaiInput.value : '';
     const waktuSelesai = waktuSelesaiInput ? waktuSelesaiInput.value : '';
+
+    const todayStr = '<?php echo e(now("Asia/Makassar")->toDateString()); ?>';
+    const nowHourMin = '<?php echo e(now("Asia/Makassar")->format("H:i")); ?>';
+
+    // Update dynamic min attribute pada input waktu
+    if (tanggal === todayStr) {
+        waktuMulaiInput.min = nowHourMin;
+    } else {
+        waktuMulaiInput.removeAttribute('min');
+    }
+    if (waktuMulai) {
+        waktuSelesaiInput.min = waktuMulai;
+    }
+
+    if (tanggal && tanggal < todayStr) {
+        if (availabilityBox) {
+            availabilityBox.style.display = 'block';
+            availabilityBox.style.background = '#fff1f2';
+            availabilityBox.style.color = '#be123c';
+            availabilityBox.style.border = '1px solid #fecdd3';
+            availabilityBox.innerHTML = '<i class="bi bi-x-circle-fill" style="margin-right: 8px;"></i> Tanggal kegiatan sudah lewat! Silakan pilih hari ini atau tanggal mendatang.';
+        }
+        isScheduleValid = false;
+        updateSubmitButtonState();
+        return;
+    }
+
+    if (tanggal === todayStr && waktuMulai && waktuMulai < nowHourMin) {
+        if (availabilityBox) {
+            availabilityBox.style.display = 'block';
+            availabilityBox.style.background = '#fff1f2';
+            availabilityBox.style.color = '#be123c';
+            availabilityBox.style.border = '1px solid #fecdd3';
+            availabilityBox.innerHTML = `<i class="bi bi-x-circle-fill" style="margin-right: 8px;"></i> Waktu mulai (${waktuMulai} WITA) sudah terlewat! Waktu saat ini adalah ${nowHourMin} WITA.`;
+        }
+        isScheduleValid = false;
+        updateSubmitButtonState();
+        return;
+    }
 
     if (!ruanganId || !tanggal || !waktuMulai || !waktuSelesai) {
         if (availabilityBox) availabilityBox.style.display = 'none';

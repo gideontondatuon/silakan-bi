@@ -26,7 +26,9 @@
             <div>
                 <label>Status</label>
                 <p>
-                    @if($pemesanan->status->value == 'Pending')
+                    @if($pemesanan->status->value == 'Selesai' || $pemesanan->is_finished)
+                        <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;"><i class="bi bi-check2-all"></i> Selesai</span>
+                    @elseif($pemesanan->status->value == 'Pending')
                         <span class="badge badge-warning"><i class="bi bi-clock"></i> Menunggu Approval</span>
                     @elseif($pemesanan->status->value == 'Disetujui')
                         <span class="badge badge-success"><i class="bi bi-check-circle"></i> Disetujui</span>
@@ -94,6 +96,43 @@
             <a href="{{ asset('storage/' . $pemesanan->file_disposisi) }}" target="_blank" class="btn-primary">
                 <i class="bi bi-file-earmark-pdf"></i> Lihat / Unduh Lembar Disposisi
             </a>
+        </div>
+    </div>
+    @endif
+
+    {{-- Aksi Cepat --}}
+    @php
+        $statusVal = is_object($pemesanan->status) ? $pemesanan->status->value : $pemesanan->status;
+        $canFinishEarly = $pemesanan->canBeFinishedEarly();
+    @endphp
+
+    @if($canFinishEarly)
+    <div class="detail-card" style="border:1px solid #a7f3d0;background:#f0fdf4;">
+        <div class="detail-title" style="color:#047857;"><i class="bi bi-play-circle-fill"></i> Kontrol Penggunaan Ruangan</div>
+        <div style="padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+                <p style="margin:0;font-size:13.5px;color:#065f46;font-weight:600;">Apakah rapat Anda telah selesai sebelum jadwal berakhir?</p>
+                <small style="color:#047857;">Tekan tombol di samping untuk segera membebaskan ruangan agar dapat digunakan rekan kerja lainnya.</small>
+            </div>
+            <form action="{{ route('pemesanan.selesai-awal', $pemesanan) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $pemesanan->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })">
+                @csrf
+                <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                    <i class="bi bi-check2-circle"></i> Selesaikan Rapat Sekarang
+                </button>
+            </form>
+        </div>
+    </div>
+    @elseif($statusVal === 'Pending')
+    <div class="detail-card">
+        <div class="detail-title" style="color:#b45309;"><i class="bi bi-clock-history"></i> Pembatalan Pengajuan</div>
+        <div style="padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <p style="margin:0;font-size:13.5px;color:#475569;">Pengajuan pemesanan masih menunggu verifikasi admin.</p>
+            <form action="{{ route('pemesanan.cancel', $pemesanan) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Batalkan Pemesanan', message: 'Apakah Anda yakin ingin membatalkan pengajuan pemesanan <strong>{{ $pemesanan->kode_pemesanan }}</strong>?', type: 'warning', confirmText: 'Ya, Batalkan' })">
+                @csrf
+                <button type="submit" class="btn-danger btn-sm" style="padding:8px 16px;">
+                    <i class="bi bi-x-circle"></i> Batalkan Pengajuan
+                </button>
+            </form>
         </div>
     </div>
     @endif

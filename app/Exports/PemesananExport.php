@@ -53,6 +53,7 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
             'JUDUL KEGIATAN',
             'UNIT / PEMOHON',
             'PIC KEGIATAN',
+            'JENIS PIC',
             'STATUS',
             'APPROVED BY',
         ];
@@ -73,6 +74,7 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
             $row->judul_kegiatan,
             $row->user->nama_unit ?? $row->user->name,
             $row->pic_kegiatan,
+            $row->jenis_pic ?? '-',
             strtoupper($statusVal),
             $row->approver->name ?? '-',
         ];
@@ -85,25 +87,25 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
                 $sheet = $event->sheet->getDelegate();
 
                 // Kop Surat Bank Indonesia
-                $sheet->mergeCells('A1:K1');
+                $sheet->mergeCells('A1:L1');
                 $sheet->setCellValue('A1', 'BANK INDONESIA');
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('003B73'));
 
-                $sheet->mergeCells('A2:K2');
+                $sheet->mergeCells('A2:L2');
                 $sheet->setCellValue('A2', 'Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara');
                 $sheet->getStyle('A2')->getFont()->setSize(11)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('475569'));
 
-                $sheet->mergeCells('A3:K3');
+                $sheet->mergeCells('A3:L3');
                 $sheet->setCellValue('A3', 'SILAKAN — Sistem Informasi Layanan Kantor');
                 $sheet->getStyle('A3')->getFont()->setSize(10)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('64748b'));
 
                 // Judul Laporan
-                $sheet->mergeCells('A5:K5');
+                $sheet->mergeCells('A5:L5');
                 $sheet->setCellValue('A5', 'LAPORAN REKAPITULASI PEMESANAN RUANGAN');
                 $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(14)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('003B73'));
                 $sheet->getStyle('A5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                $sheet->mergeCells('A6:K6');
+                $sheet->mergeCells('A6:L6');
                 $sheet->setCellValue('A6', 'Dicetak pada: ' . now()->translatedFormat('l, d F Y H:i') . ' WITA');
                 $sheet->getStyle('A6')->getFont()->setSize(10)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('64748b'));
                 $sheet->getStyle('A6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -116,10 +118,10 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
                 $sheet->getStyle("A{$footerRow}")->getFont()->setBold(true);
 
                 $sigRow = $footerRow;
-                $sheet->setCellValue("I{$sigRow}", 'Manado, ' . now()->translatedFormat('d F Y'));
-                $sheet->setCellValue("I" . ($sigRow + 1), 'Administrator SILAKAN');
-                $sheet->setCellValue("I" . ($sigRow + 4), 'KPwBI Prov. Sulut');
-                $sheet->getStyle("I" . ($sigRow + 4))->getFont()->setBold(true);
+                $sheet->setCellValue("J{$sigRow}", 'Manado, ' . now()->translatedFormat('d F Y'));
+                $sheet->setCellValue("J" . ($sigRow + 1), 'Administrator SILAKAN');
+                $sheet->setCellValue("J" . ($sigRow + 4), 'KPwBI Prov. Sulut');
+                $sheet->getStyle("J" . ($sigRow + 4))->getFont()->setBold(true);
             },
         ];
     }
@@ -127,7 +129,7 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
     public function styles(Worksheet $sheet)
     {
         // Styling Table Header Row (Row 7)
-        $sheet->getStyle('A7:K7')->applyFromArray([
+        $sheet->getStyle('A7:L7')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -148,7 +150,7 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
 
         // Style data rows
         if ($lastDataRow >= 8) {
-            $sheet->getStyle("A7:K{$lastDataRow}")->applyFromArray([
+            $sheet->getStyle("A7:L{$lastDataRow}")->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -159,7 +161,7 @@ class PemesananExport implements FromCollection, WithHeadings, WithMapping, With
 
             // Center alignments for specific columns
             $sheet->getStyle("A8:D{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle("J8:J{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("J8:K{$lastDataRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         }
 
         $sheet->getRowDimension(7)->setRowHeight(26);

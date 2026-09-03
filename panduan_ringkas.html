@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Ringkas SILAKAN v1.0 — Bank Indonesia KPwBI Prov. Sulut</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* CSS RESET & PAGE SETUP FOR HIGH-QUALITY PRINT */
+        @page {
+            size: A4 portrait;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 8.5pt;
+                color: #64748b;
+            }
+            @bottom-left {
+                content: "SILAKAN — KPwBI Provinsi Sulawesi Utara";
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 8.5pt;
+                color: #64748b;
+            }
+            @top-right {
+                content: "Buku Panduan Ringkas Penggunaan Sistem (Quick Start Guide) v1.0";
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 8pt;
+                color: #94a3b8;
+            }
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            line-height: 1.55;
+            color: #1e293b;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page-container {
+            width: 210mm;
+            margin: 20px auto;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+            .page-container {
+                width: 100%;
+                margin: 0;
+                box-shadow: none;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+                break-before: page;
+            }
+        }
+
+        .page-break {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        .sheet {
+            padding: 22mm 18mm 22mm 18mm;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            font-size: 8pt;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sheet-footer {
+            margin-top: 24px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8pt;
+            color: #64748b;
+        }
+
+        h1, h2, h3, h4 {
+            color: #003b73;
+            font-weight: 700;
+            margin-top: 0;
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+
+        h1.section-title {
+            font-size: 17pt;
+            color: #003b73;
+            border-bottom: 2.5px solid #005baa;
+            padding-bottom: 6px;
+            margin-top: 0;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-badge {
+            background: linear-gradient(135deg, #005baa, #003b73);
+            color: #ffffff;
+            font-size: 10pt;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
+        h2 {
+            font-size: 12.5pt;
+            color: #005baa;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            border-left: 3.5px solid #005baa;
+            padding-left: 8px;
+        }
+
+        h3 {
+            font-size: 11pt;
+            color: #1e293b;
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 8pt;
+            text-align: justify;
+        }
+
+        /* COVER PAGE DESIGN */
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 297mm;
+            padding: 30mm 22mm 22mm 22mm;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 60%, #eff6ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-page::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8mm;
+            background: linear-gradient(90deg, #005baa, #003b73, #b8972a);
+        }
+
+        .cover-logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cover-logo {
+            height: 50px;
+            width: auto;
+        }
+
+        .cover-instansi {
+            text-align: right;
+            border-right: 3.5px solid #005baa;
+            padding-right: 12px;
+        }
+
+        .cover-instansi h4 {
+            margin: 0;
+            font-size: 10.5pt;
+            color: #003b73;
+            font-weight: 800;
+        }
+
+        .cover-instansi p {
+            margin: 2px 0 0;
+            font-size: 8.5pt;
+            color: #64748b;
+        }
+
+        .cover-main {
+            margin-top: 35mm;
+            margin-bottom: 35mm;
+        }
+
+        .cover-tag {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0284c7;
+            font-size: 9.5pt;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+            border: 1px solid #bae6fd;
+        }
+
+        .cover-title {
+            font-size: 32pt;
+            font-weight: 800;
+            color: #003b73;
+            letter-spacing: 1px;
+            line-height: 1.15;
+            margin: 0 0 10px 0;
+        }
+
+        .cover-subtitle {
+            font-size: 16pt;
+            font-weight: 700;
+            color: #005baa;
+            margin: 0 0 8px 0;
+        }
+
+        .cover-desc {
+            font-size: 10.5pt;
+            color: #475569;
+            max-width: 90%;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .cover-divider {
+            width: 70px;
+            height: 4px;
+            background: linear-gradient(90deg, #005baa, #b8972a);
+            border-radius: 2px;
+            margin: 20px 0;
+        }
+
+        .cover-meta {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            box-shadow: 0 4px 12px rgba(0, 59, 115, 0.05);
+        }
+
+        .meta-item small {
+            display: block;
+            font-size: 7.5pt;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .meta-item strong {
+            font-size: 9.5pt;
+            color: #003b73;
+        }
+
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0 16px 0;
+            font-size: 9pt;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        th {
+            background-color: #005baa;
+            color: #ffffff;
+            font-weight: 700;
+            text-align: left;
+            padding: 8px 10px;
+            border: 1px solid #003b73;
+            font-size: 8.5pt;
+        }
+
+        td {
+            padding: 7px 10px;
+            border: 1px solid #cbd5e1;
+            vertical-align: top;
+            color: #334155;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        /* CALLOUT BOXES */
+        .callout {
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin: 12px 0;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            font-size: 9pt;
+        }
+
+        .callout-icon {
+            font-size: 13pt;
+            line-height: 1;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .callout-content strong {
+            display: block;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+
+        .callout.tip {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+        .callout.tip .callout-icon { color: #16a34a; }
+
+        .callout.important {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+        .callout.important .callout-icon { color: #2563eb; }
+
+        .callout.warning {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+        .callout.warning .callout-icon { color: #d97706; }
+
+        /* SCREENSHOT STYLING */
+        .screenshot-container {
+            margin: 12px 0 16px 0;
+            text-align: center;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .screenshot-frame {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+            display: inline-block;
+            max-width: 100%;
+            background: #ffffff;
+        }
+
+        .screenshot-img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .screenshot-caption {
+            font-size: 8.5pt;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .screenshot-caption strong {
+            color: #003b73;
+        }
+
+        /* STEPS NUMBERED LIST */
+        .step-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: #005baa;
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 9pt;
+            flex-shrink: 0;
+        }
+
+        .step-title {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #003b73;
+            margin: 0;
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .badge-disetujui { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-ditolak { background: #fee2e2; color: #991b1b; border: 1px solid #fecdd3; }
+        .badge-cancel { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+        /* BUTTON PRINT */
+        .action-bar-top {
+            position: fixed;
+            top: 12px;
+            right: 16px;
+            z-index: 9999;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-print {
+            background: #005baa;
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 91, 170, 0.3);
+        }
+
+        .btn-print:hover {
+            background: #003b73;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            background-color: #f1f5f9;
+            padding: 2px 5px;
+            font-size: 9pt;
+            color: #003b73;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="action-bar-top no-print">
+        <button class="btn-print" onclick="window.print()">
+            <i class="bi bi-printer-fill"></i> Cetak / Simpan PDF Ringkas
+        </button>
+    </div>
+
+    <div class="page-container">
+
+        <!-- ==================== COVER PAGE ==================== -->
+        <div class="cover-page">
+            <div class="cover-logo-wrapper">
+                <img src="public/images/logo-bi4.png" alt="Bank Indonesia Logo" class="cover-logo">
+                <div class="cover-instansi">
+                    <h4>BANK INDONESIA</h4>
+                    <p>Kantor Perwakilan Provinsi Sulawesi Utara</p>
+                </div>
+            </div>
+
+            <div class="cover-main">
+                <div class="cover-tag">Quick Start Guide &bull; Panduan Cepat</div>
+                <h1 class="cover-title">PANDUAN RINGKAS</h1>
+                <h2 class="cover-subtitle">SILAKAN</h2>
+                <p class="cover-desc"><strong>Sistem Informasi Layanan Kantor</strong> &mdash; Panduan Operasional Sederhana dan Praktis untuk Pegawai Unit Kerja dan Administrator Sarpras.</p>
+                <div class="cover-divider"></div>
+            </div>
+
+            <div class="cover-meta">
+                <div class="meta-item">
+                    <small>Versi Dokumen</small>
+                    <strong>Versi Ringkas 1.0</strong>
+                </div>
+                <div class="meta-item">
+                    <small>Penerbitan</small>
+                    <strong>September 2026</strong>
+                </div>
+                <div class="meta-item">
+                    <small>Klasifikasi</small>
+                    <strong>Internal KPwBI Sulut</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== LEMBAR IDENTITAS & CARA JALANKAN SISTEM ==================== -->
+        <div class="sheet page-break">
+            <div class="sheet-header">
+                <span>SILAKAN &bull; Bank Indonesia Sulut</span>
+                <span>Pendahuluan & Cara Menjalankan Sistem</span>
+            </div>
+
+            <h1 class="section-title">
+                <span class="section-badge">INFO</span>
+                Sekilas Tentang SILAKAN
+            </h1>
+
+            <p><strong>SILAKAN (Sistem Informasi Layanan Kantor)</strong> adalah aplikasi berbasis website internal milik <strong>Bank Indonesia KPwBI Prov. Sulut</strong> yang digunakan untuk <strong>memesan dan mengelola ruangan rapat kantor secara online</strong>.</p>
+
+            <div class="callout tip">
+                <div class="callout-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="callout-content">
+                    <strong>4 Manfaat Utama SILAKAN:</strong>
+                    1. <strong>Bebas Bentrok</strong>: Sistem otomatis menolak jika ada yang memesan ruangan dan jam yang sama.<br>
+                    2. <strong>Jadwal Terbuka</strong>: Ketersediaan ruangan langsung terlihat pada kalender visual.<br>
+                    3. <strong>Konfirmasi Cepat WhatsApp</strong>: Pemohon langsung menerima notifikasi status persetujuan di WhatsApp.<br>
+                    4. <strong>Layar TV Lobby Otomatis</strong>: Agenda rapat aktif hari ini langsung tampil di TV Monitor Lobby kantor.
+                </div>
+            </div>
+
+            <h2>Langkah Menjalankan Sistem (Untuk Teknisi / Operator)</h2>
+            <p>Jika aplikasi belum berjalan di laptop atau server kantor, lakukan 3 langkah mudah berikut:</p>
+
+            <div class="step-box">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Nyalakan Database MySQL (XAMPP)</div>
+                </div>
+                <p style="margin-left: 32px; margin-bottom: 0;">Buka aplikasi <strong>XAMPP Control Panel</strong>, lalu klik tombol <strong>Start</strong> pada baris <strong>MySQL</strong> (pastikan lampu indikator berwarna hijau).</p>
+            </div>
+
+            <div class="step-box">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Jalankan Server Aplikasi (Laravel)</div>
+                </div>
+                <p style="margin-left: 32px; margin-bottom: 0;">Buka Command Prompt di folder project <code>d:\Bank Indo\silakan</code>, lalu ketik perintah: <code>php artisan serve</code>. Server akan aktif di <code>http://127.0.0.1:8000</code>.</p>
+            </div>
+
+            <div class="step-box">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Buka Aplikasi di Browser (Google Chrome / Edge)</div>
+                </div>
+                <p style="margin-left: 32px; margin-bottom: 0;">Akses alamat: <strong><code>http://localhost:8000</code></strong> untuk login, dan <strong><code>http://localhost:8000/display</code></strong> untuk layar TV Lobby.</p>
+            </div>
+
+            <h2>Daftar Akun Siap Pakai untuk Uji Coba</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 22%;">Role Pengguna</th>
+                        <th style="width: 24%;">Username ID</th>
+                        <th style="width: 20%;">Password</th>
+                        <th style="width: 34%;">Unit Kerja / Fungsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Administrator</strong></td>
+                        <td><code>admin</code></td>
+                        <td><code>password</code></td>
+                        <td>Pengelola Sarpras / Sekpr (Approval & Master)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Unit</strong></td>
+                        <td><code>uk_kpwbisulut</code></td>
+                        <td><code>kpwbisulut</code></td>
+                        <td>Unit Kehumasan (Pemohon Ruangan)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Unit</strong></td>
+                        <td><code>sp_kpwbisulut</code></td>
+                        <td><code>kpwbisulut</code></td>
+                        <td>Unit Sistem Pembayaran</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User Unit</strong></td>
+                        <td><code>pur_kpwbisulut</code></td>
+                        <td><code>kpwbisulut</code></td>
+                        <td>Unit Pengelolaan Uang Rupiah</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Seluruh User</strong></td>
+                        <td><em>(semua unit)</em></td>
+                        <td><code>kpwbisulut</code></td>
+                        <td>Default password seluruh akun user</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="sheet-footer">
+                <span>Panduan Ringkas SILAKAN v1.0</span>
+                <span>Halaman 2</span>
+            </div>
+        </div>
+
+        <!-- ==================== BAGIAN 1: PANDUAN PENGGUNA (USER) ==================== -->
+        <div class="sheet page-break">
+            <div class="sheet-header">
+                <span>SILAKAN &bull; Bank Indonesia Sulut</span>
+                <span>Bagian 1: Panduan Pengguna (User Unit Kerja)</span>
+            </div>
+
+            <h1 class="section-title">
+                <span class="section-badge">USER</span>
+                Panduan Pengguna (Pegawai Unit Kerja)
+            </h1>
+
+            <h2>1. Masuk ke Sistem (Login) & Dashboard User</h2>
+            <p>Buka <code>http://localhost:8000</code>, masukkan Username unit Anda (misal: <code>uk_kpwbisulut</code>) dan Password: <code>password</code>, lalu klik tombol biru <strong>Masuk</strong>.</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/01_login_page.png" alt="Halaman Login" class="screenshot-img" style="max-height: 220px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.1</strong> &mdash; Halaman Login Masuk Sistem SILAKAN</span>
+            </div>
+
+            <p>Setelah login, Anda langsung melihat <strong>Dashboard Pengguna</strong> yang menyajikan ringkasan jumlah pemesanan, rapat yang sedang berlangsung hari ini, serta riwayat permohonan terkini unit Anda.</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/02_dashboard_user.png" alt="Dashboard User" class="screenshot-img" style="max-height: 220px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.2</strong> &mdash; Dashboard Pengguna (Unit Kerja)</span>
+            </div>
+
+            <h2>2. Memeriksa Ketersediaan Ruangan di Kalender</h2>
+            <p>Sebelum memesan, buka menu <strong>Kalender Ruangan</strong> di sebelah kiri untuk mengecek jam kosong:</p>
+            <ul>
+                <li>🟦 <strong>Biru</strong>: Rapat resmi yang sudah disetujui.</li>
+                <li>🟥 <strong>Merah</strong>: Hari Libur Nasional | 🟨 <strong>Kuning</strong>: Cuti Bersama.</li>
+                <li>Klik pada kotak rapat untuk melihat siapa penanggung jawabnya dan jam pelaksanaannya.</li>
+            </ul>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/08_kalender_ruangan.png" alt="Kalender Ruangan" class="screenshot-img" style="max-height: 220px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.3</strong> &mdash; Kalender Ruangan Rapat Interaktif</span>
+            </div>
+
+            <div class="sheet-footer">
+                <span>Panduan Ringkas SILAKAN v1.0</span>
+                <span>Halaman 3</span>
+            </div>
+        </div>
+
+        <!-- ==================== BAGIAN 1 (Lanjutan): Form Pemesanan, Riwayat & Batal ==================== -->
+        <div class="sheet page-break">
+            <div class="sheet-header">
+                <span>SILAKAN &bull; Bank Indonesia Sulut</span>
+                <span>Bagian 1: Pemesanan Ruangan & Riwayat</span>
+            </div>
+
+            <h2>3. Cara Memesan Ruangan Rapat (Langkah Demi Langkah)</h2>
+            <p>Klik tombol <strong>+ Buat Pemesanan Baru</strong> pada Dashboard atau klik menu <strong>Pemesanan</strong>, lalu lengkapi isian formulir:</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/03_form_pemesanan.png" alt="Form Pemesanan Ruangan" class="screenshot-img" style="max-height: 220px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.4</strong> &mdash; Formulir Pengajuan Pemesanan Ruangan Baru</span>
+            </div>
+
+            <ol>
+                <li><strong>Ruangan Rapat</strong>: Pilih salah satu dari 11 ruangan rapat di KPwBI Sulut (Tondano, Bunaken, Tomohon, Klabat, Lokon, dll).</li>
+                <li><strong>Layout Ruangan</strong>: Pilih tata letak (U-Shape, Classroom, Teater, Round Table). Ruangan bertata letak tetap (seperti Bunaken) otomatis terisi *Tidak ada layout khusus*.</li>
+                <li><strong>Tanggal & Jam (WITA)</strong>: Masukkan tanggal rapat serta jam mulai dan selesai (contoh: <code>09:00</code> s/d <code>11:30 WITA</code>).</li>
+                <li><strong>Judul Kegiatan & PIC</strong>: Tuliskan nama agenda, nama penanggung jawab, kategori (Organik/Non Organik), dan <strong>Nomor WhatsApp PIC</strong> agar pemberitahuan otomatis bisa masuk.</li>
+                <li><strong>Jumlah Tamu</strong>: Masukkan jumlah peserta (sistem otomatis memvalidasi agar tidak melebihi kapasitas ruangan).</li>
+                <li><strong>Unggah Disposisi (Opsional)</strong>: Lampirkan nota dinas pimpinan (PDF, JPG, PNG maks 5 MB), lalu klik <strong>Kirim Pengajuan Pemesanan</strong>.</li>
+            </ol>
+
+            <h2>4. Memantau Status Permohonan & Detail</h2>
+            <p>Buka menu <strong>Riwayat</strong> untuk melihat perkembangan persetujuan ruangan Anda:</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/06_riwayat_pemesanan.png" alt="Riwayat Pemesanan" class="screenshot-img" style="max-height: 200px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.5</strong> &mdash; Riwayat Pemesanan Unit Kerja & Arti Badge Status</span>
+            </div>
+
+            <ul>
+                <li>🟡 <span class="badge badge-pending">PENDING</span>: Sedang dalam antrean review Administrator Sarpras.</li>
+                <li>🟢 <span class="badge badge-disetujui">DISETUJUI</span>: Rapat disetujui! Ruangan resmi terkunci dan agenda muncul di TV Lobby.</li>
+                <li>🔴 <span class="badge badge-ditolak">DITOLAK</span>: Permohonan ditolak (klik tombol Detail untuk melihat alasan penolakan).</li>
+            </ul>
+
+            <div class="callout tip">
+                <div class="callout-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="callout-content">
+                    <strong>Fitur Pembatalan & Selesai Lebih Awal (Early Release):</strong>
+                    &bull; <strong>Batalkan Rapat</strong>: Jika agenda batal, buka rincian detail pemesanan lalu klik tombol merah <em>Batalkan Pemesanan</em>.<br>
+                    &bull; <strong>Selesai Lebih Cepat</strong>: Jika rapat bubar sebelum jam target, klik tombol hijau <em>Selesaikan Rapat Sekarang</em> agar ruangan di TV lobby seketika kosong kembali.
+                </div>
+            </div>
+
+            <div class="sheet-footer">
+                <span>Panduan Ringkas SILAKAN v1.0</span>
+                <span>Halaman 4</span>
+            </div>
+        </div>
+
+        <!-- ==================== BAGIAN 2: PANDUAN ADMINISTRATOR ==================== -->
+        <div class="sheet page-break">
+            <div class="sheet-header">
+                <span>SILAKAN &bull; Bank Indonesia Sulut</span>
+                <span>Bagian 2: Panduan Administrator (Sarpras / Sekpr)</span>
+            </div>
+
+            <h1 class="section-title">
+                <span class="section-badge">ADMIN</span>
+                Panduan Administrator (Admin Sarpras)
+            </h1>
+
+            <h2>1. Dashboard Analytics Administrator</h2>
+            <p>Login dengan Username: <code>admin</code> dan Password: <code>password</code>. Dashboard Admin menampilkan statistik eksekutif, grafik tren 6 bulan, diagram ruangan terpopuler, serta antrean permohonan yang butuh tindakan.</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/11_dashboard_admin.png" alt="Dashboard Admin" class="screenshot-img" style="max-height: 220px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 2.1</strong> &mdash; Dashboard Analytics Administrator Sarpras</span>
+            </div>
+
+            <h2>2. Cara Menyetujui (Approve) & Menolak (Reject) Pemesanan</h2>
+            <p>Buka menu <strong>Pemesanan Ruangan</strong>. Pada tab <strong>Pending</strong>, klik tombol <strong>Review Approval</strong> pada pengajuan yang masuk:</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="screenshot-container" style="margin: 0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/13_approval_review.png" alt="Review Approval" class="screenshot-img" style="max-height: 190px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 2.2</strong> &mdash; Review Berkas & Tombol Setujui</span>
+                </div>
+                <div class="screenshot-container" style="margin: 0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/13b_modal_penolakan.png" alt="Modal Tolak" class="screenshot-img" style="max-height: 190px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 2.3</strong> &mdash; Modal Input Alasan Penolakan</span>
+                </div>
+            </div>
+
+            <ol style="margin-top: 10px;">
+                <li><strong>Untuk Menyetujui</strong>: Periksa berkas disposisi, lalu klik tombol hijau <strong>Setujui Pemesanan</strong>. Status berubah menjadi *Disetujui*, jadwal terkunci di kalender, dan pesan WhatsApp otomatis dikirim ke nomor PIC pemohon.</li>
+                <li><strong>Untuk Menolak</strong>: Klik tombol merah <strong>Tolak Pemesanan</strong>, ketikkan alasan penolakan secara jelas pada modal pop-up, lalu klik <strong>Kirim Penolakan</strong>. Alasan akan terkirim langsung via WhatsApp kepada pemohon.</li>
+            </ol>
+
+            <h2>3. Pemantauan Rapat Aktif (Live Monitoring) & Countdown Timer</h2>
+            <p>Buka menu <strong>Kegiatan Berlangsung</strong> untuk melihat ruangan yang sedang aktif digunakan saat ini, dilengkapi dengan <strong>Live Countdown Timer</strong> sisa waktu rapat secara detik demi detik.</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/14_live_monitoring.png" alt="Live Monitoring" class="screenshot-img" style="max-height: 200px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 2.4</strong> &mdash; Live Monitoring Ruangan Aktif & Countdown Timer Real-Time</span>
+            </div>
+
+            <div class="sheet-footer">
+                <span>Panduan Ringkas SILAKAN v1.0</span>
+                <span>Halaman 5</span>
+            </div>
+        </div>
+
+        <!-- ==================== BAGIAN 2 (Lanjutan) & BAGIAN 3: TV LOBBY ==================== -->
+        <div class="sheet page-break">
+            <div class="sheet-header">
+                <span>SILAKAN &bull; Bank Indonesia Sulut</span>
+                <span>Bagian 2 & 3: Master Data, Laporan & TV Lobby</span>
+            </div>
+
+            <h2>4. Mengatur Master Data & Sinkronisasi Hari Libur</h2>
+            <ul>
+                <li><strong>Data Ruangan</strong>: Tambah ruangan baru, ubah kapasitas, dan centang layout yang diizinkan menggunakan checkbox rounded badge.</li>
+                <li><strong>Hari Libur</strong>: Klik tombol biru <strong>Sync API Libur Nasional</strong> untuk otomatis mengunduh tanggal merah pemerintah.</li>
+                <li><strong>Data User</strong>: Buat akun unit kerja baru atau reset password pegawai yang lupa kata sandi.</li>
+            </ul>
+
+            <h2>5. Rekapitulasi Laporan, Ekspor Excel & Cetak PDF KOP BI</h2>
+            <p>Buka menu <strong>Sistem</strong> &rarr; <strong>Laporan</strong>. Saring berdasarkan rentang tanggal atau ruangan, lalu klik <strong>Export Excel</strong> untuk mengunduh spreadsheet <code>.xlsx</code> atau klik <strong>Cetak Laporan / PDF</strong> untuk mencetak dokumen ber-KOP resmi Bank Indonesia.</p>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/21_laporan_cetak_pdf.png" alt="Cetak Laporan PDF KOP BI" class="screenshot-img" style="max-height: 210px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 2.5</strong> &mdash; Pratinjau Dokumen Cetak Laporan PDF Ber-KOP Resmi Bank Indonesia</span>
+            </div>
+
+            <h1 class="section-title" style="margin-top: 18px;">
+                <span class="section-badge">TV</span>
+                Tampilan TV Monitor Lobby (Kiosk Mode)
+            </h1>
+
+            <p>Untuk menayangkan jadwal rapat pada Smart TV di lobby kantor:</p>
+            <ol>
+                <li>Buka browser TV atau Mini PC Lobby, lalu buka alamat: <strong><code>http://localhost:8000/display</code></strong> (atau <code>/kiosk</code>).</li>
+                <li>Tekan tombol <strong>F11</strong> di keyboard untuk layar penuh (*Full Screen*).</li>
+                <li><strong>Otomatis Memperbarui Setiap 30 Detik</strong>: Status ruangan yang terisi berwarna merah, dan ruangan kosong berwarna hijau secara mulus tanpa reload halaman (*zero-flicker*).</li>
+            </ol>
+
+            <div class="screenshot-container">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/23_tv_display_kiosk.png" alt="TV Display Lobby" class="screenshot-img" style="max-height: 210px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 3.1</strong> &mdash; Layar TV Monitor Lobby (Kiosk Mode) Bank Indonesia Sulut</span>
+            </div>
+
+            <div class="callout tip">
+                <div class="callout-icon"><i class="bi bi-headset"></i></div>
+                <div class="callout-content">
+                    <strong>Pusat Bantuan & Layanan Kendala (Helpdesk Sarpras):</strong><br>
+                    Jika mengalami kendala operasional ruangan rapat:<br>
+                    &bull; <strong>Unit Pengelola</strong>: Unit Rumah Tangga & Logistik / Sekpr KPwBI Sulut (Lantai 2)<br>
+                    &bull; <strong>Email</strong>: <code>sarpras_kpwbisulut@bi.go.id</code> | <strong>Ext Telepon</strong>: 8200 / 8201
+                </div>
+            </div>
+
+            <div class="sheet-footer">
+                <span>Panduan Ringkas SILAKAN v1.0</span>
+                <span>Halaman 6</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

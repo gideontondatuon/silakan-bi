@@ -47,13 +47,15 @@ class SendBookingReminders extends Command
                 $targetWA = $pemesanan->no_wa_pic ?: ($pemesanan->user->no_wa ?? null);
                 if ($targetWA) {
                     $namaPic = $pemesanan->pic_kegiatan ?: $pemesanan->user->name;
-                    $msg = "⏰ *[SILAKAN BI] PENGINGAT JADWAL RUANGAN RAPAT*\n\n"
-                         . "Halo {$namaPic}, mengingatkan bahwa kegiatan rapat Anda akan dimulai dalam waktu 1 jam ke depan:\n\n"
-                         . "🏢 *Ruangan:* {$pemesanan->ruangan->nama_ruangan}\n"
-                         . "⏰ *Waktu:* {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
-                         . "📝 *Kegiatan:* {$pemesanan->judul_kegiatan}\n"
-                         . "📍 *Lokasi:* KPwBI Prov. Sulut\n\n"
-                         . "Mohon dapat hadir tepat waktu. Selamat berkegiatan!";
+                    $msg = "*[SILAKAN - BANK INDONESIA]*\n"
+                         . "*PENGINGAT JADWAL KEGIATAN*\n\n"
+                         . "Yth. Bapak/Ibu {$namaPic},\n"
+                         . "Mengingatkan bahwa kegiatan rapat Anda akan dimulai dalam 1 jam ke depan:\n\n"
+                         . "▪ Ruangan  : {$pemesanan->ruangan->nama_ruangan}\n"
+                         . "▪ Waktu    : {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
+                         . "▪ Agenda   : {$pemesanan->judul_kegiatan}\n"
+                         . "▪ Lokasi   : KPwBI Prov. Sulawesi Utara\n\n"
+                         . "Terima kasih atas perhatian dan kerja samanya.";
 
                     $waService->sendMessage($targetWA, $msg);
                     $count++;

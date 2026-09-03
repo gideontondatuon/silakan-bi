@@ -8,32 +8,34 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 
+use App\Models\Ruangan;
+use Illuminate\Http\Request;
+
 class KalenderController extends Controller
 {
-
     public function index(): View
     {
-        return view(
-            'kalender.index'
-        );
-    }
-
-
-    public function events(): JsonResponse
-    {
-
-        $pemesanan = Pemesanan::with([
-                'ruangan',
-                'layout',
-                'user'
-            ])
-            ->where(
-                'status',
-                PemesananStatus::DISETUJUI
-            )
+        $ruangans = Ruangan::where('status', 'aktif')
+            ->orderBy('nama_ruangan')
             ->get();
 
+        return view('kalender.index', compact('ruangans'));
+    }
 
+    public function events(Request $request): JsonResponse
+    {
+        $query = Pemesanan::with([
+            'ruangan',
+            'layout',
+            'user'
+        ])
+        ->where('status', PemesananStatus::DISETUJUI->value);
+
+        if ($request->filled('ruangan_id')) {
+            $query->where('ruangan_id', $request->ruangan_id);
+        }
+
+        $pemesanan = $query->get();
 
         $events = $pemesanan->map(function ($item) {
             return [
@@ -46,15 +48,25 @@ class KalenderController extends Controller
                 'textColor' => '#ffffff',
                 'type' => 'booking',
                 'extendedProps' => [
+                    'booking_id' => $item->id,
+                    'kode_pemesanan' => $item->kode_pemesanan,
+                    'judul' => $item->judul_kegiatan,
                     'ruangan' => $item->ruangan?->nama_ruangan ?? 'Ruangan',
+                    'lokasi' => $item->ruangan?->lokasi ?? '-',
                     'layout' => $item->layout?->nama_layout ?? '-',
                     'pic' => $item->pic_kegiatan,
+                    'no_wa_pic' => $item->no_wa_pic,
+                    'jenis_pic' => $item->jenis_pic,
+                    'tamu' => $item->jumlah_tamu,
                     'pemohon' => $item->user?->name ?? 'User',
-                    'waktu' => $item->waktu_mulai . ' - ' . $item->waktu_selesai,
+                    'unit' => $item->user?->nama_unit ?? '-',
+                    'waktu' => $item->waktu_mulai . ' - ' . $item->waktu_selesai . ' WITA',
+                    'tanggal' => $item->tanggal_kegiatan->isoFormat('dddd, D MMMM YYYY'),
                 ]
             ];
         })->toArray();
 
+        // Hari Libur
         $hariLibur = \App\Models\HariLibur::all();
         foreach ($hariLibur as $libur) {
             $isCuti = $libur->kategori === 'cuti_bersama';
@@ -79,6 +91,7 @@ class KalenderController extends Controller
                     'kategori' => $libur->kategori,
                     'kategori_label' => $libur->kategori_label,
                     'is_nasional' => $libur->is_nasional,
+                    'tanggal' => $libur->tanggal->isoFormat('dddd, D MMMM YYYY'),
                 ]
             ];
         }

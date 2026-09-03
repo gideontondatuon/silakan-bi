@@ -12,13 +12,9 @@ class LayoutRuangan extends Model
 
 
     protected $fillable = [
-
         'ruangan_id',
-
         'nama_layout',
-
         'kapasitas_layout',
-        'ruangan_id',
     ];
 
 

@@ -49,6 +49,8 @@ class PemesananController extends Controller
 
     public function index(): View
     {
+        Pemesanan::markFinishedAgendas();
+
         $pemesanan = Pemesanan::with(['ruangan', 'layout'])
             ->where('user_id', auth()->id())
             ->latest()
@@ -81,6 +83,43 @@ class PemesananController extends Controller
         }
     }
 
+    public function selesaiAwal(Pemesanan $pemesanan): RedirectResponse
+    {
+        abort_if($pemesanan->user_id !== auth()->id(), 403);
+
+        $statusVal = is_object($pemesanan->status) ? $pemesanan->status->value : $pemesanan->status;
+        if ($statusVal !== \App\Enums\PemesananStatus::DISETUJUI->value) {
+            return back()->with('error', 'Hanya kegiatan berstatus Disetujui yang dapat diselesaikan lebih awal.');
+        }
+
+        if (!$pemesanan->tanggal_kegiatan || !$pemesanan->tanggal_kegiatan->isToday()) {
+            return back()->with('error', 'Hanya kegiatan yang berlangsung hari ini yang dapat diselesaikan lebih awal.');
+        }
+
+        $currentTime = \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s');
+
+        if ($currentTime >= $pemesanan->waktu_selesai) {
+            return back()->with('error', 'Kegiatan ini sudah selesai sesuai jadwal dan tidak dapat diselesaikan lebih awal.');
+        }
+
+        if ($currentTime < $pemesanan->waktu_mulai) {
+            return back()->with('error', 'Kegiatan ini belum dimulai sesuai jadwal.');
+        }
+
+        $pemesanan->update([
+            'waktu_selesai' => $currentTime,
+            'status' => \App\Enums\PemesananStatus::SELESAI,
+        ]);
+
+        \App\Services\AuditLogService::create(
+            'Menyelesaikan Kegiatan Lebih Awal',
+            'Pemesanan',
+            "Pengguna menyelesaikan kegiatan {$pemesanan->kode_pemesanan} lebih awal pada pukul {$currentTime} WITA."
+        );
+
+        return back()->with('success', "Kegiatan pada ruangan {$pemesanan->ruangan->nama_ruangan} berhasil diselesaikan lebih awal pada pukul {$currentTime} WITA. Ruangan kini berstatus kosong dan tersedia.");
+    }
+
     public function checkConflict(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
@@ -90,6 +129,26 @@ class PemesananController extends Controller
             'waktu_selesai' => 'required',
         ]);
 
+        $nowMakassar = \Carbon\Carbon::now('Asia/Makassar');
+        $today = $nowMakassar->toDateString();
+        $currentTime = $nowMakassar->format('H:i');
+
+        if ($request->tanggal_kegiatan < $today) {
+            return response()->json([
+                'conflict' => true,
+                'is_past' => true,
+                'message' => 'Tanggal kegiatan sudah lewat! Tidak dapat memesan untuk tanggal yang telah berlalu.',
+            ]);
+        }
+
+        if ($request->tanggal_kegiatan === $today && $request->waktu_mulai < $currentTime) {
+            return response()->json([
+                'conflict' => true,
+                'is_past' => true,
+                'message' => "Waktu mulai ({$request->waktu_mulai} WITA) sudah terlewat! Waktu saat ini adalah {$currentTime} WITA.",
+            ]);
+        }
+
         $date = \Carbon\Carbon::parse($request->tanggal_kegiatan);
         $isWeekend = $date->isWeekend();
         $dayName = $date->isoFormat('dddd');
@@ -97,8 +156,8 @@ class PemesananController extends Controller
         $holiday = \App\Models\HariLibur::where('tanggal', $request->tanggal_kegiatan)->first();
 
         $conflicting = Pemesanan::where('ruangan_id', $request->ruangan_id)
-            ->where('tanggal_kegiatan', $request->tanggal_kegiatan)
-            ->where('status', \App\Enums\PemesananStatus::DISETUJUI->value)
+            ->whereDate('tanggal_kegiatan', $request->tanggal_kegiatan)
+            ->whereIn('status', [\App\Enums\PemesananStatus::DISETUJUI->value, \App\Enums\PemesananStatus::SELESAI->value])
             ->where(function ($query) use ($request) {
                 $query->where('waktu_mulai', '<', $request->waktu_selesai)
                     ->where('waktu_selesai', '>', $request->waktu_mulai);

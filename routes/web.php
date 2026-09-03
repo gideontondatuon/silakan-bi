@@ -13,7 +13,6 @@ use App\Http\Controllers\Api\LayoutController;
 use App\Http\Controllers\Admin\ApprovalController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\FasilitasController;
 use App\Http\Controllers\Admin\HariLiburController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\LayoutRuanganController;
@@ -33,8 +32,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::redirect('/login/', '/login');
-
 /*
 |--------------------------------------------------------------------------
 | Tampilan TV Monitor Lobby / Kiosk Mode (Public)
@@ -47,20 +44,66 @@ Route::get('/kiosk', [DisplayController::class, 'index'])->name('display.kiosk')
 Route::get('/api/display-data', [DisplayController::class, 'apiData'])->name('api.display-data');
 
 Route::get('/download-manual-book', function() {
-    $path = base_path('MANUAL_BOOK_SILAKAN.doc');
+    $path = base_path('Manual_Book_SILAKAN_v1.0.doc');
     if (!file_exists($path)) {
         \Illuminate\Support\Facades\Artisan::call('export:manual-word');
     }
-    return response()->download($path, 'Manual_Book_SILAKAN_KPwBI_Sulut.doc', [
+    abort_if(!file_exists($path), 404, 'Berkas Manual Book DOC belum tersedia di server.');
+    return response()->download($path, 'Manual_Book_SILAKAN_v1.0.doc', [
         'Content-Type' => 'application/msword',
     ]);
 })->name('download.manual-book');
+
+Route::get('/download-manual-book-docx', function() {
+    $path = base_path('Manual_Book_SILAKAN_v1.0.docx');
+    if (!file_exists($path)) {
+        $path = public_path('Manual_Book_SILAKAN_v1.0.docx');
+    }
+    abort_if(!file_exists($path), 404, 'Berkas Manual Book DOCX belum tersedia di server.');
+    return response()->download($path, 'Manual_Book_SILAKAN_v1.0.docx', [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ]);
+})->name('download.manual-book-docx');
+
+Route::get('/download-manual-book-pdf', function() {
+    $path = base_path('Manual_Book_SILAKAN_v1.0.pdf');
+    if (!file_exists($path)) {
+        $path = public_path('Manual_Book_SILAKAN_v1.0.pdf');
+    }
+    abort_if(!file_exists($path), 404, 'Berkas Manual Book PDF belum tersedia di server.');
+    return response()->download($path, 'Manual_Book_SILAKAN_v1.0.pdf', [
+        'Content-Type' => 'application/pdf',
+    ]);
+})->name('download.manual-book-pdf');
+
+Route::get('/download-panduan-ringkas', function() {
+    $path = base_path('public/Panduan_Ringkas_SILAKAN.doc');
+    if (!file_exists($path)) {
+        $path = base_path('Panduan_Ringkas_SILAKAN.doc');
+    }
+    abort_if(!file_exists($path), 404, 'Berkas Panduan Ringkas DOC belum tersedia di server.');
+    return response()->download($path, 'Panduan_Ringkas_SILAKAN.doc', [
+        'Content-Type' => 'application/msword',
+    ]);
+})->name('download.panduan-ringkas');
+
+Route::get('/download-panduan-ringkas-pdf', function() {
+    $path = base_path('Panduan_Ringkas_SILAKAN.pdf');
+    if (!file_exists($path)) {
+        $path = public_path('Panduan_Ringkas_SILAKAN.pdf');
+    }
+    abort_if(!file_exists($path), 404, 'Berkas Panduan Ringkas PDF belum tersedia di server.');
+    return response()->download($path, 'Panduan_Ringkas_SILAKAN.pdf', [
+        'Content-Type' => 'application/pdf',
+    ]);
+})->name('download.panduan-ringkas-pdf');
 
 Route::get('/download-sdd', function() {
     $path = base_path('SDD_SILAKAN_v2.doc');
     if (!file_exists($path)) {
         \Illuminate\Support\Facades\Artisan::call('export:sdd-word');
     }
+    abort_if(!file_exists($path), 404, 'Berkas Software Design Document belum tersedia di server.');
     return response()->download($path, 'Software_Design_Document_SILAKAN_KPwBI_Sulut.doc', [
         'Content-Type' => 'application/msword',
     ]);
@@ -187,6 +230,11 @@ Route::middleware('auth')->group(function () {
         '/pemesanan/{pemesanan}/cancel',
         [PemesananController::class, 'cancel']
     )->name('pemesanan.cancel');
+
+    Route::post(
+        '/pemesanan/{pemesanan}/selesai-awal',
+        [PemesananController::class, 'selesaiAwal']
+    )->name('pemesanan.selesai-awal');
 
 
     /*
@@ -317,6 +365,16 @@ Route::middleware([
         )->name('approval.index');
 
         Route::get(
+            '/approval/create',
+            [ApprovalController::class, 'create']
+        )->name('approval.create');
+
+        Route::post(
+            '/approval',
+            [ApprovalController::class, 'store']
+        )->name('approval.store');
+
+        Route::get(
             '/approval/{pemesanan}',
             [ApprovalController::class, 'show']
         )->name('approval.show');
@@ -330,6 +388,16 @@ Route::middleware([
             '/approval/{pemesanan}/reject',
             [ApprovalController::class, 'reject']
         )->name('approval.reject');
+
+        Route::post(
+            '/approval/{pemesanan}/selesai-awal',
+            [ApprovalController::class, 'selesaiAwal']
+        )->name('approval.selesai-awal');
+
+        Route::delete(
+            '/approval/{pemesanan}',
+            [ApprovalController::class, 'destroy']
+        )->name('approval.destroy');
 
 
         /*

@@ -17,34 +17,6 @@
 
     <div style="padding:28px 32px;">
 
-        {{-- Flash Notification Alerts --}}
-        @if(session('success'))
-        <div class="alert alert-success" style="padding:14px 18px;border-radius:10px;margin-bottom:20px;font-weight:600;display:flex;align-items:center;gap:10px;background:#ecfdf5;border:1px solid #a7f3d0;color:#047857;">
-            <i class="bi bi-check-circle-fill" style="font-size:1.2rem;"></i>
-            <div>{{ session('success') }}</div>
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div class="alert alert-danger" style="padding:14px 18px;border-radius:10px;margin-bottom:20px;font-weight:600;display:flex;align-items:center;gap:10px;background:#fff1f2;border:1px solid #fecdd3;color:#be123c;">
-            <i class="bi bi-exclamation-triangle-fill" style="font-size:1.2rem;"></i>
-            <div>{{ session('error') }}</div>
-        </div>
-        @endif
-
-        @if($errors->any())
-        <div class="alert alert-danger" style="padding:16px 20px;border-radius:10px;margin-bottom:24px;background:#fff1f2;border:1px solid #fecdd3;color:#be123c;">
-            <div style="font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                <i class="bi bi-x-circle-fill" style="font-size:1.2rem;"></i>
-                <span>Pengajuan pemesanan gagal dikirim. Silakan periksa kesalahan berikut:</span>
-            </div>
-            <ul style="margin:0;padding-left:24px;font-size:13.5px;font-weight:500;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
 
         <form method="POST" action="{{ route('pemesanan.store') }}" enctype="multipart/form-data">
             @csrf
@@ -83,7 +55,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;" class="form-row-3">
                 <div class="form-group">
                     <label class="required">Tanggal Kegiatan</label>
-                    <input type="date" name="tanggal_kegiatan" value="{{ old('tanggal_kegiatan') }}" required>
+                    <input type="date" name="tanggal_kegiatan" id="tanggal_kegiatan" value="{{ old('tanggal_kegiatan') }}" min="{{ now('Asia/Makassar')->toDateString() }}" required>
                     @error('tanggal_kegiatan')
                         <span class="form-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
                     @enderror
@@ -385,6 +357,45 @@ function checkScheduleAvailability() {
     const tanggal = tanggalInput ? tanggalInput.value : '';
     const waktuMulai = waktuMulaiInput ? waktuMulaiInput.value : '';
     const waktuSelesai = waktuSelesaiInput ? waktuSelesaiInput.value : '';
+
+    const todayStr = '{{ now("Asia/Makassar")->toDateString() }}';
+    const nowHourMin = '{{ now("Asia/Makassar")->format("H:i") }}';
+
+    // Update dynamic min attribute pada input waktu
+    if (tanggal === todayStr) {
+        waktuMulaiInput.min = nowHourMin;
+    } else {
+        waktuMulaiInput.removeAttribute('min');
+    }
+    if (waktuMulai) {
+        waktuSelesaiInput.min = waktuMulai;
+    }
+
+    if (tanggal && tanggal < todayStr) {
+        if (availabilityBox) {
+            availabilityBox.style.display = 'block';
+            availabilityBox.style.background = '#fff1f2';
+            availabilityBox.style.color = '#be123c';
+            availabilityBox.style.border = '1px solid #fecdd3';
+            availabilityBox.innerHTML = '<i class="bi bi-x-circle-fill" style="margin-right: 8px;"></i> Tanggal kegiatan sudah lewat! Silakan pilih hari ini atau tanggal mendatang.';
+        }
+        isScheduleValid = false;
+        updateSubmitButtonState();
+        return;
+    }
+
+    if (tanggal === todayStr && waktuMulai && waktuMulai < nowHourMin) {
+        if (availabilityBox) {
+            availabilityBox.style.display = 'block';
+            availabilityBox.style.background = '#fff1f2';
+            availabilityBox.style.color = '#be123c';
+            availabilityBox.style.border = '1px solid #fecdd3';
+            availabilityBox.innerHTML = `<i class="bi bi-x-circle-fill" style="margin-right: 8px;"></i> Waktu mulai (${waktuMulai} WITA) sudah terlewat! Waktu saat ini adalah ${nowHourMin} WITA.`;
+        }
+        isScheduleValid = false;
+        updateSubmitButtonState();
+        return;
+    }
 
     if (!ruanganId || !tanggal || !waktuMulai || !waktuSelesai) {
         if (availabilityBox) availabilityBox.style.display = 'none';

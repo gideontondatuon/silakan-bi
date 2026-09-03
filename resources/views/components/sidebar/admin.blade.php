@@ -16,13 +16,18 @@
 
 <a href="{{ route('admin.approval.index') }}"
    class="{{ request()->routeIs('admin.approval.*') ? 'active' : '' }}">
-
-    <i class="bi bi-clock-history"></i>
-
+    <i class="bi bi-calendar-check"></i>
     <span>
-        Waiting List
+        Pemesanan Ruangan
     </span>
-
+    @php
+        $pendingBookingCount = \App\Models\Pemesanan::where('status', 'Pending')->count();
+    @endphp
+    @if($pendingBookingCount > 0)
+        <small class="sidebar-badge" style="background:#f59e0b;color:#fff;">
+            {{ $pendingBookingCount }}
+        </small>
+    @endif
 </a>
 
 

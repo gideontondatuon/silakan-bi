@@ -6,9 +6,14 @@
         <h1><i class="bi bi-grid-fill" style="color:#005baa;margin-right:8px;"></i>Dashboard Admin</h1>
         <p>Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong> &mdash; {{ now()->translatedFormat('l, d F Y') }}</p>
     </div>
-    <div class="dashboard-date">
-        <i class="bi bi-calendar3"></i>
-        {{ now()->translatedFormat('d F Y') }}
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <a href="{{ route('admin.approval.create') }}" class="btn-primary" style="padding:9px 18px;border-radius:10px;font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,91,170,0.25);">
+            <i class="bi bi-calendar-plus-fill"></i> Tambah Rapat
+        </a>
+        <div class="dashboard-date">
+            <i class="bi bi-calendar3"></i>
+            {{ now()->translatedFormat('d F Y') }}
+        </div>
     </div>
 </div>
 
@@ -42,14 +47,22 @@
                 </div>
             </div>
             <div class="live-card-title" style="font-size:16px;font-weight:700;color:#ffffff;margin:8px 0 10px 0;">{{ $live->judul_kegiatan }}</div>
-            <div class="live-card-pic" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,0.9);padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
-                <span><i class="bi bi-people-fill" style="color:#93c5fd;margin-right:4px;"></i> Unit Penyelenggara: <strong style="color:#ffffff;">{{ $live->user->nama_unit ?? $live->user->name }}</strong></span>
-                @if($live->pic_kegiatan)
-                    <span><i class="bi bi-person-badge-fill" style="color:#93c5fd;margin-right:4px;"></i> PIC: <strong style="color:#ffffff;">{{ $live->pic_kegiatan }}</strong></span>
-                @endif
-                @if($live->layout)
-                    <span><i class="bi bi-grid-3x3-gap-fill" style="color:#93c5fd;margin-right:4px;"></i> Layout: <strong style="color:#ffffff;">{{ $live->layout->nama_layout }}</strong></span>
-                @endif
+            <div class="live-card-pic" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,0.9);padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                    <span><i class="bi bi-people-fill" style="color:#93c5fd;margin-right:4px;"></i> Unit: <strong style="color:#ffffff;">{{ $live->user->nama_unit ?? $live->user->name }}</strong></span>
+                    @if($live->pic_kegiatan)
+                        <span><i class="bi bi-person-badge-fill" style="color:#93c5fd;margin-right:4px;"></i> PIC: <strong style="color:#ffffff;">{{ $live->pic_kegiatan }}</strong></span>
+                    @endif
+                    @if($live->layout)
+                        <span><i class="bi bi-grid-3x3-gap-fill" style="color:#93c5fd;margin-right:4px;"></i> Layout: <strong style="color:#ffffff;">{{ $live->layout->nama_layout }}</strong></span>
+                    @endif
+                </div>
+                <form action="{{ route('admin.approval.selesai-awal', $live) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $live->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="margin:0;">
+                    @csrf
+                    <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+                        <i class="bi bi-check2-circle"></i> Selesaikan Rapat
+                    </button>
+                </form>
             </div>
         </div>
         @endforeach
@@ -86,6 +99,7 @@
                     <th>Ruangan &amp; Layout</th>
                     <th>Pemohon / Unit</th>
                     <th>Status</th>
+                    <th style="text-align:center;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -108,10 +122,24 @@
                         <small style="color:#64748b;">{{ $item->user->nama_unit ?? '-' }}</small>
                     </td>
                     <td><span class="badge badge-success"><i class="bi bi-check-circle"></i> Disetujui</span></td>
+                    <td style="text-align:center;">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+                            <a href="{{ route('admin.approval.show', $item) }}" class="btn-primary btn-sm" style="padding:4px 8px;font-size:11.5px;" title="Detail Pemesanan">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form method="POST" action="{{ route('admin.approval.destroy', $item) }}" onsubmit="return submitFormWithConfirm(this, { title: 'Hapus Pemesanan', message: 'Apakah Anda yakin ingin menghapus data pemesanan <strong>{{ $item->kode_pemesanan }}</strong> ({{ $item->judul_kegiatan }}) secara permanen?', type: 'danger', confirmText: 'Ya, Hapus Data' });" style="margin:0;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-danger btn-sm" style="padding:4px 8px;font-size:11.5px;background:#dc2626;color:white;border:none;border-radius:6px;cursor:pointer;" title="Hapus Pemesanan">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <div class="empty-state">
                             <i class="bi bi-calendar-x"></i>
                             <p>Belum ada agenda kegiatan mendatang yang disetujui.</p>

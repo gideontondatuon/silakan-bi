@@ -95,6 +95,18 @@ class StorePemesananRequest extends FormRequest
             'waktu_mulai' => [
                 'required',
                 'date_format:H:i',
+                function ($attribute, $value, $fail) {
+                    if (!$this->tanggal_kegiatan) {
+                        return;
+                    }
+                    $nowMakassar = \Carbon\Carbon::now('Asia/Makassar');
+                    $today = $nowMakassar->toDateString();
+                    $currentTime = $nowMakassar->format('H:i');
+
+                    if ($this->tanggal_kegiatan === $today && $value < $currentTime) {
+                        $fail("Waktu mulai ({$value} WITA) tidak boleh menggunakan jam yang sudah terlewat untuk hari ini (waktu saat ini: {$currentTime} WITA).");
+                    }
+                },
             ],
 
             'waktu_selesai' => [

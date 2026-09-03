@@ -34,7 +34,8 @@ return new class extends Migration
                 'Pending',
                 'Disetujui',
                 'Ditolak',
-                'Cancel'
+                'Cancel',
+                'Selesai'
             ])
             ->nullable();
 
@@ -43,7 +44,8 @@ return new class extends Migration
                 'Pending',
                 'Disetujui',
                 'Ditolak',
-                'Cancel'
+                'Cancel',
+                'Selesai'
             ]);
 
 

@@ -70,17 +70,19 @@ class WhatsAppService
         $appUrl = config('app.url', 'http://127.0.0.1:8000');
         $tanggal = $pemesanan->tanggal_kegiatan->isoFormat('dddd, D MMMM YYYY');
 
-        $msg = "🔴 *[SILAKAN BI] ADA PENGAJUAN PEMESANAN BARU*\n\n"
-             . "Halo Admin, terdapat pengajuan penggunaan ruangan baru yang membutuhkan persetujuan:\n\n"
-             . "📌 *Kode:* {$pemesanan->kode_pemesanan}\n"
-             . "👤 *Pemohon:* {$pemesanan->user->name} (" . ($pemesanan->user->nama_unit ?? '-') . ")\n"
-             . "🏢 *Ruangan:* {$pemesanan->ruangan->nama_ruangan}\n"
-             . "📐 *Layout:* " . ($pemesanan->layout->nama_layout ?? '-') . "\n"
-             . "📅 *Tanggal:* {$tanggal}\n"
-             . "⏰ *Waktu:* {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
-             . "📝 *Kegiatan:* {$pemesanan->judul_kegiatan}\n"
-             . "👤 *PIC:* {$pemesanan->pic_kegiatan}" . ($pemesanan->no_wa_pic ? " ({$pemesanan->no_wa_pic})" : '') . "\n\n"
-             . "Silakan verifikasi & persetujuan di website SILAKAN:\n"
+        $msg = "*[SILAKAN - BANK INDONESIA]*\n"
+             . "*NOTIFIKASI PENGAJUAN PEMESANAN RUANGAN*\n\n"
+             . "Yth. Admin SILAKAN,\n"
+             . "Terdapat pengajuan penggunaan ruangan rapat baru yang memerlukan verifikasi:\n\n"
+             . "▪ Kode     : {$pemesanan->kode_pemesanan}\n"
+             . "▪ Pemohon  : {$pemesanan->user->name} (" . ($pemesanan->user->nama_unit ?? '-') . ")\n"
+             . "▪ Ruangan  : {$pemesanan->ruangan->nama_ruangan}\n"
+             . "▪ Layout   : " . ($pemesanan->layout->nama_layout ?? '-') . "\n"
+             . "▪ Tanggal  : {$tanggal}\n"
+             . "▪ Waktu    : {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
+             . "▪ Agenda   : {$pemesanan->judul_kegiatan}\n"
+             . "▪ PIC      : {$pemesanan->pic_kegiatan}" . ($pemesanan->no_wa_pic ? " ({$pemesanan->no_wa_pic})" : '') . "\n\n"
+             . "Tautan Verifikasi:\n"
              . "{$appUrl}/admin/approval/{$pemesanan->id}";
 
         if ($adminWA) {
@@ -103,15 +105,17 @@ class WhatsAppService
         $tanggal = $pemesanan->tanggal_kegiatan->isoFormat('dddd, D MMMM YYYY');
         $namaPic = $pemesanan->pic_kegiatan ?: $pemesanan->user->name;
 
-        $msg = "📋 *[SILAKAN BI] PENGAJUAN PEMESANAN DITERIMA*\n\n"
-             . "Halo {$namaPic}, pengajuan pemesanan ruangan Anda telah berhasil terkirim dan sedang *MENUNGGU PERSETUJUAN* Admin:\n\n"
-             . "📌 *Kode:* {$pemesanan->kode_pemesanan}\n"
-             . "🏢 *Ruangan:* {$pemesanan->ruangan->nama_ruangan}\n"
-             . "📐 *Layout:* " . ($pemesanan->layout?->nama_layout ?? '-') . "\n"
-             . "📅 *Tanggal:* {$tanggal}\n"
-             . "⏰ *Waktu:* {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
-             . "📝 *Kegiatan:* {$pemesanan->judul_kegiatan}\n\n"
-             . "Status pengajuan dapat dipantau melalui website SILAKAN:\n"
+        $msg = "*[SILAKAN - BANK INDONESIA]*\n"
+             . "*STATUS: PENGAJUAN TERKIRIM*\n\n"
+             . "Yth. Bapak/Ibu {$namaPic},\n"
+             . "Pengajuan pemesanan ruangan rapat Anda telah terkirim dan dalam proses *VERIFIKASI ADMIN*:\n\n"
+             . "▪ Kode     : {$pemesanan->kode_pemesanan}\n"
+             . "▪ Ruangan  : {$pemesanan->ruangan->nama_ruangan}\n"
+             . "▪ Layout   : " . ($pemesanan->layout?->nama_layout ?? '-') . "\n"
+             . "▪ Tanggal  : {$tanggal}\n"
+             . "▪ Waktu    : {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
+             . "▪ Agenda   : {$pemesanan->judul_kegiatan}\n\n"
+             . "Pantau status pengajuan:\n"
              . "{$appUrl}/pemesanan/{$pemesanan->id}";
 
         $this->sendMessage($targetWA, $msg);
@@ -126,18 +130,20 @@ class WhatsAppService
         $tanggal = $pemesanan->tanggal_kegiatan->isoFormat('dddd, D MMMM YYYY');
         $namaPic = $pemesanan->pic_kegiatan ?: $pemesanan->user->name;
 
-        $catatanNote = $pemesanan->catatan_admin ? "\n💬 *Catatan Admin:* {$pemesanan->catatan_admin}\n" : "";
+        $catatanNote = $pemesanan->catatan_admin ? "▪ Catatan  : {$pemesanan->catatan_admin}\n" : "";
 
-        $msg = "✅ *[SILAKAN BI] PEMESANAN RUANGAN DISETUJUI*\n\n"
-             . "Halo {$namaPic}, pengajuan pemesanan ruangan Anda telah *DISETUJUI* oleh Admin:\n\n"
-             . "📌 *Kode:* {$pemesanan->kode_pemesanan}\n"
-             . "🏢 *Ruangan:* {$pemesanan->ruangan->nama_ruangan}\n"
-             . "📐 *Layout:* " . ($pemesanan->layout?->nama_layout ?? '-') . "\n"
-             . "📅 *Tanggal:* {$tanggal}\n"
-             . "⏰ *Waktu:* {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
-             . "📝 *Kegiatan:* {$pemesanan->judul_kegiatan}\n"
+        $msg = "*[SILAKAN - BANK INDONESIA]*\n"
+             . "*STATUS: PEMESANAN DISETUJUI*\n\n"
+             . "Yth. Bapak/Ibu {$namaPic},\n"
+             . "Pengajuan pemesanan ruangan rapat Anda telah *DISETUJUI*:\n\n"
+             . "▪ Kode     : {$pemesanan->kode_pemesanan}\n"
+             . "▪ Ruangan  : {$pemesanan->ruangan->nama_ruangan}\n"
+             . "▪ Layout   : " . ($pemesanan->layout?->nama_layout ?? '-') . "\n"
+             . "▪ Tanggal  : {$tanggal}\n"
+             . "▪ Waktu    : {$pemesanan->waktu_mulai} - {$pemesanan->waktu_selesai} WITA\n"
+             . "▪ Agenda   : {$pemesanan->judul_kegiatan}\n"
              . $catatanNote . "\n"
-             . "Mohon hadir tepat waktu dan menjaga kebersihan serta fasilitas ruangan kantor.\n\n"
+             . "Mohon hadir tepat waktu serta menjaga ketertiban dan kebersihan fasilitas ruangan.\n\n"
              . "Detail Pemesanan:\n"
              . "{$appUrl}/pemesanan/{$pemesanan->id}";
 
@@ -153,14 +159,16 @@ class WhatsAppService
         $tanggal = $pemesanan->tanggal_kegiatan->isoFormat('dddd, D MMMM YYYY');
         $namaPic = $pemesanan->pic_kegiatan ?: $pemesanan->user->name;
 
-        $msg = "❌ *[SILAKAN BI] PEMESANAN RUANGAN DITOLAK*\n\n"
-             . "Halo {$namaPic}, pengajuan pemesanan ruangan Anda *DITOLAK* oleh Admin:\n\n"
-             . "📌 *Kode:* {$pemesanan->kode_pemesanan}\n"
-             . "🏢 *Ruangan:* {$pemesanan->ruangan->nama_ruangan}\n"
-             . "📅 *Tanggal:* {$tanggal}\n"
-             . "📝 *Kegiatan:* {$pemesanan->judul_kegiatan}\n"
-             . "⚠️ *Alasan Penolakan:* {$alasan}\n\n"
-             . "Silakan pilih jadwal atau ruangan alternatif lain di website SILAKAN:\n"
+        $msg = "*[SILAKAN - BANK INDONESIA]*\n"
+             . "*STATUS: PENGAJUAN DITOLAK*\n\n"
+             . "Yth. Bapak/Ibu {$namaPic},\n"
+             . "Mohon maaf, pengajuan pemesanan ruangan rapat Anda *TIDAK DAPAT DISETUJUI*:\n\n"
+             . "▪ Kode     : {$pemesanan->kode_pemesanan}\n"
+             . "▪ Ruangan  : {$pemesanan->ruangan->nama_ruangan}\n"
+             . "▪ Tanggal  : {$tanggal}\n"
+             . "▪ Agenda   : {$pemesanan->judul_kegiatan}\n"
+             . "▪ Alasan   : {$alasan}\n\n"
+             . "Pengajuan ulang / jadwal alternatif:\n"
              . "{$appUrl}/pemesanan/create";
 
         $this->sendMessage($targetWA, $msg);

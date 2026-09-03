@@ -33,7 +33,19 @@
             </div>
             <div>
                 <label>Status</label>
-                <p><span class="badge badge-warning"><i class="bi bi-clock-history"></i> {{ $pemesanan->status->label() }}</span></p>
+                <p>
+                    @if($pemesanan->status->value === 'Selesai' || $pemesanan->is_finished)
+                        <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;"><i class="bi bi-check2-all"></i> Selesai</span>
+                    @elseif($pemesanan->status->value === 'Disetujui')
+                        <span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Disetujui</span>
+                    @elseif($pemesanan->status->value === 'Pending')
+                        <span class="badge badge-warning"><i class="bi bi-clock-history"></i> Pending</span>
+                    @elseif($pemesanan->status->value === 'Ditolak')
+                        <span class="badge badge-danger"><i class="bi bi-x-circle-fill"></i> Ditolak</span>
+                    @else
+                        <span class="badge badge-secondary"><i class="bi bi-dash-circle"></i> Dibatalkan</span>
+                    @endif
+                </p>
             </div>
         </div>
     </div>
@@ -51,7 +63,21 @@
             </div>
             <div>
                 <label>PIC Kegiatan</label>
-                <p>{{ $pemesanan->pic_kegiatan }} {{ $pemesanan->no_wa_pic ? '('.$pemesanan->no_wa_pic.')' : '' }}</p>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:3px;">
+                    <strong style="color:#0f172a;font-size:14px;">{{ $pemesanan->pic_kegiatan }}</strong>
+                    @if($pemesanan->no_wa_pic)
+                        @php
+                            $cleanPhone = preg_replace('/[^0-9]/', '', $pemesanan->no_wa_pic);
+                            if (str_starts_with($cleanPhone, '0')) {
+                                $cleanPhone = '62' . substr($cleanPhone, 1);
+                            }
+                            $waMsg = urlencode("Halo Bapak/Ibu {$pemesanan->pic_kegiatan}, kami dari Tim Pengelola Ruangan KPwBI Prov. Sulut mengonfirmasi terkait pengajuan pemesanan ruangan {$pemesanan->ruangan->nama_ruangan} untuk agenda \"{$pemesanan->judul_kegiatan}\" (Kode: {$pemesanan->kode_pemesanan}).");
+                        @endphp
+                        <a href="https://wa.me/{{ $cleanPhone }}?text={{ $waMsg }}" target="_blank" class="btn-sm" style="background:#16a34a;color:#fff;text-decoration:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:5px;box-shadow:0 2px 6px rgba(22,163,74,0.25);">
+                            <i class="bi bi-whatsapp"></i> Chat WA PIC ({{ $pemesanan->no_wa_pic }})
+                        </a>
+                    @endif
+                </div>
             </div>
             <div>
                 <label>Jenis PIC</label>
@@ -130,21 +156,47 @@
 
 
 {{-- Action Bar --}}
+@php
+    $statusVal = is_object($pemesanan->status) ? $pemesanan->status->value : $pemesanan->status;
+    $isLiveToday = $pemesanan->canBeFinishedEarly();
+@endphp
+
 <div class="dashboard-section" style="margin-top:0;">
     <div style="padding:20px 24px;">
         <div class="approval-action" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
             <a href="{{ route('admin.approval.index') }}" class="btn-secondary">
-                <i class="bi bi-arrow-left"></i> Kembali
+                <i class="bi bi-arrow-left"></i> Kembali ke Daftar
             </a>
 
-            <div style="display:flex;align-items:center;gap:12px;">
-                <button type="button" class="btn-danger" id="btn-trigger-reject" style="padding:10px 24px;font-weight:600;display:inline-flex;align-items:center;gap:8px;">
-                    <i class="bi bi-x-circle-fill"></i> Tolak Pemesanan
-                </button>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                {{-- Early Release if Live Today --}}
+                @if($isLiveToday)
+                <form action="{{ route('admin.approval.selesai-awal', $pemesanan) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $pemesanan->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' });">
+                    @csrf
+                    <button type="submit" class="btn-sm" style="padding:10px 20px;font-weight:700;display:inline-flex;align-items:center;gap:8px;background:#059669;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13.5px;">
+                        <i class="bi bi-check2-circle"></i> Selesaikan Rapat Sekarang
+                    </button>
+                </form>
+                @endif
 
-                <button type="button" class="btn-success" id="btn-trigger-approve" style="padding:10px 24px;font-weight:600;display:inline-flex;align-items:center;gap:8px;background:#059669;color:#fff;border:none;border-radius:10px;cursor:pointer;">
-                    <i class="bi bi-check-circle-fill"></i> Setujui Pemesanan
-                </button>
+                {{-- Delete Button (Always available for admin) --}}
+                <form method="POST" action="{{ route('admin.approval.destroy', $pemesanan) }}" onsubmit="return submitFormWithConfirm(this, { title: 'Hapus Pemesanan Ruangan', message: 'Apakah Anda yakin ingin menghapus data pemesanan <strong>{{ $pemesanan->kode_pemesanan }}</strong> ({{ $pemesanan->judul_kegiatan }}) secara permanen dari sistem? Jadwal ruangan akan dibebaskan seketika.', type: 'danger', confirmText: 'Ya, Hapus Pemesanan' });">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn-secondary" style="padding:10px 20px;font-weight:700;display:inline-flex;align-items:center;gap:8px;background:#fee2e2;color:#dc2626;border:1px solid #fecdd3;border-radius:10px;cursor:pointer;font-size:13.5px;" title="Hapus pemesanan secara permanen">
+                        <i class="bi bi-trash-fill"></i> Hapus Pemesanan
+                    </button>
+                </form>
+
+                @if($statusVal === 'Pending')
+                    <button type="button" class="btn-danger" id="btn-trigger-reject" style="padding:10px 24px;font-weight:700;display:inline-flex;align-items:center;gap:8px;border-radius:10px;font-size:13.5px;">
+                        <i class="bi bi-x-circle-fill"></i> Tolak Pemesanan
+                    </button>
+
+                    <button type="button" class="btn-success" id="btn-trigger-approve" style="padding:10px 24px;font-weight:700;display:inline-flex;align-items:center;gap:8px;background:#059669;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13.5px;">
+                        <i class="bi bi-check-circle-fill"></i> Setujui Pemesanan
+                    </button>
+                @endif
             </div>
         </div>
     </div>

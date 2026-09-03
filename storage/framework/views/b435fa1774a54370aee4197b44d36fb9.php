@@ -26,14 +26,6 @@
     </div>
 </div>
 
-<?php if(session('success')): ?>
-<div class="alert alert-success">
-    <i class="bi bi-check-circle-fill"></i>
-    <?php echo e(session('success')); ?>
-
-</div>
-<?php endif; ?>
-
 <div class="dashboard-grid">
 
     

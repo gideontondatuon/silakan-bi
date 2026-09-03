@@ -11,34 +11,19 @@ class ExportManualBookWord extends Command
 
     public function handle()
     {
-        $mdPath = base_path('MANUAL_BOOK_SILAKAN.md');
-        if (!file_exists($mdPath)) {
-            $this->error('File MANUAL_BOOK_SILAKAN.md tidak ditemukan!');
-            return 1;
+        $this->info('Membuat dokumen Microsoft Word (.doc) berstandar resmi Bank Indonesia...');
+        
+        $generatorDocScript = base_path('generate_doc_format.php');
+        if (file_exists($generatorDocScript)) {
+            require_once $generatorDocScript;
+            $this->info("✅ Berhasil membuat dokumen Microsoft Word (.doc) berstandar resmi!");
+            $this->info("📄 Berkas disimpan di: " . base_path('Manual_Book_SILAKAN_v1.0.doc'));
+            $this->info("📄 Berkas disimpan di: " . base_path('MANUAL_BOOK_SILAKAN.doc'));
+            return 0;
         }
 
-        $this->info('Membaca berkas MANUAL_BOOK_SILAKAN.md...');
-        $content = file_get_contents($mdPath);
-
-        // Convert Markdown content into styled Word HTML
-        $htmlContent = $this->markdownToWordHtml($content);
-
-        // Save as .doc and .docx
-        $docPath = base_path('MANUAL_BOOK_SILAKAN.doc');
-        $docxPath = base_path('MANUAL_BOOK_SILAKAN.docx');
-        $publicDocPath = public_path('MANUAL_BOOK_SILAKAN.doc');
-        $publicDocxPath = public_path('MANUAL_BOOK_SILAKAN.docx');
-
-        file_put_contents($docPath, $htmlContent);
-        file_put_contents($docxPath, $htmlContent);
-        file_put_contents($publicDocPath, $htmlContent);
-        file_put_contents($publicDocxPath, $htmlContent);
-
-        $this->info("✅ Berhasil mengkonversi Manual Book ke Microsoft Word!");
-        $this->info("📄 Berkas disimpan di: " . $docPath);
-        $this->info("📄 Berkas docx disimpan di: " . $docxPath);
-
-        return 0;
+        $this->error('File generate_doc_format.php tidak ditemukan!');
+        return 1;
     }
 
     private function markdownToWordHtml(string $markdown): string

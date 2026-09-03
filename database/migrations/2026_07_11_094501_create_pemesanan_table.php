@@ -116,7 +116,8 @@ return new class extends Migration
                 'Pending',
                 'Disetujui',
                 'Ditolak',
-                'Cancel'
+                'Cancel',
+                'Selesai'
             ])
             ->default('Pending');
 

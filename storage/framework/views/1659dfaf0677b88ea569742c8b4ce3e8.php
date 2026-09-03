@@ -16,13 +16,19 @@
 
 <a href="<?php echo e(route('admin.approval.index')); ?>"
    class="<?php echo e(request()->routeIs('admin.approval.*') ? 'active' : ''); ?>">
-
-    <i class="bi bi-clock-history"></i>
-
+    <i class="bi bi-calendar-check"></i>
     <span>
-        Waiting List
+        Pemesanan Ruangan
     </span>
+    <?php
+        $pendingBookingCount = \App\Models\Pemesanan::where('status', 'Pending')->count();
+    ?>
+    <?php if($pendingBookingCount > 0): ?>
+        <small class="sidebar-badge" style="background:#f59e0b;color:#fff;">
+            <?php echo e($pendingBookingCount); ?>
 
+        </small>
+    <?php endif; ?>
 </a>
 
 

@@ -19,6 +19,8 @@ class LaporanController extends Controller
      */
     public function index(Request $request): View
     {
+        Pemesanan::markFinishedAgendas();
+
         $baseQuery = Pemesanan::query();
 
         // Filter Rentang Tanggal
@@ -39,9 +41,17 @@ class LaporanController extends Controller
             $baseQuery->where('user_id', $request->user_id);
         }
 
+        // Filter Jenis PIC (Organik / Non Organik)
+        if ($request->filled('jenis_pic')) {
+            $baseQuery->where('jenis_pic', $request->jenis_pic);
+        }
+
         // Ringkasan Total (dihitung berdasarkan filter umum sebelum status)
         $totalPemesanan = (clone $baseQuery)->count();
-        $totalDisetujui = (clone $baseQuery)->where('status', \App\Enums\PemesananStatus::DISETUJUI->value)->count();
+        $totalDisetujui = (clone $baseQuery)->whereIn('status', [
+            \App\Enums\PemesananStatus::DISETUJUI->value,
+            \App\Enums\PemesananStatus::SELESAI->value,
+        ])->count();
         $totalDitolak   = (clone $baseQuery)->where('status', \App\Enums\PemesananStatus::DITOLAK->value)->count();
 
         $query = (clone $baseQuery)->with(['ruangan', 'user', 'layout', 'approver']);
@@ -82,15 +92,24 @@ class LaporanController extends Controller
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
+        if ($request->filled('jenis_pic')) {
+            $query->where('jenis_pic', $request->jenis_pic);
+        }
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } elseif ($request->boolean('disetujui_only')) {
+            $query->whereIn('status', [
+                \App\Enums\PemesananStatus::DISETUJUI->value,
+                \App\Enums\PemesananStatus::SELESAI->value,
+            ]);
         }
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
         $data = $query->latest('tanggal_kegiatan')->get();
-        $fileName = 'Laporan_Pemesanan_Ruangan_' . date('Ymd_His') . '.xlsx';
+        $statusSuffix = $request->status === 'Disetujui' || $request->boolean('disetujui_only') ? '_Disetujui' : '';
+        $fileName = 'Laporan_Pemesanan_Ruangan' . $statusSuffix . '_' . date('Ymd_His') . '.xlsx';
 
         return Excel::download(new PemesananExport($data), $fileName);
     }
@@ -111,8 +130,16 @@ class LaporanController extends Controller
         if ($request->filled('ruangan_id')) {
             $query->where('ruangan_id', $request->ruangan_id);
         }
+        if ($request->filled('jenis_pic')) {
+            $query->where('jenis_pic', $request->jenis_pic);
+        }
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } elseif ($request->boolean('disetujui_only')) {
+            $query->whereIn('status', [
+                \App\Enums\PemesananStatus::DISETUJUI->value,
+                \App\Enums\PemesananStatus::SELESAI->value,
+            ]);
         }
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);

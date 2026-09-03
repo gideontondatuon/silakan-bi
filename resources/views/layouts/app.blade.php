@@ -29,6 +29,109 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
+
+    {{-- =============================================
+         PAGE LOADING SYSTEM
+         Menampilkan progress bar & overlay tipis saat
+         berpindah menu untuk menggantikan animasi berat.
+         ============================================= --}}
+    <style>
+        /* ===== TOP PROGRESS BAR ===== */
+        #page-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #005baa, #0284c7, #38bdf8);
+            z-index: 999999;
+            transition: width 0.25s ease, opacity 0.3s ease;
+            opacity: 0;
+            box-shadow: 0 0 8px rgba(0, 91, 170, 0.6);
+            pointer-events: none;
+        }
+
+        #page-progress.loading {
+            opacity: 1;
+        }
+
+        #page-progress.complete {
+            width: 100% !important;
+            opacity: 0;
+            transition: width 0.15s ease, opacity 0.4s ease 0.15s;
+        }
+
+        /* ===== SHIMMER GLOW at tip ===== */
+        #page-progress::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -2px;
+            width: 80px;
+            height: 7px;
+            background: radial-gradient(ellipse at right, rgba(56,189,248,0.8) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* ===== CONTENT OVERLAY (subtle fade) ===== */
+        #page-loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(248, 250, 252, 0);
+            z-index: 99998;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        #page-loading-overlay.visible {
+            opacity: 1;
+            background: rgba(248, 250, 252, 0.45);
+            pointer-events: all;
+            cursor: wait;
+        }
+
+        /* ===== LOADING SPINNER (center, subtle) ===== */
+        #page-loading-spinner {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 999999;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 59, 115, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        #page-loading-spinner.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        #page-loading-spinner svg {
+            width: 20px;
+            height: 20px;
+            animation: spin-loader 0.75s linear infinite;
+        }
+
+        @keyframes spin-loader {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* Sidebar nav links don't get cursor-wait when loading */
+        .sidebar-nav-link, .sidebar-link {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
@@ -86,6 +189,16 @@
 
     </main>
 
+</div>
+
+{{-- ===== PAGE LOADING ELEMENTS ===== --}}
+<div id="page-progress"></div>
+<div id="page-loading-overlay"></div>
+<div id="page-loading-spinner" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9" stroke="#e2e8f0" stroke-width="2.5"/>
+        <path d="M12 3a9 9 0 019 9" stroke="#005baa" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
 </div>
 
 {{-- Global Custom Confirmation Modal --}}
@@ -191,6 +304,19 @@ function submitFormWithConfirm(form, options) {
         type: options.type || 'danger',
         confirmText: options.confirmText || 'Ya, Lanjutkan',
         onConfirm: function() {
+            // Trigger page loading bar before actual form submit
+            const progress = document.getElementById('page-progress');
+            const overlay  = document.getElementById('page-loading-overlay');
+            const spinner  = document.getElementById('page-loading-spinner');
+            if (progress) {
+                progress.style.width = '0%';
+                progress.style.opacity = '1';
+                progress.classList.add('loading');
+                progress.classList.remove('complete');
+                setTimeout(function() { progress.style.width = '60%'; }, 50);
+            }
+            if (overlay) overlay.classList.add('visible');
+            if (spinner) spinner.classList.add('visible');
             form.submit();
         }
     });
@@ -241,6 +367,119 @@ document.addEventListener('DOMContentLoaded', function() {
     updateLiveCountdowns();
     setInterval(updateLiveCountdowns, 1000);
 });
+
+/* ==========================================================
+   PAGE LOADING SYSTEM
+   — Menampilkan progress bar tipis & overlay saat navigasi
+   — Menghindari animasi CSS berat saat perpindahan halaman
+   ========================================================== */
+(function() {
+    const progress  = document.getElementById('page-progress');
+    const overlay   = document.getElementById('page-loading-overlay');
+    const spinner   = document.getElementById('page-loading-spinner');
+
+    if (!progress) return;
+
+    let progressTimer   = null;
+    let progressVal     = 0;
+    let isNavigating    = false;
+
+    /* --- Start loading sequence --- */
+    function startLoading() {
+        if (isNavigating) return;
+        isNavigating = true;
+        progressVal  = 0;
+
+        progress.style.width   = '0%';
+        progress.style.opacity = '1';
+        progress.classList.add('loading');
+        progress.classList.remove('complete');
+        overlay.classList.add('visible');
+        spinner.classList.add('visible');
+
+        /* Fast start: 0 → 35% in 200ms */
+        progressVal = 35;
+        progress.style.width = '35%';
+
+        /* Crawl: inch toward 80% slowly */
+        progressTimer = setInterval(function() {
+            if (progressVal < 80) {
+                var increment = (80 - progressVal) * 0.08;
+                progressVal += Math.max(increment, 0.5);
+                progress.style.width = progressVal + '%';
+            } else {
+                clearInterval(progressTimer);
+            }
+        }, 120);
+    }
+
+    /* --- Finish loading sequence --- */
+    function finishLoading() {
+        clearInterval(progressTimer);
+        isNavigating = false;
+
+        progress.classList.add('complete');
+        overlay.classList.remove('visible');
+        spinner.classList.remove('visible');
+
+        setTimeout(function() {
+            progress.classList.remove('loading', 'complete');
+            progress.style.width = '0%';
+        }, 500);
+    }
+
+    /* --- Intercept all internal navigation links --- */
+    document.addEventListener('click', function(e) {
+        /* Find closest anchor tag */
+        const anchor = e.target.closest('a');
+        if (!anchor) return;
+
+        const href = anchor.getAttribute('href');
+        if (!href) return;
+
+        /* Skip: external links, hash-only, js:void, file, mailto, target _blank */
+        const isExternal    = anchor.hostname && anchor.hostname !== window.location.hostname;
+        const isHash        = href.startsWith('#');
+        const isJavascript  = href.startsWith('javascript');
+        const isSpecial     = href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('file:');
+        const isNewTab      = anchor.target === '_blank';
+        const isSamePage    = href === window.location.href || href === window.location.pathname;
+        const isDownload    = anchor.hasAttribute('download');
+
+        if (isExternal || isHash || isJavascript || isSpecial || isNewTab || isSamePage || isDownload) return;
+
+        /* Skip logout form triggers (non-GET) */
+        if (anchor.closest('form')) return;
+
+        startLoading();
+    }, true);
+
+    /* --- Form submit (non-AJAX navigation) --- */
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        /* Only intercept standard GET/POST forms that cause full page nav */
+        if (form.dataset.noLoading) return;
+        /* Exclude forms handled via onsubmit JS (confirm modals) — they return false */
+        /* We do a small delay so JS handlers can cancel first */
+        setTimeout(function() {
+            if (!e.defaultPrevented) startLoading();
+        }, 0);
+    }, true);
+
+    /* --- Hide loading on browser back/forward (popstate / bfcache) --- */
+    window.addEventListener('popstate', finishLoading);
+    window.addEventListener('pageshow', function(e) {
+        finishLoading();
+    });
+
+    /* --- Safety: always finish when DOM is ready on new page --- */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', finishLoading);
+    } else {
+        finishLoading();
+    }
+
+})();
 </script>
 
 @stack('scripts')

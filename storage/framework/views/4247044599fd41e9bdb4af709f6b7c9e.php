@@ -20,22 +20,6 @@
 </div>
 
 
-<?php if(session('success')): ?>
-<div class="alert alert-success">
-    <i class="bi bi-check-circle-fill"></i>
-    <?php echo e(session('success')); ?>
-
-</div>
-<?php endif; ?>
-
-<?php if(session('error')): ?>
-<div class="alert alert-danger">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    <?php echo e(session('error')); ?>
-
-</div>
-<?php endif; ?>
-
 
 <div class="dashboard-section">
     <div class="table-wrapper">
@@ -65,7 +49,9 @@
                     <td><strong><?php echo e($item->tanggal_kegiatan->isoFormat('ddd, D MMM YYYY')); ?></strong></td>
                     <td style="color:#64748b;white-space:nowrap;"><?php echo e($item->waktu_mulai); ?> – <?php echo e($item->waktu_selesai); ?></td>
                     <td>
-                        <?php if($item->status->value == 'Pending'): ?>
+                        <?php if($item->status->value == 'Selesai' || $item->is_finished): ?>
+                            <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;"><i class="bi bi-check2-all"></i> Selesai</span>
+                        <?php elseif($item->status->value == 'Pending'): ?>
                             <span class="badge badge-warning"><i class="bi bi-clock"></i> Pending</span>
                         <?php elseif($item->status->value == 'Disetujui'): ?>
                             <span class="badge badge-success"><i class="bi bi-check-circle"></i> Disetujui</span>

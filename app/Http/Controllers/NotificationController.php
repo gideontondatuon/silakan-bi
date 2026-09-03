@@ -34,19 +34,12 @@ class NotificationController extends Controller
     public function read(
         string $id
     ): RedirectResponse {
-
-
-        $notification =
-            auth()
+        $notification = auth()
             ->user()
             ->notifications()
             ->findOrFail($id);
 
-
-
         $notification->markAsRead();
-
-
 
         $pemesananId = $notification->data['pemesanan_id'] ?? null;
 
@@ -54,13 +47,18 @@ class NotificationController extends Controller
             return redirect()->route('notifications.index');
         }
 
-        if (auth()->user()->role->value === 'admin') {
+        if (!\App\Models\Pemesanan::where('id', $pemesananId)->exists()) {
+            return redirect()->route('notifications.index')
+                ->with('error', 'Pemesanan terkait sudah tidak ditemukan dalam sistem atau telah dihapus.');
+        }
+
+        $roleVal = is_object(auth()->user()->role) ? auth()->user()->role->value : auth()->user()->role;
+
+        if ($roleVal === 'admin') {
             return redirect()->route('admin.approval.show', $pemesananId);
         }
 
         return redirect()->route('pemesanan.show', $pemesananId);
-
-
     }
 
     public function readAll(): RedirectResponse

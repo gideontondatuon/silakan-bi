@@ -41,52 +41,44 @@ class LoginRequest extends FormRequest
 
     public function authenticate(): void
     {
-
         $this->ensureIsNotRateLimited();
 
+        $input = trim($this->input('login_input', ''));
+        $password = trim($this->input('password', ''));
+        $remember = $this->boolean('remember');
 
-        $field = filter_var(
-            $this->login_input,
-            FILTER_VALIDATE_EMAIL
-        )
-            ? 'email'
-            : 'username';
+        // Extract username prefix if user typed an email format like username@domain.com
+        $usernamePrefix = str_contains($input, '@') ? explode('@', $input)[0] : $input;
 
+        // Search user flexibly by username, email, nama_unit, or name
+        $user = \App\Models\User::where('username', $input)
+            ->orWhere('email', $input)
+            ->orWhere('username', $usernamePrefix)
+            ->orWhere('nama_unit', $input)
+            ->orWhere('name', $input)
+            ->first();
 
+        $authenticated = false;
 
-        if (! Auth::attempt(
-            [
-
-                $field => $this->login_input,
-
-                'password' => $this->password,
-
-            ],
-
-            $this->boolean('remember')
-
-        )) {
-
-
-            RateLimiter::hit(
-                $this->throttleKey()
-            );
-
-
-            throw ValidationException::withMessages([
-
-                'login_input' => trans('auth.failed'),
-
-            ]);
-
+        if ($user && \Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            Auth::login($user, $remember);
+            $authenticated = true;
+        } else {
+            // Fallback to Auth::attempt for username or email
+            $field = filter_var($input, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+            $authenticated = Auth::attempt([$field => $input, 'password' => $password], $remember)
+                || Auth::attempt(['username' => $input, 'password' => $password], $remember);
         }
 
+        if (! $authenticated) {
+            RateLimiter::hit($this->throttleKey());
 
+            throw ValidationException::withMessages([
+                'login_input' => trans('auth.failed'),
+            ]);
+        }
 
-        RateLimiter::clear(
-            $this->throttleKey()
-        );
-
+        RateLimiter::clear($this->throttleKey());
     }
 
 

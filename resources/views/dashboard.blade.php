@@ -43,13 +43,23 @@
                 </div>
             </div>
             <div class="live-card-title" style="font-size:16px;font-weight:700;color:#ffffff;margin:8px 0 10px 0;">{{ $live->judul_kegiatan }}</div>
-            <div class="live-card-pic" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,0.9);padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
-                <span><i class="bi bi-people-fill" style="color:#93c5fd;margin-right:4px;"></i> Unit Penyelenggara: <strong style="color:#ffffff;">{{ $live->user->nama_unit ?? $live->user->name }}</strong></span>
-                @if($live->pic_kegiatan)
-                    <span><i class="bi bi-person-badge-fill" style="color:#93c5fd;margin-right:4px;"></i> PIC: <strong style="color:#ffffff;">{{ $live->pic_kegiatan }}</strong></span>
-                @endif
-                @if($live->layout)
-                    <span><i class="bi bi-grid-3x3-gap-fill" style="color:#93c5fd;margin-right:4px;"></i> Layout: <strong style="color:#ffffff;">{{ $live->layout->nama_layout }}</strong></span>
+            <div class="live-card-pic" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:rgba(255,255,255,0.9);padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                    <span><i class="bi bi-people-fill" style="color:#93c5fd;margin-right:4px;"></i> Unit: <strong style="color:#ffffff;">{{ $live->user->nama_unit ?? $live->user->name }}</strong></span>
+                    @if($live->pic_kegiatan)
+                        <span><i class="bi bi-person-badge-fill" style="color:#93c5fd;margin-right:4px;"></i> PIC: <strong style="color:#ffffff;">{{ $live->pic_kegiatan }}</strong></span>
+                    @endif
+                    @if($live->layout)
+                        <span><i class="bi bi-grid-3x3-gap-fill" style="color:#93c5fd;margin-right:4px;"></i> Layout: <strong style="color:#ffffff;">{{ $live->layout->nama_layout }}</strong></span>
+                    @endif
+                </div>
+                @if($live->user_id === auth()->id())
+                <form action="{{ route('pemesanan.selesai-awal', $live) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $live->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="margin:0;">
+                    @csrf
+                    <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+                        <i class="bi bi-check2-circle"></i> Selesaikan Rapat
+                    </button>
+                </form>
                 @endif
             </div>
         </div>
@@ -119,7 +129,9 @@
                             <small style="color:#64748b;"><i class="bi bi-clock"></i> {{ $item->waktu_mulai }} – {{ $item->waktu_selesai }}</small>
                         </td>
                         <td>
-                            @if($item->status->value == 'Pending')
+                            @if($item->status->value == 'Selesai' || $item->is_finished)
+                                <span class="badge" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;font-weight:700;"><i class="bi bi-check2-all"></i> Selesai</span>
+                            @elseif($item->status->value == 'Pending')
                                 <span class="badge badge-warning"><i class="bi bi-clock"></i> Pending</span>
                             @elseif($item->status->value == 'Disetujui')
                                 <span class="badge badge-success"><i class="bi bi-check-circle"></i> Disetujui</span>
