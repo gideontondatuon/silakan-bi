@@ -24,7 +24,7 @@
     body {
         font-family: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
         font-size: 10pt;
-        line-height: 1.58;
+        line-height: 1.56;
         color: #1e293b;
         background: #e2e8f0;
         -webkit-print-color-adjust: exact;
@@ -259,23 +259,24 @@
     }
 
     /* ================================================================
-       TYPOGRAPHY & HEADINGS (SLIGHTLY LARGER)
+       CHAPTER HEADERS (GARIS HANYA UNTUK NAMA BAB)
        ================================================================ */
     .chapter-header {
+        margin-bottom: 12px;
+    }
+
+    .chapter-title-group {
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 12px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid #005baa;
     }
 
     .chapter-badge {
         background: linear-gradient(135deg, #005baa, #003b73);
         color: #fff;
-        font-size: 9pt;
+        font-size: 9.5pt;
         font-weight: 800;
-        padding: 4px 13px;
+        padding: 4px 14px;
         border-radius: 6px;
         letter-spacing: .8px;
         white-space: nowrap;
@@ -288,13 +289,27 @@
         line-height: 1.2;
     }
 
-    .page-title {
-        font-size: 14.5pt;
+    /* Garis pemisah khusus nama bab */
+    .chapter-line {
+        width: 100%;
+        height: 2.5px;
+        background: #005baa;
+        margin-top: 8px;
+        margin-bottom: 14px;
+        border-radius: 2px;
+    }
+
+    /* Sub-bab judul (TANPA GARIS) */
+    .subchapter-title {
+        font-size: 13pt;
         font-weight: 800;
         color: #003b73;
+        margin-top: 4px;
         margin-bottom: 12px;
-        padding-bottom: 6px;
-        border-bottom: 2px solid #005baa;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* TIDAK MEMILIKI border-bottom KARENA BUKAN NAMA BAB */
     }
 
     .feature-block {
@@ -304,7 +319,7 @@
     }
 
     .feature-title {
-        font-size: 11.5pt;
+        font-size: 11.2pt;
         font-weight: 700;
         color: #005baa;
         margin-bottom: 4px;
@@ -316,7 +331,7 @@
     .feature-desc {
         margin-bottom: 6px;
         color: #334155;
-        font-size: 9.3pt;
+        font-size: 9.2pt;
         line-height: 1.5;
     }
 
@@ -480,61 +495,68 @@
     .badge-red     { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
     .badge-gray    { background:#f8fafc; color:#475569; border:1px solid #e2e8f0; }
 
-    /* TOC */
+    /* ================================================================
+       DAFTAR ISI (TOC) — RUNTUT KE BAWAH PERSIS SESUAI HALAMAN
+       ================================================================ */
     .toc-title {
-        font-size: 21pt;
+        font-size: 19pt;
         font-weight: 800;
         color: #003b73;
         border-bottom: 2.5px solid #005baa;
-        padding-bottom: 8px;
-        margin-bottom: 18px;
+        padding-bottom: 6px;
+        margin-bottom: 12px;
     }
 
     .toc-part-label {
         font-size: 8.5pt;
-        font-weight: 700;
-        color: #005baa;
+        font-weight: 800;
+        color: #003b73;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        margin: 14px 0 6px;
+        letter-spacing: 1.2px;
+        margin: 8px 0 4px;
+        padding-left: 2px;
     }
 
     .toc-entry {
         display: flex;
         align-items: baseline;
-        gap: 6px;
-        padding: 4.5px 0;
+        gap: 4px;
+        padding: 2.6px 0;
         border-bottom: 1px dotted #e2e8f0;
+        font-size: 8.4pt;
     }
 
     .toc-entry-num {
-        font-size: 8.5pt;
-        font-weight: 800;
+        font-size: 8.4pt;
+        font-weight: 700;
         color: #005baa;
-        min-width: 62px;
+        min-width: 38px;
         flex-shrink: 0;
     }
 
     .toc-entry-title {
         flex: 1;
-        font-size: 9.5pt;
+        font-size: 8.4pt;
         font-weight: 600;
         color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .toc-dots {
         flex: 1;
         border-bottom: 1.5px dotted #cbd5e1;
-        min-width: 20px;
-        margin: 0 6px;
+        min-width: 15px;
+        margin: 0 4px;
         margin-bottom: 2px;
     }
 
     .toc-page {
-        font-size: 9pt;
+        font-size: 8.5pt;
         font-weight: 700;
         color: #003b73;
-        min-width: 22px;
+        min-width: 20px;
         text-align: right;
     }
 
@@ -616,7 +638,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 2: DAFTAR ISI
+     HALAMAN 2: DAFTAR ISI (RUNTUT KE BAWAH & SINKRON PERSIS)
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -635,10 +657,16 @@
             <span class="toc-page">3</span>
         </div>
 
-        <div class="toc-part-label">Bab 1 — Panduan Administrator (Admin)</div>
+        <div class="toc-part-label">BAB 1: Panduan Administrator</div>
         <div class="toc-entry">
-            <span class="toc-entry-num">1.1 — 1.2</span>
-            <span class="toc-entry-title">Login Administrator & Dashboard Analitik</span>
+            <span class="toc-entry-num">1.1</span>
+            <span class="toc-entry-title">Login Administrator</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">4</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.2</span>
+            <span class="toc-entry-title">Dashboard Analitik Administrator</span>
             <span class="toc-dots"></span>
             <span class="toc-page">4</span>
         </div>
@@ -649,60 +677,126 @@
             <span class="toc-page">5</span>
         </div>
         <div class="toc-entry">
-            <span class="toc-entry-num">1.4 — 1.5</span>
-            <span class="toc-entry-title">Live Monitoring Kegiatan Berlangsung & Kalender Ruangan</span>
+            <span class="toc-entry-num">1.4</span>
+            <span class="toc-entry-title">Live Monitoring Kegiatan Berlangsung (Early Finish)</span>
             <span class="toc-dots"></span>
             <span class="toc-page">6</span>
         </div>
         <div class="toc-entry">
-            <span class="toc-entry-num">1.6 — 1.7</span>
-            <span class="toc-entry-title">Pengelolaan Master Data Ruangan & Master Layout</span>
+            <span class="toc-entry-num">1.5</span>
+            <span class="toc-entry-title">Kalender Jadwal Ruangan</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">6</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.6</span>
+            <span class="toc-entry-title">Pengelolaan Master Data Ruangan (9 Ruangan Resmi)</span>
             <span class="toc-dots"></span>
             <span class="toc-page">7</span>
         </div>
         <div class="toc-entry">
-            <span class="toc-entry-num">1.8 — 1.9</span>
-            <span class="toc-entry-title">Master Hari Libur (Sinkronisasi API) & Kelola Akun Pengguna</span>
+            <span class="toc-entry-num">1.7</span>
+            <span class="toc-entry-title">Pengelolaan Master Layout Ruangan</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">7</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.8</span>
+            <span class="toc-entry-title">Master Hari Libur & Sinkronisasi API Otomatis</span>
             <span class="toc-dots"></span>
             <span class="toc-page">8</span>
         </div>
         <div class="toc-entry">
-            <span class="toc-entry-num">1.10 — 1.11</span>
-            <span class="toc-entry-title">Laporan Pemesanan (Ekspor Excel & PDF), Profil & Logout</span>
+            <span class="toc-entry-num">1.9</span>
+            <span class="toc-entry-title">Manajemen Akun Pengguna (10 Unit Kerja Resmi)</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">8</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.10</span>
+            <span class="toc-entry-title">Laporan Pemesanan & Ekspor Data (Excel & PDF)</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">9</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.11</span>
+            <span class="toc-entry-title">Profil Administrator & Logout</span>
             <span class="toc-dots"></span>
             <span class="toc-page">9</span>
         </div>
 
-        <div class="toc-part-label">Bab 2 — Panduan Pengguna (User — Unit Kerja)</div>
+        <div class="toc-part-label">BAB 2: Panduan Pengguna (User — Unit Kerja)</div>
         <div class="toc-entry">
-            <span class="toc-entry-num">2.1 — 2.3</span>
-            <span class="toc-entry-title">Login Unit Kerja, Dashboard Pengguna & Cek Ketersediaan</span>
+            <span class="toc-entry-num">2.1</span>
+            <span class="toc-entry-title">Login Akun Unit Kerja (tmi_kpwbisulut)</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">10</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.2</span>
+            <span class="toc-entry-title">Dashboard Pengguna (Halaman Utama)</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">10</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.3</span>
+            <span class="toc-entry-title">Melihat Ketersediaan Ruangan</span>
             <span class="toc-dots"></span>
             <span class="toc-page">10</span>
         </div>
         <div class="toc-entry">
             <span class="toc-entry-num">2.4</span>
-            <span class="toc-entry-title">Membuat Pemesanan Ruangan & Pemilihan Layout Dinamis</span>
+            <span class="toc-entry-title">Mengisi Formulir Pemesanan Ruangan & Layout Dinamis</span>
             <span class="toc-dots"></span>
             <span class="toc-page">11</span>
         </div>
         <div class="toc-entry">
-            <span class="toc-entry-num">2.5 — 2.6</span>
-            <span class="toc-entry-title">Validasi Berkas Disposisi (Popup 5 MB) & Riwayat Status</span>
+            <span class="toc-entry-num">2.5</span>
+            <span class="toc-entry-title">Ketentuan Berkas Disposisi & Popup Validasi 5 MB</span>
             <span class="toc-dots"></span>
             <span class="toc-page">12</span>
         </div>
         <div class="toc-entry">
-            <span class="toc-entry-num">2.7 — 2.10</span>
-            <span class="toc-entry-title">Detail Pemesanan, Pembatalan, Notifikasi WhatsApp, Profil & Logout</span>
+            <span class="toc-entry-num">2.6</span>
+            <span class="toc-entry-title">Riwayat Pemesanan & Pemantauan Status</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">12</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.7</span>
+            <span class="toc-entry-title">Melihat Detail Pemesanan & Unduh Disposisi</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">13</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.8</span>
+            <span class="toc-entry-title">Membatalkan Pemesanan Ruangan</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">13</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.9</span>
+            <span class="toc-entry-title">Notifikasi Otomatis WhatsApp Gateway</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">13</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.10</span>
+            <span class="toc-entry-title">Profil Pengguna & Logout</span>
             <span class="toc-dots"></span>
             <span class="toc-page">13</span>
         </div>
 
-        <div class="toc-part-label">Bab 3 — Informasi Tambahan</div>
+        <div class="toc-part-label">BAB 3: Informasi Tambahan</div>
         <div class="toc-entry">
-            <span class="toc-entry-num">3.1 — 3.5</span>
-            <span class="toc-entry-title">Tips & Catatan Penting (Ketentuan Berkas 5 MB, WITA, WhatsApp & Bantuan)</span>
+            <span class="toc-entry-num">3.1</span>
+            <span class="toc-entry-title">Tips & Prosedur Penggunaan Sistem</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">14</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">3.2</span>
+            <span class="toc-entry-title">Layanan Bantuan & Kontak Dukungan Admin</span>
             <span class="toc-dots"></span>
             <span class="toc-page">14</span>
         </div>
@@ -726,8 +820,11 @@
         </div>
 
         <div class="chapter-header">
-            <span class="chapter-badge">PENDAHULUAN</span>
-            <h1 class="chapter-title">Gambaran Umum Sistem SILAKAN</h1>
+            <div class="chapter-title-group">
+                <span class="chapter-badge">PENDAHULUAN</span>
+                <h1 class="chapter-title">Gambaran Umum Sistem SILAKAN</h1>
+            </div>
+            <div class="chapter-line"></div>
         </div>
 
         <div class="feature-block">
@@ -792,7 +889,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 4: BAB 1 — ADMIN: LOGIN & DASHBOARD
+     HALAMAN 4: BAB 1 — ADMIN: 1.1 LOGIN & 1.2 DASHBOARD
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -801,20 +898,24 @@
             <span>Login & Dashboard Admin</span>
         </div>
 
-        <!-- JUDUL BAB HANYA DITULIS SATU KALI DI HALAMAN PERTAMA INI -->
+        <!-- NAMA BAB DIPISAH DENGAN GARIS HANYA UNTUK NAMA BAB -->
         <div class="chapter-header">
-            <span class="chapter-badge">BAB 1</span>
-            <h1 class="chapter-title">Panduan Administrator: Login &amp; Dashboard</h1>
+            <div class="chapter-title-group">
+                <span class="chapter-badge">BAB 1</span>
+                <h1 class="chapter-title">Panduan Administrator</h1>
+            </div>
+            <div class="chapter-line"></div>
         </div>
 
+        <!-- SUB-BAB 1.1 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-box-arrow-in-right"></i> 1.1 Login Administrator</h2>
+            <h2 class="subchapter-title"><i class="bi bi-box-arrow-in-right"></i> 1.1 Login Administrator</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Digunakan oleh tim Administrator untuk mengautentikasi hak akses penuh dalam mengelola seluruh sistem pemesanan ruangan SILAKAN.
             </p>
             <div class="screenshot-wrap">
                 <div class="screenshot-frame">
-                    <img src="public/images/manual/01_login_page.png" alt="Login Administrator" class="screenshot-img" style="max-height:185px;">
+                    <img src="public/images/manual/01_login_page.png" alt="Login Administrator" class="screenshot-img" style="max-height:180px;">
                 </div>
                 <span class="screenshot-caption"><strong>Gambar 1.1</strong> — Halaman Masuk (Login) Sistem SILAKAN</span>
             </div>
@@ -826,14 +927,15 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 1.2 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-speedometer2"></i> 1.2 Dashboard Analitik Administrator</h2>
+            <h2 class="subchapter-title"><i class="bi bi-speedometer2"></i> 1.2 Dashboard Analitik Administrator</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menampilkan ringkasan data operasional secara visual, meliputi total pemesanan, permohonan pending yang perlu ditindaklanjuti, dan pemantauan kegiatan aktif hari ini.
             </p>
             <div class="screenshot-wrap">
                 <div class="screenshot-frame">
-                    <img src="public/images/manual/11_dashboard_admin.png" alt="Dashboard Administrator" class="screenshot-img" style="max-height:185px;">
+                    <img src="public/images/manual/11_dashboard_admin.png" alt="Dashboard Administrator" class="screenshot-img" style="max-height:180px;">
                 </div>
                 <span class="screenshot-caption"><strong>Gambar 1.2</strong> — Dashboard Utama Administrator dengan Data Pemesanan Nyata</span>
             </div>
@@ -853,7 +955,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 5: ADMIN: PERSETUJUAN (APPROVAL)
+     HALAMAN 5: ADMIN: 1.3 PERSETUJUAN (APPROVAL) & PENOLAKAN
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -862,8 +964,8 @@
             <span>Persetujuan & Penolakan</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB KARENA MASIH DI DALAM BAB 1 -->
-        <h1 class="page-title"><i class="bi bi-check2-circle"></i> 1.3 Manajemen Persetujuan (Approval) &amp; Penolakan Pemesanan</h1>
+        <!-- SUB-BAB (TANPA NAMA BAB DAN TANPA GARIS) -->
+        <h2 class="subchapter-title"><i class="bi bi-check2-circle"></i> 1.3 Manajemen Persetujuan (Approval) &amp; Penolakan Pemesanan</h2>
 
         <div class="feature-block">
             <p class="feature-desc">
@@ -890,7 +992,7 @@
             <ol class="steps-list">
                 <li>Klik menu <strong>Persetujuan / Approval</strong> pada navigasi sebelah kiri.</li>
                 <li>Pilih pemesanan berstatus <span class="badge badge-yellow">Pending</span>, lalu klik tombol <strong>Tinjau / Review</strong>.</li>
-                <li>Periksa detail tanggal, jam WITA, nama PIC, jumlah tamu, layout, dan klik berkas untuk melihat <strong>Lembar Disposisi</strong>.</li>
+                <li>Periksa detail tanggal, jam WITA, nama PIC unit, jumlah tamu, layout, dan klik berkas untuk melihat <strong>Lembar Disposisi</strong>.</li>
                 <li>Jika dokumen dan jadwal sudah tepat, klik tombol hijau <strong>Setujui Pemesanan</strong>. Notifikasi persetujuan otomatis terkirim via WhatsApp ke nomor PIC.</li>
             </ol>
         </div>
@@ -922,7 +1024,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 6: ADMIN: MONITORING & KALENDER
+     HALAMAN 6: ADMIN: 1.4 MONITORING & 1.5 KALENDER
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -931,11 +1033,9 @@
             <span>Monitoring & Kalender</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-broadcast"></i> 1.4 Live Monitoring Rapat &amp; 1.5 Kalender Ruangan</h1>
-
+        <!-- SUB-BAB 1.4 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-play-circle-fill"></i> 1.4 Live Monitoring Kegiatan Berlangsung (Early Finish)</h2>
+            <h2 class="subchapter-title"><i class="bi bi-broadcast"></i> 1.4 Live Monitoring Kegiatan Berlangsung (Early Finish)</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Memantau kegiatan rapat yang sedang aktif saat ini secara real-time serta menyediakan fitur untuk menyelesaikan penggunaan ruangan lebih awal agar ruangan dapat segera dipakai kembali.
             </p>
@@ -952,8 +1052,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 1.5 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-calendar3"></i> 1.5 Kalender Jadwal Ruangan</h2>
+            <h2 class="subchapter-title"><i class="bi bi-calendar3"></i> 1.5 Kalender Jadwal Ruangan</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menyajikan visualisasi matriks agenda rapat kantor secara bulanan dan mingguan untuk mempermudah pengecekan ketersediaan seluruh ruangan rapat.
             </p>
@@ -979,7 +1080,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 7: ADMIN: MASTER RUANGAN & LAYOUT
+     HALAMAN 7: ADMIN: 1.6 MASTER RUANGAN & 1.7 MASTER LAYOUT
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -988,11 +1089,9 @@
             <span>Master Ruangan & Layout</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-door-open-fill"></i> 1.6 Pengelolaan Master Ruangan &amp; 1.7 Master Layout</h1>
-
+        <!-- SUB-BAB 1.6 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-building"></i> 1.6 Pengelolaan Master Ruangan (9 Ruangan Resmi)</h2>
+            <h2 class="subchapter-title"><i class="bi bi-door-open-fill"></i> 1.6 Pengelolaan Master Data Ruangan (9 Ruangan Resmi)</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menambah ruangan baru, memperbarui kapasitas, mengatur lokasi lantai gedung, dan mengaktifkan/menonaktifkan ruangan yang sedang dalam masa perawatan (*maintenance*).
             </p>
@@ -1010,8 +1109,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 1.7 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-grid-3x3-gap-fill"></i> 1.7 Pengelolaan Master Layout Ruangan</h2>
+            <h2 class="subchapter-title"><i class="bi bi-grid-3x3-gap-fill"></i> 1.7 Pengelolaan Master Layout Ruangan</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Mengelola standar tata letak meja dan kursi rapat (misalnya <em>U-Shape, Classroom, Teater, Interview Set, Transit Room, Round Table</em>) beserta kapasitas rekomendasi.
             </p>
@@ -1037,7 +1137,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 8: ADMIN: HARI LIBUR & PENGGUNA
+     HALAMAN 8: ADMIN: 1.8 MASTER HARI LIBUR & 1.9 PENGGUNA
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1046,11 +1146,9 @@
             <span>Hari Libur & Akun Unit Kerja</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-calendar-x-fill"></i> 1.8 Master Hari Libur &amp; 1.9 Manajemen Pengguna</h1>
-
+        <!-- SUB-BAB 1.8 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-calendar2-week"></i> 1.8 Master Hari Libur & Sinkronisasi API Otomatis</h2>
+            <h2 class="subchapter-title"><i class="bi bi-calendar2-week"></i> 1.8 Master Hari Libur &amp; Sinkronisasi API Otomatis</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menetapkan kalender libur nasional dan cuti bersama agar sistem otomatis memblokir pemesanan ruangan pada hari libur resmi.
             </p>
@@ -1067,8 +1165,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 1.9 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-person-gear"></i> 1.9 Manajemen Akun Pengguna (10 Unit Kerja Resmi)</h2>
+            <h2 class="subchapter-title"><i class="bi bi-person-gear"></i> 1.9 Manajemen Akun Pengguna (10 Unit Kerja Resmi)</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Mengelola akun 10 Unit Kerja resmi KPwBI Sulut, melakukan reset kata sandi, serta melihat dan menyalin kata sandi unit kerja dengan aman.
             </p>
@@ -1096,7 +1195,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 9: ADMIN: LAPORAN & LOGOUT
+     HALAMAN 9: ADMIN: 1.10 LAPORAN & 1.11 LOGOUT
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1105,11 +1204,9 @@
             <span>Laporan & Logout</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-file-earmark-bar-graph-fill"></i> 1.10 Laporan Pemesanan, Ekspor Data &amp; Logout</h1>
-
+        <!-- SUB-BAB 1.10 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-file-earmark-spreadsheet"></i> 1.10 Laporan Pemesanan & Ekspor Data (Excel & PDF)</h2>
+            <h2 class="subchapter-title"><i class="bi bi-file-earmark-spreadsheet"></i> 1.10 Laporan Pemesanan &amp; Ekspor Data (Excel &amp; PDF)</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menyajikan rekapitulasi penggunaan ruangan rapat berdasarkan rentang tanggal, status, atau unit kerja, serta menyediakan unduhan data dalam format spreadsheet Excel dan dokumen cetak PDF resmi.
             </p>
@@ -1136,8 +1233,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 1.11 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-box-arrow-right"></i> 1.11 Profil Administrator & Logout</h2>
+            <h2 class="subchapter-title"><i class="bi bi-box-arrow-right"></i> 1.11 Profil Administrator &amp; Logout</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Memperbarui informasi profil admin, mengganti password akun admin, dan keluar dari sistem dengan aman.
             </p>
@@ -1165,7 +1263,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 10: BAB 2 — USER: LOGIN & DASHBOARD
+     HALAMAN 10: BAB 2 — USER: 2.1 LOGIN, 2.2 DASHBOARD, 2.3 JADWAL
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1174,14 +1272,18 @@
             <span>Login & Dashboard Unit Kerja</span>
         </div>
 
-        <!-- JUDUL BAB HANYA DITULIS SATU KALI DI AWAL BAB 2 INI -->
+        <!-- NAMA BAB DIPISAH DENGAN GARIS HANYA UNTUK NAMA BAB -->
         <div class="chapter-header">
-            <span class="chapter-badge">BAB 2</span>
-            <h1 class="chapter-title">Panduan User: Login &amp; Dashboard Pengguna</h1>
+            <div class="chapter-title-group">
+                <span class="chapter-badge">BAB 2</span>
+                <h1 class="chapter-title">Panduan Pengguna (User — Unit Kerja)</h1>
+            </div>
+            <div class="chapter-line"></div>
         </div>
 
+        <!-- SUB-BAB 2.1 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-person-badge"></i> 2.1 Login Akun Unit Kerja (tmi_kpwbisulut)</h2>
+            <h2 class="subchapter-title"><i class="bi bi-person-badge"></i> 2.1 Login Akun Unit Kerja (tmi_kpwbisulut)</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Digunakan oleh pegawai unit kerja untuk masuk ke SILAKAN menggunakan akun resmi masing-masing fungsi/unit di KPwBI Sulut (seperti Tim Manajemen Internal / <code>tmi_kpwbisulut</code>).
             </p>
@@ -1192,8 +1294,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 2.2 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-house-door-fill"></i> 2.2 Dashboard Pengguna (Halaman Utama)</h2>
+            <h2 class="subchapter-title"><i class="bi bi-house-door-fill"></i> 2.2 Dashboard Pengguna (Halaman Utama)</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menampilkan ringkasan status permohonan rapat milik unit kerja Anda, agenda rapat aktif hari ini, dan tombol pintasan pengajuan pemesanan baru.
             </p>
@@ -1210,8 +1313,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 2.3 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-calendar-check"></i> 2.3 Melihat Ketersediaan Ruangan</h2>
+            <h2 class="subchapter-title"><i class="bi bi-calendar-check"></i> 2.3 Melihat Ketersediaan Ruangan</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Sebelum membuat pemesanan, pengguna dapat membuka menu <strong>Kalender Ruangan</strong> untuk melihat jadwal rapat yang sudah terisi sehingga dapat memilih waktu yang kosong tanpa bentrok.
             </p>
@@ -1226,7 +1330,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 11: USER: FORMULIR PEMESANAN
+     HALAMAN 11: USER: 2.4 FORMULIR PEMESANAN & LAYOUT DINAMIS
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1235,8 +1339,8 @@
             <span>Formulir Pemesanan Ruangan</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-calendar-plus-fill"></i> 2.4 Mengisi Formulir Pemesanan Ruangan &amp; Layout Dinamis</h1>
+        <!-- SUB-BAB 2.4 (TANPA GARIS) -->
+        <h2 class="subchapter-title"><i class="bi bi-calendar-plus-fill"></i> 2.4 Mengisi Formulir Pemesanan Ruangan &amp; Layout Dinamis</h2>
 
         <div class="feature-block">
             <p class="feature-desc">
@@ -1288,7 +1392,7 @@
                     <tr>
                         <td><strong>Nama & WA PIC</strong></td>
                         <td style="text-align:center;"><span class="badge badge-blue">Wajib</span></td>
-                        <td>Nama penanggung jawab dan Nomor WhatsApp aktif (contoh: <code>08123456789</code>) untuk menerima notifikasi status persetujuan.</td>
+                        <td>Nama penanggung jawab unit dan Nomor WhatsApp aktif (contoh: <code>08123456789</code>) untuk menerima notifikasi status persetujuan.</td>
                     </tr>
                     <tr>
                         <td><strong>Upload Disposisi</strong></td>
@@ -1316,7 +1420,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 12: USER: VALIDASI DISPOSISI 5MB & STATUS
+     HALAMAN 12: USER: 2.5 VALIDASI DISPOSISI 5MB & 2.6 RIWAYAT
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1325,11 +1429,9 @@
             <span>Validasi Berkas & Riwayat Status</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-file-earmark-arrow-up-fill"></i> 2.5 Validasi Berkas Disposisi &amp; 2.6 Riwayat Status</h1>
-
+        <!-- SUB-BAB 2.5 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-shield-exclamation"></i> 2.5 Ketentuan Berkas Disposisi & Popup Validasi 5 MB</h2>
+            <h2 class="subchapter-title"><i class="bi bi-shield-exclamation"></i> 2.5 Ketentuan Berkas Disposisi &amp; Popup Validasi 5 MB</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Menjamin berkas yang diunggah memenuhi standar sistem. Jika berkas yang dipilih melebihi 5 MB, sistem secara otomatis langsung menampilkan jendela modal popup peringatan seketika saat berkas dipilih.
             </p>
@@ -1346,8 +1448,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 2.6 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-list-check"></i> 2.6 Riwayat Pemesanan & Pemantauan Status</h2>
+            <h2 class="subchapter-title"><i class="bi bi-list-check"></i> 2.6 Riwayat Pemesanan &amp; Pemantauan Status</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Melihat seluruh daftar pengajuan yang pernah diajukan unit kerja beserta tahapan status persetujuannya.
             </p>
@@ -1402,7 +1505,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 13: USER: DETAIL, BATAL, WA, PROFIL
+     HALAMAN 13: USER: 2.7 DETAIL, 2.8 BATAL, 2.9 WA, 2.10 PROFIL
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1411,11 +1514,9 @@
             <span>Detail, Pembatalan, WhatsApp & Profil</span>
         </div>
 
-        <!-- JUDUL TANPA AWALAN BAB -->
-        <h1 class="page-title"><i class="bi bi-file-text-fill"></i> 2.7 Detail Pemesanan, Pembatalan &amp; Notifikasi</h1>
-
+        <!-- SUB-BAB 2.7 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-file-earmark-check-fill"></i> 2.7 Melihat Detail Pemesanan & Unduh Disposisi</h2>
+            <h2 class="subchapter-title"><i class="bi bi-file-earmark-check-fill"></i> 2.7 Melihat Detail Pemesanan &amp; Unduh Disposisi</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Memeriksa seluruh informasi lengkap pengajuan dan mengunduh berkas lembar disposisi yang telah diunggah sebelumnya.
             </p>
@@ -1439,8 +1540,9 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 2.8 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-x-circle-fill"></i> 2.8 Membatalkan Pemesanan Ruangan</h2>
+            <h2 class="subchapter-title"><i class="bi bi-x-circle-fill"></i> 2.8 Membatalkan Pemesanan Ruangan</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Membatalkan pemesanan yang tidak jadi diselenggarakan agar jadwal ruangan kembali terbuka untuk unit kerja lain.
             </p>
@@ -1450,15 +1552,17 @@
             </ol>
         </div>
 
+        <!-- SUB-BAB 2.9 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-whatsapp"></i> 2.9 Notifikasi Otomatis WhatsApp Gateway</h2>
+            <h2 class="subchapter-title"><i class="bi bi-whatsapp"></i> 2.9 Notifikasi Otomatis WhatsApp Gateway</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Setiap kali status pemesanan Anda disetujui atau ditolak oleh Admin, sistem SILAKAN otomatis mengirimkan pemberitahuan resmi ke nomor WhatsApp PIC yang tercantum di formulir.
             </p>
         </div>
 
+        <!-- SUB-BAB 2.10 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-person-fill-gear"></i> 2.10 Profil Pengguna & Logout</h2>
+            <h2 class="subchapter-title"><i class="bi bi-person-fill-gear"></i> 2.10 Profil Pengguna &amp; Logout</h2>
             <p class="feature-desc">
                 <strong>Fungsi:</strong> Mengubah kata sandi akun unit kerja dan keluar dari aplikasi dengan aman melalui tombol <strong>Logout</strong> di sudut kanan atas.
             </p>
@@ -1473,7 +1577,7 @@
 
 
 <!-- ================================================================
-     HALAMAN 14: BAB 3 — INFORMASI TAMBAHAN
+     HALAMAN 14: BAB 3 — INFORMASI TAMBAHAN (3.1 & 3.2)
      ================================================================ -->
 <div class="sheet page-break">
     <div class="sheet-content">
@@ -1482,14 +1586,18 @@
             <span>Tips & Catatan Penting</span>
         </div>
 
-        <!-- JUDUL BAB DITULIS DI AWAL BAB 3 -->
+        <!-- NAMA BAB DIPISAH DENGAN GARIS HANYA UNTUK NAMA BAB -->
         <div class="chapter-header">
-            <span class="chapter-badge">BAB 3</span>
-            <h1 class="chapter-title">Tips &amp; Catatan Penting Penggunaan</h1>
+            <div class="chapter-title-group">
+                <span class="chapter-badge">BAB 3</span>
+                <h1 class="chapter-title">Informasi Tambahan</h1>
+            </div>
+            <div class="chapter-line"></div>
         </div>
 
+        <!-- SUB-BAB 3.1 (TANPA GARIS) -->
         <div class="feature-block">
-            <h2 class="feature-title"><i class="bi bi-lightbulb-fill"></i> Tips &amp; Prosedur Penggunaan Sistem</h2>
+            <h2 class="subchapter-title"><i class="bi bi-lightbulb-fill"></i> 3.1 Tips &amp; Prosedur Penggunaan Sistem</h2>
             <p class="feature-desc">
                 Untuk memastikan kelancaran operasional rapat di lingkungan Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara, perhatikan hal-hal mendasar berikut:
             </p>
@@ -1527,8 +1635,9 @@
             </div>
         </div>
 
+        <!-- SUB-BAB 3.2 (TANPA GARIS) -->
         <div class="feature-block" style="margin-top:16px;">
-            <h2 class="feature-title"><i class="bi bi-headset"></i> Layanan Bantuan & Kontak Dukungan Admin</h2>
+            <h2 class="subchapter-title"><i class="bi bi-headset"></i> 3.2 Layanan Bantuan &amp; Kontak Dukungan Admin</h2>
             <table class="data-table">
                 <thead>
                     <tr>
