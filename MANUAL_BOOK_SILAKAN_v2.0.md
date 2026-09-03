@@ -1,15 +1,16 @@
-# 📘 MANUAL BOOK SILAKAN — Versi 2.0
+# 📘 MANUAL BOOK SILAKAN — Versi 1.0
 ## **Sistem Informasi Layanan Kantor**
 ### **Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara**
 
 ---
 
 **Nama Dokumen** : Buku Panduan Penggunaan Sistem (Manual Book) — SILAKAN  
-**Versi Dokumen** : Versi 2.0  
+**Versi Aplikasi** : Versi 1.0  
 **Tanggal Rilis** : September 2026  
 **Instansi Pemilik** : Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara  
-**Pengelola Sistem** : Unit Sarpras / Fasilitas Kantor  
-**Format Dokumen Resmi** : `Manual_Book_SILAKAN_v2.0.pdf` (A4 Portrait — 14 Halaman)
+**Pengelola Dokumen** : Tim Administrator SILAKAN  
+**Format Dokumen Resmi** : `Manual_Book_SILAKAN_v1.0.pdf` (A4 Portrait — 14 Halaman)  
+**Teks Catatan Kaki (Footer)** : `Manual Book Silakan v.1.0 - Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara`
 
 ---
 
@@ -20,7 +21,7 @@
   - 2. Tujuan Sistem
   - 3. Pengguna Sistem (Hak Akses)
   - 4. Standar Operasional & Waktu Resmi
-- [BAB 1: PANDUAN ADMINISTRATOR (ADMIN SARPRAS)](#bab-1-panduan-administrator-admin-sarpras)
+- [BAB 1: PANDUAN ADMINISTRATOR](#bab-1-panduan-administrator)
   - 1.1 Login Administrator
   - 1.2 Dashboard Analitik Administrator
   - 1.3 Manajemen Persetujuan (Approval) & Penolakan Pemesanan
@@ -32,8 +33,8 @@
   - 1.9 Manajemen Akun Pengguna (10 Unit Kerja Resmi)
   - 1.10 Laporan Pemesanan & Ekspor Data (Excel & PDF)
   - 1.11 Profil Administrator & Logout
-- [BAB 2: PANDUAN USER (PEGAWAI UNIT KERJA)](#bab-2-panduan-user-pegawai-unit-kerja)
-  - 2.1 Login Akun Unit Kerja
+- [BAB 2: PANDUAN PENGGUNA (USER — UNIT KERJA)](#bab-2-panduan-pengguna-user--unit-kerja)
+  - 2.1 Login Akun Unit Kerja (tmi_kpwbisulut)
   - 2.2 Dashboard Pengguna (Halaman Utama)
   - 2.3 Melihat Ketersediaan Ruangan
   - 2.4 Mengisi Formulir Pemesanan Ruangan
@@ -48,23 +49,23 @@
   - 3.2 Standar Zona Waktu (WITA / GMT+8)
   - 3.3 Alur Integrasi WhatsApp Gateway
   - 3.4 Etika Pemakaian & Penyelesaian Rapat Lebih Awal (*Early Finish*)
-  - 3.5 Layanan Bantuan & Kontak Dukungan Sarpras
+  - 3.5 Layanan Bantuan & Kontak Dukungan Admin
 
 ---
 
 ## 📌 **BAGIAN AWAL: PENDAHULUAN**
 
 ### **1. Apa Itu Sistem SILAKAN?**
-**SILAKAN (Sistem Informasi Layanan Kantor)** adalah aplikasi berbasis web internal yang dikembangkan khusus untuk Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara guna memfasilitasi seluruh proses pemesanan, verifikasi persetujuan, hingga pemantauan penggunaan ruangan rapat secara transparan, terpadu, dan terotomatisasi.
+**SILAKAN (Sistem Informasi Layanan Kantor)** adalah aplikasi resmi berbasis website internal yang dikembangkan khusus untuk Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara guna memfasilitasi seluruh proses pemesanan, verifikasi persetujuan, hingga pemantauan penggunaan ruangan rapat secara transparan, terpadu, dan otomatis.
 
 ### **2. Tujuan Sistem**
-- **Eliminasi Bentrok Jadwal**: Sistem memvalidasi ketersediaan secara otomatis dan menolak pemesanan pada jam yang sama.
-- **Efisiensi Verifikasi**: Mempercepat alur persetujuan lembar disposisi pimpinan secara digital tanpa berkas fisik.
+- **Eliminasi Bentrok Jadwal**: Sistem memvalidasi ketersediaan secara otomatis dan menolak pemesanan pada jam yang sama secara real-time.
+- **Efisiensi Verifikasi**: Mempercepat alur persetujuan lembar disposisi pimpinan secara digital tanpa berkas fisik yang tercecer.
 - **Notifikasi Otomatis**: Informasi persetujuan langsung dikirimkan ke nomor WhatsApp PIC kegiatan.
 - **Transparansi Pemakaian**: Seluruh pegawai dapat melihat ketersediaan ruangan melalui kalender visual interaktif.
 
 ### **3. Pengguna Sistem (Hak Akses)**
-1. **ADMINISTRATOR (Admin Sarpras)**:
+1. **ADMINISTRATOR (Admin)**:
    Mengelola persetujuan permohonan, memantau rapat berlangsung, mengelola 9 master ruangan rapat, master layout, master hari libur, akun 10 unit kerja, dan mengunduh laporan eksekutif (Excel & PDF).
 2. **USER (Pegawai Unit Kerja)**:
    Mengecek ketersediaan jadwal, membuat permohonan peminjaman ruangan, melampirkan lembar disposisi (maks. 5 MB), memantau status persetujuan, mengunduh disposisi, dan membatalkan pemesanan.
@@ -74,11 +75,13 @@ Seluruh pengisian jam kegiatan, penghitungan durasi, dan validasi bentrok jadwal
 
 ---
 
-## 🏛️ **BAB 1: PANDUAN ADMINISTRATOR (ADMIN SARPRAS)**
+## 🏛️ **BAB 1: PANDUAN ADMINISTRATOR**
+
+*(Judul bab hanya dicantumkan pada awal bab ini sebagai pembuka modul administrator)*
 
 ### **1.1 Login Administrator**
 **Fungsi:**  
-Digunakan oleh tim Administrator Sarpras untuk mengautentikasi hak akses penuh dalam mengelola seluruh sistem pemesanan ruangan SILAKAN.
+Digunakan oleh tim Administrator untuk mengautentikasi hak akses penuh dalam mengelola seluruh sistem pemesanan ruangan SILAKAN.
 
 **Cara Menggunakan:**
 1. Buka peramban web (Google Chrome / Microsoft Edge) dan akses alamat sistem SILAKAN.
@@ -168,7 +171,7 @@ Mengelola standar tata letak meja dan kursi rapat (misalnya *U-Shape, Classroom,
 **Cara Menggunakan:**
 1. Buka menu **Master Data > Layout Ruangan**.
 2. Periksa daftar model tata letak yang tersedia di sistem.
-3. Tambahkan atau sesuaikan kapasitas layout bila ada pengaturan fasilitas baru dari teknisi Sarpras.
+3. Tambahkan atau sesuaikan kapasitas layout bila ada pengaturan fasilitas baru dari tim teknisi.
 
 ---
 
@@ -188,15 +191,15 @@ Menetapkan kalender libur nasional dan cuti bersama agar sistem otomatis memblok
 Mengelola akun 10 Unit Kerja resmi KPwBI Sulut, melakukan reset kata sandi, serta melihat dan menyalin kata sandi unit kerja dengan aman.
 
 **Daftar 10 Akun Unit Kerja:**
-- `fiksp_kpwbisulut` (FIKSP)
-- `pur_kpwbisulut` (PUR)
-- `tmi_kpwbisulut` (TMI)
+- `fiksp_kpwbisulut` (Fungsi Implementasi Kebijakan Sistem Pembayaran)
+- `pur_kpwbisulut` (Pengelolaan Uang Rupiah)
+- `tmi_kpwbisulut` (Tim Manajemen Internal)
 - `uk_kpwbisulut` (Unit Kehumasan)
-- `fdsek_kpwbisulut` (FDSEK)
-- `fpkp_kpwbisulut` (FPKP)
-- `fppu_kpwbisulut` (FPPU)
-- `pipebi_kpwbisulut` (PIPEBI)
-- `ppbi_kpwbisulut` (PPBI)
+- `fdsek_kpwbisulut` (Fungsi Data dan Statistik Ekonomi & Keuangan)
+- `fpkp_kpwbisulut` (Fasilitator Pengendalian Inflasi dan Kebijakan Publik)
+- `fppu_kpwbisulut` (Fungsi Pelaksana Pengembangan UMKM)
+- `pipebi_kpwbisulut` (Persatuan Istri Pegawai Bank Indonesia)
+- `ppbi_kpwbisulut` (Persatuan Pegawai Bank Indonesia)
 - `ca_kpwbisulut` (Change Agent)
 
 **Cara Menggunakan:**
@@ -216,7 +219,7 @@ Menyajikan rekapitulasi penggunaan ruangan rapat berdasarkan rentang tanggal, st
 1. Buka menu **Laporan** pada sidebar.
 2. Tentukan rentang **Tanggal Mulai** dan **Tanggal Selesai**.
 3. Pilih filter ruangan atau biarkan *Semua Ruangan*, lalu klik **Tampilkan Data**.
-4. Klik tombol hijau **Ekspor Excel (.xlsx)** untuk mengunduh rekapitulasi data tabular secara instan.
+4. Klik tombol hijau **Ekspor Excel (.xlsx)** untuk mengunduh rekapitulasi data tabular secara instan tanpa hambatan loading.
 5. Klik tombol merah **Cetak PDF** untuk mencetak dokumen laporan resmi berformat A4.
 
 ---
@@ -231,15 +234,17 @@ Memperbarui informasi profil admin, mengganti password akun admin, dan keluar da
 
 ---
 
-## 👤 **BAB 2: PANDUAN USER (PEGAWAI UNIT KERJA)**
+## 👤 **BAB 2: PANDUAN PENGGUNA (USER — UNIT KERJA)**
 
-### **2.1 Login Akun Unit Kerja**
+*(Judul bab hanya dicantumkan pada awal bab ini sebagai pembuka modul pengguna unit kerja)*
+
+### **2.1 Login Akun Unit Kerja (tmi_kpwbisulut)**
 **Fungsi:**  
-Digunakan oleh pegawai unit kerja untuk masuk ke SILAKAN menggunakan akun resmi masing-masing fungsi/unit di KPwBI Sulut.
+Digunakan oleh pegawai unit kerja untuk masuk ke SILAKAN menggunakan akun resmi masing-masing fungsi/unit di KPwBI Sulut (seperti Tim Manajemen Internal / `tmi_kpwbisulut`).
 
 **Cara Menggunakan:**
 1. Buka aplikasi SILAKAN pada peramban web.
-2. Masukkan username unit kerja resmi Anda (contoh: `uk_kpwbisulut`, `fiksp_kpwbisulut`, dll.).
+2. Masukkan username unit kerja resmi Anda (contoh: `tmi_kpwbisulut`).
 3. Ketikkan kata sandi unit kerja Anda, lalu klik tombol **Masuk**.
 
 ---
@@ -250,7 +255,7 @@ Menampilkan ringkasan status permohonan rapat milik unit kerja Anda, agenda rapa
 
 **Cara Menggunakan:**
 1. Setelah login, periksa kartu status pemesanan: *Menunggu Persetujuan*, *Disetujui*, dan *Selesai*.
-2. Pantau jadwal rapat aktif pada bagian **Kegiatan Hari Ini**.
+2. Pantau jadwal rapat aktif pada bagian **Kegiatan Hari Ini** (misalnya *Rapat Koordinasi Manajemen Internal*).
 3. Klik tombol biru **+ Buat Pemesanan Baru** untuk mulai mengajukan peminjaman ruangan.
 
 ---
@@ -283,7 +288,7 @@ Mengajukan permohonan peminjaman fasilitas ruangan rapat dengan mengisi rincian 
 **Cara Mengajukan:**
 1. Isi seluruh kolom formulir sesuai panduan di atas.
 2. Klik tombol **Kirim Pengajuan Pemesanan**.
-3. Permohonan Anda akan tercatat dengan status **Pending** dan diteruskan ke Admin Sarpras.
+3. Permohonan Anda akan tercatat dengan status **Pending** dan diteruskan ke Admin.
 
 ---
 
@@ -295,7 +300,7 @@ Menjamin berkas yang diunggah memenuhi standar sistem. Jika berkas yang dipilih 
 1. Klik area dropzone unggah atau seret berkas (*drag and drop*) lembar disposisi Anda.
 2. Jika ukuran berkas **lebih dari 5 MB**, sistem langsung membatalkan pilihan berkas dan memunculkan modal popup:
    > ⚠️ **Ukuran Berkas Melebihi Batas**  
-   > *Ukuran berkas lembar disposisi yang Anda pilih adalah X MB. Sesuai ketentuan sistem, ukuran berkas tidak boleh lebih dari 5 MB.*
+   > *Ukuran berkas lembar disposisi yang Anda pilih adalah 6.85 MB. Sesuai ketentuan sistem, ukuran berkas tidak boleh lebih dari 5 MB.*
 3. Klik tombol **Mengerti** pada popup, kompres berkas PDF/gambar Anda, lalu unggah kembali berkas dengan ukuran di bawah 5 MB.
 
 ---
@@ -305,9 +310,9 @@ Menjamin berkas yang diunggah memenuhi standar sistem. Jika berkas yang dipilih 
 Melihat seluruh daftar pengajuan yang pernah diajukan unit kerja beserta tahapan status persetujuannya.
 
 **Arti Label Status Pemesanan:**
-- **Pending (Kuning)**: Permohonan berhasil dikirim dan sedang menunggu pemeriksaan Admin Sarpras.
+- **Pending (Kuning)**: Permohonan berhasil dikirim dan sedang menunggu pemeriksaan Admin.
 - **Disetujui (Hijau)**: Pemesanan disetujui resmi dan ruangan siap dipergunakan.
-- **Ditolak (Merah)**: Permohonan ditolak oleh Admin Sarpras (alasan penolakan dapat dibaca pada detail).
+- **Ditolak (Merah)**: Permohonan ditolak oleh Admin (alasan penolakan dapat dibaca pada detail).
 - **Berlangsung (Biru)**: Kegiatan rapat saat ini sedang aktif berlangsung di ruangan.
 - **Selesai (Abu-abu)**: Kegiatan rapat telah selesai dilaksanakan.
 - **Dibatalkan (Abu-abu Gelap)**: Pemesanan dibatalkan atas permohonan pemohon sendiri.
@@ -341,7 +346,7 @@ Membatalkan pemesanan yang tidak jadi diselenggarakan agar jadwal ruangan kembal
 Memberikan kepastian status persetujuan secara instan langsung ke ponsel PIC kegiatan tanpa harus selalu membuka website.
 
 **Cara Kerja:**
-1. Setiap kali Admin Sarpras menyetujui atau menolak permohonan Anda, server SILAKAN otomatis mengirimkan pesan WhatsApp ke nomor PIC yang tertera.
+1. Setiap kali Admin menyetujui atau menolak permohonan Anda, server SILAKAN otomatis mengirimkan pesan WhatsApp ke nomor PIC yang tertera.
 2. Pesan berisi rincian ruangan, tanggal, jam WITA, dan catatan alasan jika ditolak.
 
 ---
@@ -372,14 +377,14 @@ Mengubah kata sandi akun unit kerja dan keluar dari aplikasi secara aman.
 - Pesan WhatsApp dikirim secara otomatis oleh sistem sebagai bukti sah persetujuan pemakaian ruangan.
 
 ### **3.4 Etika Pemakaian & Penyelesaian Rapat Lebih Awal (*Early Finish*)**
-- Ruangan rapat yang telah selesai digunakan diimbau segera dilaporkan kepada petugas Sarpras atau diselesaikan melalui sistem agar ruangan kembali berstatus kosong dan dapat dimanfaatkan oleh unit kerja lain.
+- Ruangan rapat yang telah selesai digunakan diimbau segera dilaporkan kepada Admin atau diselesaikan melalui sistem agar ruangan kembali berstatus kosong dan dapat dimanfaatkan oleh unit kerja lain.
 - Jagalah kebersihan, kerapian, dan fasilitas inventaris kantor di dalam ruangan rapat.
 
-### **3.5 Layanan Bantuan & Kontak Dukungan Sarpras**
+### **3.5 Layanan Bantuan & Kontak Dukungan Admin**
 Bila mengalami kendala teknis dalam pengoperasian sistem pemesanan ruangan SILAKAN, hubungi:
-- **Unit Pengelola**: Unit Sarana & Prasarana (Sarpras) KPwBI Provinsi Sulawesi Utara
+- **Pengelola Sistem**: Tim Administrator SILAKAN KPwBI Provinsi Sulawesi Utara
 - **Lokasi**: Gedung Kantor Perwakilan Bank Indonesia Prov. Sulawesi Utara — Lantai 3
-- **Kontak Internal**: Ext. Telepon Sarpras KPwBI Sulut / Email: `sarpras_sulut@bi.go.id`
+- **Kontak Internal**: Ext. Telepon Admin SILAKAN / Email: `admin_silakan@bi.go.id`
 
 ---
-*Manual Book SILAKAN Versi 2.0 — Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara*
+*Manual Book Silakan v.1.0 - Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara*
