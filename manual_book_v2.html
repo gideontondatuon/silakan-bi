@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Prov. Sulut</title>
+    <meta name="description" content="Buku Panduan Penggunaan Sistem Informasi Layanan Kantor (SILAKAN) Versi 2.0 — Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+    /* ================================================================
+       PRINT & PAGE SETUP
+       ================================================================ */
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+        font-size: 9.5pt;
+        line-height: 1.55;
+        color: #1e293b;
+        background: #e2e8f0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    @media print {
+        body { background: #fff; }
+        .page-container { box-shadow: none !important; margin: 0 !important; width: 100% !important; }
+        .no-print { display: none !important; }
+        .page-break { page-break-before: always; break-before: page; }
+        .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+    }
+
+    .page-container {
+        width: 210mm;
+        margin: 20px auto;
+        background: #fff;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+    }
+
+    .page-break { page-break-before: always; break-before: page; }
+    .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+
+    /* ================================================================
+       COVER PAGE
+       ================================================================ */
+    .cover {
+        height: 297mm;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .cover-stripe {
+        width: 100%;
+        height: 9px;
+        background: linear-gradient(90deg, #003b73 0%, #005baa 55%, #b8972a 100%);
+        flex-shrink: 0;
+    }
+
+    .cover-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 24mm 24mm 20mm 24mm;
+        background: linear-gradient(160deg, #ffffff 0%, #f4f8fc 50%, #e9f2fb 100%);
+        position: relative;
+    }
+
+    .cover-body::after {
+        content: "";
+        position: absolute;
+        bottom: -40px;
+        right: -40px;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(0,91,170,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .cover-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40mm;
+    }
+
+    .cover-logo { height: 50px; width: auto; }
+
+    .cover-org {
+        text-align: right;
+        padding-right: 14px;
+        border-right: 3.5px solid #005baa;
+    }
+
+    .cover-org-name {
+        font-size: 11pt;
+        font-weight: 800;
+        color: #003b73;
+        letter-spacing: .6px;
+        display: block;
+    }
+
+    .cover-org-sub {
+        font-size: 8.5pt;
+        color: #64748b;
+        display: block;
+        margin-top: 2px;
+    }
+
+    .cover-type-tag {
+        display: inline-block;
+        background: #eff6ff;
+        border: 1.5px solid #bfdbfe;
+        color: #1d4ed8;
+        font-size: 8.5pt;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 5px 16px;
+        border-radius: 50px;
+        margin-bottom: 18px;
+    }
+
+    .cover-title {
+        font-size: 40pt;
+        font-weight: 800;
+        color: #003b73;
+        letter-spacing: .5px;
+        line-height: 1.08;
+        margin-bottom: 10px;
+    }
+
+    .cover-subtitle {
+        font-size: 16pt;
+        font-weight: 700;
+        color: #005baa;
+        margin-bottom: 8px;
+    }
+
+    .cover-tagline {
+        font-size: 10.5pt;
+        color: #475569;
+        line-height: 1.6;
+        max-width: 90%;
+        margin-bottom: 26px;
+    }
+
+    .cover-divider {
+        width: 70px;
+        height: 4px;
+        background: linear-gradient(90deg, #005baa, #b8972a);
+        border-radius: 2px;
+        margin-bottom: 30px;
+    }
+
+    .cover-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(0,59,115,.06);
+        margin-top: auto;
+    }
+
+    .cover-meta-item {
+        padding: 14px 18px;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .cover-meta-item:last-child { border-right: none; }
+
+    .cover-meta-item small {
+        display: block;
+        font-size: 7pt;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        margin-bottom: 3px;
+    }
+
+    .cover-meta-item strong {
+        font-size: 9.5pt;
+        font-weight: 700;
+        color: #003b73;
+    }
+
+    /* ================================================================
+       INNER PAGES SHELL
+       ================================================================ */
+    .sheet {
+        height: 297mm;
+        padding: 13mm 16mm 13mm 16mm;
+        background: #fff;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+    }
+
+    .sheet-content {
+        flex: 1;
+    }
+
+    .running-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 6px;
+        border-bottom: 1.5px solid #e2e8f0;
+        margin-bottom: 14px;
+        font-size: 7.5pt;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .running-header strong { color: #003b73; font-weight: 700; }
+
+    .running-footer {
+        margin-top: 10px;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 7.5pt;
+        color: #94a3b8;
+    }
+
+    .running-footer .page-num {
+        background: #003b73;
+        color: #fff;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 4px;
+        font-size: 8pt;
+    }
+
+    /* ================================================================
+       TYPOGRAPHY & HEADINGS
+       ================================================================ */
+    .chapter-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #005baa;
+    }
+
+    .chapter-badge {
+        background: linear-gradient(135deg, #005baa, #003b73);
+        color: #fff;
+        font-size: 8.5pt;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 6px;
+        letter-spacing: .8px;
+        white-space: nowrap;
+    }
+
+    .chapter-title {
+        font-size: 15.5pt;
+        font-weight: 800;
+        color: #003b73;
+        line-height: 1.2;
+    }
+
+    .feature-block {
+        margin-bottom: 14px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .feature-title {
+        font-size: 11pt;
+        font-weight: 700;
+        color: #005baa;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .feature-desc {
+        margin-bottom: 6px;
+        color: #334155;
+        font-size: 8.8pt;
+        line-height: 1.48;
+    }
+
+    .feature-desc strong { color: #003b73; }
+
+    /* Steps */
+    .steps-list {
+        margin: 6px 0 10px 0;
+        padding-left: 0;
+        list-style: none;
+        display: grid;
+        gap: 4px;
+    }
+
+    .steps-list li {
+        position: relative;
+        padding-left: 22px;
+        font-size: 8.7pt;
+        color: #334155;
+        line-height: 1.45;
+    }
+
+    .steps-list li::before {
+        content: counter(item);
+        counter-increment: item;
+        position: absolute;
+        left: 0;
+        top: 1px;
+        width: 16px;
+        height: 16px;
+        background: #005baa;
+        color: #fff;
+        font-size: 7pt;
+        font-weight: 700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        line-height: 16px;
+    }
+
+    ol.steps-list { counter-reset: item; }
+
+    /* ================================================================
+       SCREENSHOT FRAMES
+       ================================================================ */
+    .screenshot-wrap {
+        margin: 8px 0 10px;
+        text-align: center;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .screenshot-frame {
+        display: inline-block;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        overflow: hidden;
+        box-shadow: 0 3px 10px rgba(15,23,42,.08);
+        max-width: 100%;
+        background: #fff;
+    }
+
+    .screenshot-img {
+        display: block;
+        width: 100%;
+        max-height: 195px;
+        object-fit: contain;
+        object-position: top;
+    }
+
+    .screenshot-caption {
+        display: block;
+        font-size: 7.5pt;
+        font-weight: 600;
+        color: #475569;
+        margin-top: 4px;
+        font-style: italic;
+    }
+
+    .screenshot-caption strong { color: #003b73; font-style: normal; }
+
+    .screenshot-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 8px 0 10px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* ================================================================
+       CALLOUT BOXES & CARDS
+       ================================================================ */
+    .callout {
+        border-radius: 7px;
+        padding: 9px 12px;
+        margin: 8px 0;
+        display: flex;
+        gap: 9px;
+        align-items: flex-start;
+        font-size: 8.5pt;
+        line-height: 1.45;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .callout-icon { font-size: 13pt; flex-shrink: 0; margin-top: 1px; }
+    .callout-body strong { display: block; font-weight: 700; margin-bottom: 2px; }
+
+    .callout.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+    .callout.info    .callout-icon { color: #2563eb; }
+    .callout.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .callout.success .callout-icon { color: #16a34a; }
+    .callout.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .callout.warning .callout-icon { color: #d97706; }
+    .callout.danger  { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .callout.danger  .callout-icon { color: #dc2626; }
+
+    /* Tables */
+    table.data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 8px 0 12px;
+        font-size: 8.2pt;
+    }
+
+    table.data-table th {
+        background: #003b73;
+        color: #fff;
+        text-align: left;
+        padding: 6px 10px;
+        font-weight: 700;
+        border: 1px solid #003b73;
+    }
+
+    table.data-table td {
+        padding: 5px 10px;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        vertical-align: top;
+    }
+
+    table.data-table tr:nth-child(even) { background: #f8fafc; }
+
+    /* Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 7.5pt;
+        font-weight: 700;
+        vertical-align: middle;
+    }
+    .badge-blue    { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+    .badge-green   { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; }
+    .badge-yellow  { background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+    .badge-red     { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+    .badge-gray    { background:#f8fafc; color:#475569; border:1px solid #e2e8f0; }
+
+    /* TOC */
+    .toc-title {
+        font-size: 20pt;
+        font-weight: 800;
+        color: #003b73;
+        border-bottom: 2.5px solid #005baa;
+        padding-bottom: 8px;
+        margin-bottom: 18px;
+    }
+
+    .toc-part-label {
+        font-size: 8pt;
+        font-weight: 700;
+        color: #005baa;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin: 14px 0 6px;
+    }
+
+    .toc-entry {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 4.5px 0;
+        border-bottom: 1px dotted #e2e8f0;
+    }
+
+    .toc-entry-num {
+        font-size: 8pt;
+        font-weight: 800;
+        color: #005baa;
+        min-width: 60px;
+        flex-shrink: 0;
+    }
+
+    .toc-entry-title {
+        flex: 1;
+        font-size: 9pt;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .toc-dots {
+        flex: 1;
+        border-bottom: 1.5px dotted #cbd5e1;
+        min-width: 20px;
+        margin: 0 6px;
+        margin-bottom: 2px;
+    }
+
+    .toc-page {
+        font-size: 8.5pt;
+        font-weight: 700;
+        color: #003b73;
+        min-width: 20px;
+        text-align: right;
+    }
+
+    .print-bar {
+        position: fixed;
+        top: 14px;
+        right: 16px;
+        z-index: 9999;
+    }
+
+    .btn-print {
+        background: linear-gradient(135deg, #005baa, #003b73);
+        color: #fff;
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 12px;
+        cursor: pointer;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        box-shadow: 0 4px 14px rgba(0,91,170,.3);
+    }
+    </style>
+</head>
+<body>
+
+<div class="print-bar no-print">
+    <button class="btn-print" onclick="window.print()">
+        <i class="bi bi-printer-fill"></i> Cetak / Simpan PDF
+    </button>
+</div>
+
+<div class="page-container">
+
+<!-- ================================================================
+     HALAMAN 1: COVER
+     ================================================================ -->
+<div class="cover">
+    <div class="cover-stripe"></div>
+    <div class="cover-body">
+
+        <div class="cover-top">
+            <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia" class="cover-logo">
+            <div class="cover-org">
+                <strong class="cover-org-name">BANK INDONESIA</strong>
+                <span class="cover-org-sub">Kantor Perwakilan Provinsi Sulawesi Utara</span>
+            </div>
+        </div>
+
+        <div>
+            <div class="cover-type-tag">Buku Panduan Pengguna &bull; User Manual</div>
+            <h1 class="cover-title">MANUAL BOOK<br>SILAKAN</h1>
+            <p class="cover-subtitle">Sistem Informasi Layanan Kantor — Versi 2.0</p>
+            <p class="cover-tagline">
+                Buku panduan resmi pengoperasian sistem pemesanan ruangan rapat online berbasis web untuk seluruh Pegawai Unit Kerja (User) dan Administrator Sarpras di lingkungan Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara.
+            </p>
+            <div class="cover-divider"></div>
+        </div>
+
+        <div class="cover-meta-grid">
+            <div class="cover-meta-item">
+                <small>Versi Dokumen</small>
+                <strong>v2.0 — September 2026</strong>
+            </div>
+            <div class="cover-meta-item">
+                <small>Klasifikasi</small>
+                <strong>Internal — KPwBI Sulut</strong>
+            </div>
+            <div class="cover-meta-item">
+                <small>Pengelola Dokumen</small>
+                <strong>Unit Sarpras / Fasilitas Kantor</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 2: DAFTAR ISI
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>SILAKAN — KPwBI Prov. Sulawesi Utara</strong>
+            <span>Manual Book v2.0</span>
+        </div>
+
+        <h1 class="toc-title">Daftar Isi</h1>
+
+        <div class="toc-part-label">Bagian Awal</div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">—</span>
+            <span class="toc-entry-title">Pendahuluan & Gambaran Umum Sistem</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">3</span>
+        </div>
+
+        <div class="toc-part-label">Bab 1 — Panduan Administrator (Admin Sarpras)</div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.1 — 1.2</span>
+            <span class="toc-entry-title">Login Administrator & Dashboard Analitik</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">4</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.3</span>
+            <span class="toc-entry-title">Manajemen Persetujuan (Approval & Penolakan Berita Acara)</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">5</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.4 — 1.5</span>
+            <span class="toc-entry-title">Live Monitoring Rapat Aktif & Kalender Jadwal Ruangan</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">6</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.6 — 1.7</span>
+            <span class="toc-entry-title">Pengelolaan Master Data Ruangan & Master Layout</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">7</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.8 — 1.9</span>
+            <span class="toc-entry-title">Master Hari Libur (Sinkronisasi API) & Kelola Akun Unit Kerja</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">8</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">1.10 — 1.11</span>
+            <span class="toc-entry-title">Laporan Pemesanan (Ekspor Excel & PDF), Profil & Logout</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">9</span>
+        </div>
+
+        <div class="toc-part-label">Bab 2 — Panduan User (Pegawai Unit Kerja)</div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.1 — 2.3</span>
+            <span class="toc-entry-title">Login Unit Kerja, Dashboard Pengguna & Cek Ketersediaan</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">10</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.4</span>
+            <span class="toc-entry-title">Membuat Pemesanan Ruangan & Pemilihan Layout Dinamis</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">11</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.5 — 2.6</span>
+            <span class="toc-entry-title">Validasi Berkas Disposisi (Popup 5 MB) & Riwayat Status</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">12</span>
+        </div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">2.7 — 2.10</span>
+            <span class="toc-entry-title">Detail Pemesanan, Pembatalan, Notifikasi WhatsApp, Profil & Logout</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">13</span>
+        </div>
+
+        <div class="toc-part-label">Bab 3 — Informasi Tambahan</div>
+        <div class="toc-entry">
+            <span class="toc-entry-num">3.1 — 3.5</span>
+            <span class="toc-entry-title">Tips & Catatan Penting (Ketentuan Disposisi, WITA, WhatsApp & Sarpras)</span>
+            <span class="toc-dots"></span>
+            <span class="toc-page">14</span>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">2</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 3: PENDAHULUAN SINGKAT
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>SILAKAN — Bagian Awal</strong>
+            <span>Pendahuluan Sistem</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">PENDAHULUAN</span>
+            <h1 class="chapter-title">Gambaran Umum Sistem SILAKAN</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-info-circle-fill"></i> 1. Apa Itu Sistem SILAKAN?</h2>
+            <p class="feature-desc">
+                <strong>SILAKAN (Sistem Informasi Layanan Kantor)</strong> adalah aplikasi resmi berbasis web internal yang dikembangkan khusus untuk Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara guna memfasilitasi seluruh proses pemesanan, verifikasi, hingga pemantauan penggunaan ruangan rapat secara transparan, terpadu, dan terotomatisasi.
+            </p>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-bullseye"></i> 2. Tujuan Sistem</h2>
+            <p class="feature-desc">
+                Sistem SILAKAN hadir untuk menghadirkan tata kelola fasilitas rapat yang modern dan tertib dengan tujuan utama:
+            </p>
+            <ul class="steps-list" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                <li><strong>Mencegah Jadwal Bentrok:</strong> Validasi otomatis real-time yang memblokir pemesanan ganda pada ruangan dan waktu yang sama.</li>
+                <li><strong>Efisiensi Verifikasi:</strong> Mempercepat alur persetujuan lembar disposisi tanpa birokrasi manual yang memakan waktu.</li>
+                <li><strong>Notifikasi Otomatis:</strong> Pengiriman status persetujuan atau penolakan langsung ke nomor WhatsApp PIC kegiatan.</li>
+                <li><strong>Transparansi Pemakaian:</strong> Jadwal rapat dapat dipantau oleh seluruh unit kerja melalui kalender dan layar monitor kantor.</li>
+            </ul>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-people-fill"></i> 3. Pengguna Sistem (Hak Akses)</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width:25%;">Jenis Pengguna</th>
+                        <th style="width:25%;">Contoh Akun</th>
+                        <th>Fungsi & Hak Akses Utama</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>ADMINISTRATOR</strong><br><span class="badge badge-blue">Admin Sarpras</span></td>
+                        <td><code>admin</code></td>
+                        <td>Memverifikasi & menyetujui pemesanan, memantau rapat berlangsung, mengelola 9 master ruangan, master layout, hari libur, data 10 unit kerja, dan mengunduh laporan eksekutif (Excel & PDF).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>USER</strong><br><span class="badge badge-green">Pegawai Unit Kerja</span></td>
+                        <td><code>fiksp_kpwbisulut</code><br><code>uk_kpwbisulut</code>, dll.</td>
+                        <td>Mengecek ketersediaan ruangan, membuat pengajuan pemesanan, mengunggah lembar disposisi (maks. 5 MB), memantau riwayat status, mengunduh disposisi, dan membatalkan pemesanan.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout info">
+            <span class="callout-icon"><i class="bi bi-shield-check"></i></span>
+            <div class="callout-body">
+                <strong>Standar Akses & Zona Waktu Resmi</strong>
+                Sistem SILAKAN diakses menggunakan peramban web modern (Google Chrome, Microsoft Edge) dengan standar waktu operasional mengacu pada <strong>Waktu Indonesia Tengah (WITA / GMT+8)</strong>.
+            </div>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">3</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 4: BAB 1 — ADMIN: LOGIN & DASHBOARD
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 1 — Panduan Administrator</strong>
+            <span>Login & Dashboard Admin</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 1</span>
+            <h1 class="chapter-title">Panduan Administrator: Login &amp; Dashboard</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-box-arrow-in-right"></i> 1.1 Login Administrator</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Digunakan oleh tim Administrator Sarpras untuk mengautentikasi hak akses penuh dalam mengelola seluruh sistem pemesanan ruangan SILAKAN.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/01_login_page.png" alt="Login Administrator" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.1</strong> — Halaman Masuk (Login) Sistem SILAKAN</span>
+            </div>
+            <ol class="steps-list">
+                <li>Buka peramban web dan akses alamat resmi SILAKAN.</li>
+                <li>Ketikkan username Administrator (<code>admin</code>) atau email resmi yang terdaftar.</li>
+                <li>Masukkan kata sandi akun Admin. Anda dapat mengeklik ikon mata untuk memastikan kata sandi benar.</li>
+                <li>Klik tombol <strong>Masuk</strong> untuk membuka panel administrasi.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-speedometer2"></i> 1.2 Dashboard Analitik Administrator</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menampilkan ringkasan data operasional secara visual, meliputi total pemesanan, permohonan pending yang perlu ditindaklanjuti, dan pemantauan kegiatan aktif hari ini.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/11_dashboard_admin.png" alt="Dashboard Administrator" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.2</strong> — Dashboard Utama Administrator Sarpras</span>
+            </div>
+            <ol class="steps-list">
+                <li>Lihat <strong>Kartu Indikator Utama</strong> untuk mengetahui jumlah pemesanan <em>Pending</em>, <em>Disetujui</em>, dan <em>Kegiatan Hari Ini</em>.</li>
+                <li>Periksa daftar <strong>Menunggu Persetujuan</strong> untuk segera memproses permohonan terbaru dari unit kerja.</li>
+                <li>Gunakan tombol pintasan di bagian atas dashboard untuk aksi cepat verifikasi data.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">4</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 5: BAB 1 — ADMIN: PERSETUJUAN (APPROVAL)
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 1 — Panduan Administrator</strong>
+            <span>Persetujuan & Penolakan Pemesanan</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 1</span>
+            <h1 class="chapter-title">Persetujuan (Approval) &amp; Penolakan Pemesanan</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-check2-circle"></i> 1.3 Manajemen Persetujuan Pemesanan Ruangan</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Memeriksa keabsahan lembar disposisi pimpinan, kesesuaian kapasitas ruangan, dan memutuskan apakah pengajuan pemesanan disetujui atau ditolak dengan alasan resmi.
+            </p>
+            <div class="screenshot-grid-2">
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/12_approval_index.png" alt="Daftar Pengajuan Masuk" class="screenshot-img" style="max-height:155px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 1.3</strong> — Tabel Permohonan Menunggu Persetujuan</span>
+                </div>
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/13b_modal_penolakan.png" alt="Modal Penolakan dengan Alasan" class="screenshot-img" style="max-height:155px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 1.4</strong> — Popup Konfirmasi Penolakan Berita Acara</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-block">
+            <strong style="color:#003b73;font-size:9pt;">A. Cara Menyetujui Pemesanan Ruangan:</strong>
+            <ol class="steps-list">
+                <li>Klik menu <strong>Persetujuan / Approval</strong> pada navigasi sebelah kiri.</li>
+                <li>Pilih pemesanan berstatus <span class="badge badge-yellow">Pending</span>, lalu klik tombol <strong>Tinjau / Review</strong>.</li>
+                <li>Periksa detail tanggal, jam WITA, nama PIC, jumlah tamu, layout, dan klik berkas untuk melihat <strong>Lembar Disposisi</strong>.</li>
+                <li>Jika dokumen dan jadwal sudah tepat, klik tombol hijau <strong>Setujui Pemesanan</strong>. Notifikasi persetujuan otomatis terkirim via WhatsApp ke nomor PIC.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <strong style="color:#dc2626;font-size:9pt;">B. Cara Menolak Pemesanan Ruangan:</strong>
+            <ol class="steps-list">
+                <li>Pada halaman peninjauan pemesanan, klik tombol merah <strong>Tolak Pemesanan</strong>.</li>
+                <li>Jendela popup konfirmasi penolakan akan muncul di layar (seperti pada Gambar 1.4).</li>
+                <li>Wajib ketikkan <strong>Alasan Penolakan</strong> (contoh: <em>"Ruangan digunakan untuk kegiatan mendadak Pimpinan Kantor"</em> atau <em>"Lampiran disposisi belum ditandatangani"</em>).</li>
+                <li>Klik <strong>Ya, Tolak Permohonan</strong>. Sistem akan mencatat riwayat penolakan dan mengirimkan alasan tersebut langsung ke WhatsApp pemohon.</li>
+            </ol>
+        </div>
+
+        <div class="callout warning">
+            <span class="callout-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
+            <div class="callout-body">
+                <strong>Alasan Penolakan Bersifat Wajib</strong>
+                Admin wajib mengisi kolom alasan penolakan agar pemohon dari unit kerja memahami penyebab pembatalan dan dapat melakukan perbaikan pengajuan jika diperlukan.
+            </div>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">5</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 6: BAB 1 — ADMIN: MONITORING & KALENDER
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 1 — Panduan Administrator</strong>
+            <span>Live Monitoring & Kalender Ruangan</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 1</span>
+            <h1 class="chapter-title">Live Monitoring Rapat &amp; Kalender Ruangan</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-broadcast"></i> 1.4 Live Monitoring Kegiatan Berlangsung (Early Finish)</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Memantau kegiatan rapat yang sedang aktif saat ini secara real-time serta menyediakan fitur untuk menyelesaikan penggunaan ruangan lebih awal agar ruangan dapat segera dipakai kembali.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/14_live_monitoring.png" alt="Live Monitoring" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.5</strong> — Pemantauan Status Ruangan Aktif Real-Time</span>
+            </div>
+            <ol class="steps-list">
+                <li>Pilih menu <strong>Kegiatan Berlangsung / Monitoring</strong> pada menu navigasi.</li>
+                <li>Lihat daftar ruangan yang sedang berstatus <span class="badge badge-blue">Berlangsung</span> beserta sisa durasi waktu rapat.</li>
+                <li>Jika kegiatan rapat selesai sebelum jam berakhir, Admin dapat mengeklik tombol <strong>Selesaikan Sekarang (Early Finish)</strong> untuk langsung mengosongkan status ruangan.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-calendar3"></i> 1.5 Kalender Jadwal Ruangan</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menyajikan visualisasi matriks agenda rapat kantor secara bulanan dan mingguan untuk mempermudah pengecekan ketersediaan seluruh ruangan rapat.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/08_kalender_ruangan.png" alt="Kalender Ruangan" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.6</strong> — Kalender Visual Agenda Penggunaan Ruangan Rapat</span>
+            </div>
+            <ol class="steps-list">
+                <li>Buka menu <strong>Kalender Ruangan</strong> pada menu navigasi.</li>
+                <li>Pilih filter ruangan tertentu atau tampilkan seluruh ruangan rapat KPwBI Sulut.</li>
+                <li>Klik pada blok agenda rapat untuk melihat ringkasan unit peminjam, jam kegiatan, dan nama PIC.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">6</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 7: BAB 1 — ADMIN: MASTER RUANGAN & LAYOUT
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 1 — Panduan Administrator</strong>
+            <span>Master Data Ruangan & Layout</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 1</span>
+            <h1 class="chapter-title">Pengelolaan Master Data Ruangan &amp; Layout</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-door-open-fill"></i> 1.6 Pengelolaan Master Ruangan (9 Ruangan Resmi)</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menambah ruangan baru, memperbarui kapasitas, mengatur lokasi lantai gedung, dan mengaktifkan/menonaktifkan ruangan yang sedang dalam masa perawatan (*maintenance*).
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/15_master_ruangan.png" alt="Master Ruangan" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.7</strong> — Manajemen 9 Ruangan Rapat Resmi KPwBI Sulut</span>
+            </div>
+            <ol class="steps-list">
+                <li>Klik menu <strong>Master Data &gt; Data Ruangan</strong>.</li>
+                <li>Klik tombol biru <strong>+ Tambah Ruangan</strong> untuk mendaftarkan ruangan baru.</li>
+                <li>Isi Nama Ruangan, Kapasitas Tamu Maksimum, Lokasi Lantai, dan pilih pilihan Tata Letak (Layout) yang didukung.</li>
+                <li>Gunakan tombol <strong>Edit</strong> untuk mengubah data atau tombol <strong>Status</strong> untuk menonaktifkan ruangan sementara waktu.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-grid-3x3-gap-fill"></i> 1.7 Pengelolaan Master Layout Ruangan</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Mengelola standar tata letak meja dan kursi rapat (misalnya <em>U-Shape, Classroom, Teater, Interview Set, Transit Room, Round Table</em>) beserta kapasitas rekomendasi.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/17_master_layout.png" alt="Master Layout" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.8</strong> — Pengaturan Master Pilihan Layout Ruangan</span>
+            </div>
+            <ol class="steps-list">
+                <li>Klik menu <strong>Master Data &gt; Layout Ruangan</strong>.</li>
+                <li>Lihat daftar model tata letak yang tersedia di sistem.</li>
+                <li>Klik <strong>Tambah Layout</strong> jika terdapat konfigurasi ruangan baru yang disediakan oleh teknisi Sarpras.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">7</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 8: BAB 1 — ADMIN: HARI LIBUR & USER
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 1 — Panduan Administrator</strong>
+            <span>Hari Libur & Akun Unit Kerja</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 1</span>
+            <h1 class="chapter-title">Master Hari Libur &amp; Manajemen Pengguna</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-calendar-x-fill"></i> 1.8 Master Hari Libur & Sinkronisasi API Otomatis</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menetapkan kalender libur nasional dan cuti bersama agar sistem otomatis memblokir pemesanan ruangan pada hari libur resmi.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/18_master_hari_libur.png" alt="Master Hari Libur" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.9</strong> — Kalender Hari Libur Nasional & Tombol Sinkronisasi API</span>
+            </div>
+            <ol class="steps-list">
+                <li>Pilih menu <strong>Master Data &gt; Hari Libur</strong>.</li>
+                <li>Klik tombol hijau <strong>Sinkronisasi Hari Libur</strong> untuk menarik data hari libur nasional secara otomatis dari server API resmi.</li>
+                <li>Admin juga dapat mengeklik <strong>+ Tambah Manual</strong> jika terdapat hari libur khusus lokal atau kegiatan kantor intern.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-person-gear"></i> 1.9 Manajemen Akun Pengguna (10 Unit Kerja Resmi)</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Mengelola akun 10 Unit Kerja resmi KPwBI Sulut, melakukan reset kata sandi, serta melihat dan menyalin kata sandi unit kerja dengan aman.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/19_master_user.png" alt="Master User" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 1.10</strong> — Tabel Manajemen Akun Pengguna Unit Kerja Resmi</span>
+            </div>
+            <ol class="steps-list">
+                <li>Buka menu <strong>Data User</strong> di navigasi kiri.</li>
+                <li>Pada kolom <em>Password Akun</em>, kata sandi tersamarkan secara aman (<code>••••••••</code>).</li>
+                <li>Klik <strong>Ikon Mata (Lihat Sandi)</strong> untuk menampilkan teks sandi unit kerja.</li>
+                <li>Klik <strong>Ikon Salin (Clipboard)</strong> untuk menyalin kata sandi langsung tanpa perlu mengetik ulang.</li>
+                <li>Klik tombol <strong>Edit</strong> jika ingin mengubah nama unit, username, atau mengatur ulang kata sandi baru.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">8</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 9: BAB 1 — ADMIN: LAPORAN & LOGOUT
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 1 — Panduan Administrator</strong>
+            <span>Laporan Eksekutif & Keluar Sistem</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 1</span>
+            <h1 class="chapter-title">Laporan Pemesanan, Ekspor Data &amp; Logout</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-file-earmark-bar-graph-fill"></i> 1.10 Laporan Pemesanan & Ekspor Data (Excel & PDF)</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menyajikan rekapitulasi penggunaan ruangan rapat berdasarkan rentang tanggal, status, atau unit kerja, serta menyediakan unduhan data dalam format spreadsheet Excel dan dokumen cetak PDF resmi.
+            </p>
+            <div class="screenshot-grid-2">
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/20_laporan_filter.png" alt="Filter Laporan" class="screenshot-img" style="max-height:155px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 1.11</strong> — Panel Filter Laporan & Tombol Ekspor</span>
+                </div>
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/21_laporan_cetak_pdf.png" alt="Format Cetak PDF" class="screenshot-img" style="max-height:155px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 1.12</strong> — Format Dokumen Rekapitulasi Cetak PDF</span>
+                </div>
+            </div>
+            <ol class="steps-list">
+                <li>Buka menu <strong>Laporan</strong> pada sidebar.</li>
+                <li>Tentukan rentang <strong>Tanggal Mulai</strong> dan <strong>Tanggal Selesai</strong> laporan.</li>
+                <li>Pilih filter ruangan atau biarkan <em>Semua Ruangan</em>, lalu klik <strong>Tampilkan Data</strong>.</li>
+                <li>Klik tombol hijau <strong>Ekspor Excel (.xlsx)</strong> untuk mengunduh data secara instan tanpa hambatan loading.</li>
+                <li>Klik tombol merah <strong>Cetak PDF</strong> untuk menghasilkan dokumen cetak rekapitulasi resmi bertanda tangan.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-box-arrow-right"></i> 1.11 Profil Administrator & Logout</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Memperbarui informasi profil admin, mengganti password akun admin, dan keluar dari sistem dengan aman.
+            </p>
+            <ol class="steps-list">
+                <li>Klik foto profil atau nama akun di pojok kanan atas, lalu pilih <strong>Profil Saya</strong>.</li>
+                <li>Untuk keluar dari akun, klik menu <strong>Logout / Keluar</strong> di pojok kanan atas atau di bagian bawah sidebar.</li>
+                <li>Sistem akan mengakhiri sesi aktif dan mengembalikan tampilan ke halaman login utama.</li>
+            </ol>
+        </div>
+
+        <div class="callout success">
+            <span class="callout-icon"><i class="bi bi-check-circle-fill"></i></span>
+            <div class="callout-body">
+                <strong>Keamanan Sesi Administrator</strong>
+                Selalu klik Logout setelah selesai melakukan tugas administrasi, terutama jika menggunakan perangkat bersama di lingkungan kantor.
+            </div>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">9</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 10: BAB 2 — USER: LOGIN & DASHBOARD
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 2 — Panduan Pengguna (User)</strong>
+            <span>Login & Dashboard Unit Kerja</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 2</span>
+            <h1 class="chapter-title">Panduan User: Login &amp; Dashboard Pengguna</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-person-badge"></i> 2.1 Login Akun Unit Kerja</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Digunakan oleh pegawai unit kerja untuk masuk ke SILAKAN menggunakan akun resmi masing-masing fungsi/unit di KPwBI Sulut.
+            </p>
+            <ol class="steps-list">
+                <li>Buka peramban web pada alamat aplikasi SILAKAN.</li>
+                <li>Ketikkan username unit kerja Anda (misalnya: <code>uk_kpwbisulut</code>, <code>fiksp_kpwbisulut</code>, <code>pur_kpwbisulut</code>, dll.).</li>
+                <li>Ketikkan kata sandi unit kerja, lalu klik tombol biru <strong>Masuk</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-house-door-fill"></i> 2.2 Dashboard Pengguna (Halaman Utama)</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menampilkan ringkasan status permohonan rapat milik unit kerja Anda, agenda rapat aktif hari ini, dan tombol pintasan pengajuan pemesanan baru.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/02_dashboard_user.png" alt="Dashboard User" class="screenshot-img" style="max-height:165px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 2.1</strong> — Dashboard Utama Pengguna Unit Kerja</span>
+            </div>
+            <ol class="steps-list">
+                <li>Lihat statistik jumlah pemesanan Anda (Pending, Disetujui, dan Selesai).</li>
+                <li>Periksa bagian <strong>Kegiatan Hari Ini</strong> untuk melihat rapat unit kerja yang siap dilaksanakan.</li>
+                <li>Klik tombol biru <strong>+ Buat Pemesanan Ruangan</strong> untuk langsung mengisi permohonan baru.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-calendar-check"></i> 2.3 Melihat Ketersediaan Ruangan</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Sebelum membuat pemesanan, pengguna dapat membuka menu <strong>Kalender Ruangan</strong> untuk melihat jadwal rapat yang sudah terisi sehingga dapat memilih waktu yang kosong tanpa bentrok.
+            </p>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">10</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 11: BAB 2 — USER: FORMULIR PEMESANAN
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 2 — Panduan Pengguna (User)</strong>
+            <span>Membuat Pemesanan Ruangan</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 2</span>
+            <h1 class="chapter-title">Membuat Pemesanan Ruangan Rapat</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-calendar-plus-fill"></i> 2.4 Mengisi Formulir Pemesanan Rapat</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Mengajukan permohonan peminjaman fasilitas ruangan rapat dengan mengisi rincian kegiatan secara lengkap dan benar.
+            </p>
+            <div class="screenshot-grid-2">
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/03_form_pemesanan.png" alt="Formulir Pemesanan" class="screenshot-img" style="max-height:155px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 2.2</strong> — Formulir Pengajuan Pemesanan Ruangan</span>
+                </div>
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/04_layout_filtering.png" alt="Pilihan Layout Dinamis" class="screenshot-img" style="max-height:155px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 2.3</strong> — Pilihan Layout Sesuai Ruangan</span>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width:28%;">Kolom Isian</th>
+                        <th style="width:12%;text-align:center;">Wajib?</th>
+                        <th>Panduan Pengisian</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pilihan Ruangan</strong></td>
+                        <td style="text-align:center;"><span class="badge badge-blue">Wajib</span></td>
+                        <td>Pilih salah satu dari 9 ruangan rapat (Tondano, Klabat, Bunaken, Tomohon, Karangetang Besar/Kecil, Linow 1/2, Lokon).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pilihan Layout</strong></td>
+                        <td style="text-align:center;">Opsional</td>
+                        <td>Tata letak meja-kursi (U-Shape, Classroom, Teater, Round Table). Pilihan otomatis menyesuaikan dengan ruangan yang dipilih.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tanggal Kegiatan</strong></td>
+                        <td style="text-align:center;"><span class="badge badge-blue">Wajib</span></td>
+                        <td>Pilih tanggal rapat. Sistem otomatis menolak tanggal hari libur atau cuti bersama nasional.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Waktu Mulai & Selesai</strong></td>
+                        <td style="text-align:center;"><span class="badge badge-blue">Wajib</span></td>
+                        <td>Tentukan jam dalam format <strong>WITA</strong>. Sistem otomatis memvalidasi bila waktu bentrok dengan rapat lain.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nama & WA PIC</strong></td>
+                        <td style="text-align:center;"><span class="badge badge-blue">Wajib</span></td>
+                        <td>Nama penanggung jawab dan Nomor WhatsApp aktif (contoh: <code>08123456789</code>) untuk menerima notifikasi status persetujuan.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Upload Disposisi</strong></td>
+                        <td style="text-align:center;"><span class="badge badge-blue">Wajib</span></td>
+                        <td>Unggah berkas lembar disposisi / nota dinas format PDF, JPG, atau PNG (maksimal ukuran 5 MB).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="callout info">
+            <span class="callout-icon"><i class="bi bi-clock-history"></i></span>
+            <div class="callout-body">
+                <strong>Pencegahan Jam Kedaluwarsa Real-Time</strong>
+                Sistem tidak mengizinkan pemesanan dengan waktu mulai yang telah terlewat untuk tanggal hari ini sesuai zona WITA.
+            </div>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">11</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 12: BAB 2 — USER: VALIDASI DISPOSISI 5MB & STATUS
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 2 — Panduan Pengguna (User)</strong>
+            <span>Validasi Berkas & Riwayat Status</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 2</span>
+            <h1 class="chapter-title">Validasi Berkas Disposisi &amp; Riwayat Status</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-file-earmark-arrow-up-fill"></i> 2.5 Ketentuan Berkas Disposisi & Popup Validasi 5 MB</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Menjamin berkas yang diunggah memenuhi standar sistem. Jika berkas yang dipilih melebihi 5 MB, sistem secara otomatis langsung menampilkan jendela popup peringatan seketika saat berkas dipilih.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/03b_popup_file_5mb.png" alt="Popup Peringatan Berkas 5MB" class="screenshot-img" style="max-height:160px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 2.4</strong> — Popup Notifikasi Otomatis Jika Ukuran Berkas Melebihi Batas 5 MB</span>
+            </div>
+            <ol class="steps-list">
+                <li>Klik area dropzone atau seret (*drag and drop*) berkas disposisi ke dalam formulir.</li>
+                <li>Jika ukuran berkas <strong>lebih dari 5 MB</strong>, sistem langsung membatalkan pilihan berkas dan memunculkan popup peringatan (Gambar 2.4).</li>
+                <li>Klik tombol <strong>Mengerti</strong> pada popup, lalu perkecil (kompres) berkas PDF atau gambar Anda agar ukurannya di bawah 5 MB.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-list-check"></i> 2.6 Riwayat Pemesanan & Pemantauan Status</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Melihat seluruh daftar pengajuan yang pernah diajukan unit kerja beserta tahapan status persetujuannya.
+            </p>
+            <div class="screenshot-wrap">
+                <div class="screenshot-frame">
+                    <img src="public/images/manual/06_riwayat_pemesanan.png" alt="Riwayat Pemesanan" class="screenshot-img" style="max-height:155px;">
+                </div>
+                <span class="screenshot-caption"><strong>Gambar 2.5</strong> — Tabel Riwayat Pengajuan Pemesanan Unit Kerja</span>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width:25%;">Label Status</th>
+                        <th>Arti & Makna Status Pemesanan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-yellow">Pending</span></td>
+                        <td>Permohonan berhasil dikirim dan sedang menunggu pemeriksaan berkas oleh Admin Sarpras.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-green">Disetujui</span></td>
+                        <td>Pemesanan disetujui resmi. Ruangan telah terjadwal dan siap dipergunakan sesuai jam yang diajukan.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-red">Ditolak</span></td>
+                        <td>Permohonan ditolak oleh Admin Sarpras. Alasan penolakan dapat dilihat di detail pemesanan atau pesan WA.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-blue">Berlangsung</span></td>
+                        <td>Kegiatan rapat saat ini sedang aktif berlangsung di ruangan yang ditentukan.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gray">Selesai</span></td>
+                        <td>Kegiatan rapat telah selesai dilaksanakan dan ruangan telah dikembalikan ke status kosong.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-gray">Dibatalkan</span></td>
+                        <td>Pemesanan telah dibatalkan atas inisiatif pengguna unit kerja itu sendiri.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">12</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 13: BAB 2 — USER: DETAIL, BATAL, WA, PROFIL
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 2 — Panduan Pengguna (User)</strong>
+            <span>Detail, Pembatalan, WhatsApp & Profil</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 2</span>
+            <h1 class="chapter-title">Detail Pemesanan, Pembatalan &amp; Notifikasi</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-file-text-fill"></i> 2.7 Melihat Detail Pemesanan & Unduh Disposisi</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Memeriksa seluruh informasi lengkap pengajuan dan mengunduh berkas lembar disposisi yang telah diunggah sebelumnya.
+            </p>
+            <div class="screenshot-grid-2">
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/07_detail_pemesanan_user.png" alt="Detail Pemesanan" class="screenshot-img" style="max-height:150px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 2.6</strong> — Halaman Rincian Pemesanan Ruangan</span>
+                </div>
+                <div class="screenshot-wrap" style="margin:0;">
+                    <div class="screenshot-frame">
+                        <img src="public/images/manual/09_halaman_notifikasi.png" alt="Halaman Notifikasi" class="screenshot-img" style="max-height:150px;">
+                    </div>
+                    <span class="screenshot-caption"><strong>Gambar 2.7</strong> — Pusat Notifikasi Sistem di Website</span>
+                </div>
+            </div>
+            <ol class="steps-list">
+                <li>Pada tabel Riwayat Pemesanan, klik tombol <strong>Detail</strong> pada baris pemesanan Anda.</li>
+                <li>Klik tautan <strong>Unduh / Lihat Lembar Disposisi</strong> untuk membuka dokumen lampiran.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-x-circle-fill"></i> 2.8 Membatalkan Pemesanan Ruangan</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Membatalkan pemesanan yang tidak jadi diselenggarakan agar jadwal ruangan kembali terbuka untuk unit kerja lain.
+            </p>
+            <ol class="steps-list">
+                <li>Buka halaman Detail Pemesanan yang masih berstatus <em>Pending</em> atau <em>Disetujui</em>.</li>
+                <li>Klik tombol merah <strong>Batalkan Pemesanan</strong>, isi alasan pembatalan singkat, lalu konfirmasi.</li>
+            </ol>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-whatsapp"></i> 2.9 Notifikasi Otomatis WhatsApp Gateway</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Setiap kali status pemesanan Anda disetujui atau ditolak oleh Admin, sistem SILAKAN otomatis mengirimkan pemberitahuan resmi ke nomor WhatsApp PIC yang tercantum di formulir.
+            </p>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-person-fill-gear"></i> 2.10 Profil Pengguna & Logout</h2>
+            <p class="feature-desc">
+                <strong>Fungsi:</strong> Mengubah kata sandi akun unit kerja dan keluar dari aplikasi dengan aman melalui tombol <strong>Logout</strong> di sudut kanan atas.
+            </p>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">13</span>
+    </div>
+</div>
+
+
+<!-- ================================================================
+     HALAMAN 14: BAB 3 — INFORMASI TAMBAHAN
+     ================================================================ -->
+<div class="sheet page-break">
+    <div class="sheet-content">
+        <div class="running-header">
+            <strong>BAB 3 — Informasi Tambahan</strong>
+            <span>Tips & Catatan Penting</span>
+        </div>
+
+        <div class="chapter-header">
+            <span class="chapter-badge">BAB 3</span>
+            <h1 class="chapter-title">Tips &amp; Catatan Penting Penggunaan</h1>
+        </div>
+
+        <div class="feature-block">
+            <h2 class="feature-title"><i class="bi bi-lightbulb-fill"></i> Tips &amp; Prosedur Penggunaan Sistem</h2>
+            <p class="feature-desc">
+                Untuk memastikan kelancaran operasional rapat di lingkungan Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara, perhatikan hal-hal mendasar berikut:
+            </p>
+        </div>
+
+        <div class="callout warning">
+            <span class="callout-icon"><i class="bi bi-file-earmark-check-fill"></i></span>
+            <div class="callout-body">
+                <strong>1. Ketentuan Berkas Lembar Disposisi (Maksimal 5 MB)</strong>
+                Pastikan dokumen disposisi atau nota dinas berformat <strong>PDF, JPG, atau PNG</strong> dengan ukuran berkas maksimal <strong>5 MB</strong>. Jika ukuran dokumen terlalu besar, gunakan alat kompresi berkas (*PDF compressor*) sebelum diunggah ke formulir.
+            </div>
+        </div>
+
+        <div class="callout info">
+            <span class="callout-icon"><i class="bi bi-clock-fill"></i></span>
+            <div class="callout-body">
+                <strong>2. Acuan Zona Waktu Operasional (WITA / GMT+8)</strong>
+                Seluruh pengisian jam rapat, durasi pemakaian ruangan, dan validasi bentrok jadwal di sistem SILAKAN menggunakan patokan <strong>Waktu Indonesia Tengah (WITA)</strong>.
+            </div>
+        </div>
+
+        <div class="callout success">
+            <span class="callout-icon"><i class="bi bi-chat-dots-fill"></i></span>
+            <div class="callout-body">
+                <strong>3. Pastikan Nomor WhatsApp PIC Benar & Aktif</strong>
+                Gunakan format nomor standar (contoh: <code>081234567890</code>) tanpa karakter khusus. Nomor ini merupakan saluran utama pengiriman konfirmasi persetujuan dari server SILAKAN.
+            </div>
+        </div>
+
+        <div class="callout info">
+            <span class="callout-icon"><i class="bi bi-door-closed-fill"></i></span>
+            <div class="callout-body">
+                <strong>4. Penyelesaian Rapat Lebih Awal (Early Release)</strong>
+                Jika rapat selesai lebih cepat dari estimasi, PIC diimbau melapor kepada Admin Sarpras agar ruangan dapat diselesaikan melalui menu *Live Monitoring* demi efisiensi fasilitas kantor.
+            </div>
+        </div>
+
+        <div class="feature-block" style="margin-top:16px;">
+            <h2 class="feature-title"><i class="bi bi-headset"></i> Layanan Bantuan & Kontak Dukungan Sarpras</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width:30%;">Unit Pengelola</th>
+                        <th style="width:35%;">Lokasi Operasional</th>
+                        <th>Saluran Kontak Internal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Unit Sarana & Prasarana</strong><br>KPwBI Prov. Sulawesi Utara</td>
+                        <td>Gedung Kantor Perwakilan Bank Indonesia Prov. Sulawesi Utara — Lantai 3</td>
+                        <td>Ext. Telepon Internal: <strong>Sarpras KPwBI</strong><br>Email: <code>sarpras_sulut@bi.go.id</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="running-footer">
+        <span>Manual Book SILAKAN v2.0 — Bank Indonesia KPwBI Sulut</span>
+        <span class="page-num">14</span>
+    </div>
+</div>
+
+</div>
+
+</body>
+</html>
