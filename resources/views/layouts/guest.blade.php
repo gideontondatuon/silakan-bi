@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Login — SILAKAN KPwBI Provinsi Sulawesi Utara">
     <meta name="theme-color" content="#003b73">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
     <title>Login | SILAKAN — KPwBI Prov. Sulut</title>
 

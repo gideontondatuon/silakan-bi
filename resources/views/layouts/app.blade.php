@@ -6,6 +6,7 @@
     <meta name="description" content="SILAKAN — Sistem Informasi Layanan Kantor KPwBI Provinsi Sulawesi Utara">
     <meta name="theme-color" content="#005baa">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
     <title>SILAKAN | KPwBI Prov. Sulut</title>
 
