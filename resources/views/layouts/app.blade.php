@@ -384,9 +384,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let progressTimer   = null;
     let progressVal     = 0;
     let isNavigating    = false;
+    let safetyTimer     = null;
 
     /* --- Start loading sequence --- */
-    function startLoading() {
+    function startLoading(maxDuration) {
         if (isNavigating) return;
         isNavigating = true;
         progressVal  = 0;
@@ -403,6 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
         progress.style.width = '35%';
 
         /* Crawl: inch toward 80% slowly */
+        clearInterval(progressTimer);
         progressTimer = setInterval(function() {
             if (progressVal < 80) {
                 var increment = (80 - progressVal) * 0.08;
@@ -412,11 +414,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearInterval(progressTimer);
             }
         }, 120);
+
+        /* Failsafe timeout: memastikan loading screen tidak pernah macet selamanya */
+        clearTimeout(safetyTimer);
+        safetyTimer = setTimeout(function() {
+            finishLoading();
+        }, maxDuration || 7000);
     }
 
     /* --- Finish loading sequence --- */
     function finishLoading() {
         clearInterval(progressTimer);
+        clearTimeout(safetyTimer);
         isNavigating = false;
 
         progress.classList.add('complete');
@@ -428,6 +437,10 @@ document.addEventListener('DOMContentLoaded', function() {
             progress.style.width = '0%';
         }, 500);
     }
+
+    /* Ekspos fungsi loading secara global */
+    window.startPageLoading = startLoading;
+    window.finishPageLoading = finishLoading;
 
     /* --- Intercept all internal navigation links --- */
     document.addEventListener('click', function(e) {
@@ -445,7 +458,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const isSpecial     = href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('file:');
         const isNewTab      = anchor.target === '_blank';
         const isSamePage    = href === window.location.href || href === window.location.pathname;
-        const isDownload    = anchor.hasAttribute('download');
+        const isDownload    = anchor.hasAttribute('download') ||
+                              anchor.dataset.noLoading !== undefined ||
+                              anchor.classList.contains('no-loading') ||
+                              /\.(xlsx|xls|pdf|docx?|zip|csv)(\?.*)?$/i.test(href) ||
+                              href.includes('export-excel') ||
+                              href.includes('download-');
 
         if (isExternal || isHash || isJavascript || isSpecial || isNewTab || isSamePage || isDownload) return;
 

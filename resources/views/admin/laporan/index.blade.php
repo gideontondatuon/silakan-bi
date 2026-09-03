@@ -16,8 +16,11 @@
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <a href="{{ route('admin.laporan.export-excel', request()->query()) }}"
-               style="background:linear-gradient(135deg,#059669,#047857);color:white;border:none;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;box-shadow:0 4px 12px rgba(5,150,105,0.3);transition:all .2s;">
-                <i class="bi bi-file-earmark-excel-fill"></i> Ekspor Excel (.xlsx)
+               id="btn-export-excel"
+               data-no-loading="true"
+               onclick="downloadLaporanExcel(event, this)"
+               style="background:linear-gradient(135deg,#059669,#047857);color:white;border:none;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;box-shadow:0 4px 12px rgba(5,150,105,0.3);transition:all .2s;cursor:pointer;">
+                <i class="bi bi-file-earmark-excel-fill"></i> <span>Ekspor Excel (.xlsx)</span>
             </a>
             <a href="{{ route('admin.laporan.cetak', request()->query()) }}" target="_blank"
                style="background:linear-gradient(135deg,#005baa,#003b73);color:white;border:none;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;box-shadow:0 4px 12px rgba(0,91,170,0.3);transition:all .2s;">
@@ -323,5 +326,95 @@
     @endif
 
 </div>
+
+@push('scripts')
+<script>
+async function downloadLaporanExcel(event, btn) {
+    event.preventDefault();
+
+    if (btn.dataset.loading === 'true') return;
+    btn.dataset.loading = 'true';
+
+    const originalHtml = btn.innerHTML;
+    const exportUrl = btn.getAttribute('href');
+
+    // Tampilan tombol saat proses penyiapan berkas
+    btn.style.opacity = '0.9';
+    btn.style.pointerEvents = 'none';
+    btn.innerHTML = `
+        <span style="display:inline-block;width:14px;height:14px;border:2px solid #ffffff;border-right-color:transparent;border-radius:50%;animation:spin-excel-loader 0.75s linear infinite;"></span>
+        <span>Menyiapkan Excel...</span>
+    `;
+
+    // Jalankan visual progress bar di bagian atas
+    if (typeof window.startPageLoading === 'function') {
+        window.startPageLoading(12000);
+    }
+
+    try {
+        const response = await fetch(exportUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ': Gagal mengunduh berkas Excel');
+        }
+
+        // Ambil nama file dari header jika ada
+        let fileName = 'Laporan_Pemesanan_Ruangan.xlsx';
+        const disposition = response.headers.get('Content-Disposition');
+        if (disposition && disposition.includes('filename=')) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+                fileName = matches[1].replace(/['"]/g, '').trim();
+            }
+        }
+
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+
+        // Feedback sukses pada tombol
+        btn.innerHTML = `<i class="bi bi-check-circle-fill"></i> <span>Berhasil Diunduh!</span>`;
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+            btn.dataset.loading = 'false';
+        }, 2000);
+
+    } catch (error) {
+        console.warn('Export Excel via fetch gagal, menggunakan unduhan fallback:', error);
+        window.location.href = exportUrl;
+        btn.innerHTML = originalHtml;
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+        btn.dataset.loading = 'false';
+    } finally {
+        // Hentikan dan selesaikan loading indicator seketika
+        if (typeof window.finishPageLoading === 'function') {
+            window.finishPageLoading();
+        }
+    }
+}
+</script>
+<style>
+@keyframes spin-excel-loader {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+@endpush
 
 </x-app-layout>
