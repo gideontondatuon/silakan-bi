@@ -37,21 +37,22 @@
                 </div>
             </div>
 
-            @if(!empty($user->password_plain))
+            @php
+                $currentPlain = !empty($user->password_plain) ? $user->password_plain : 'kpwbisulut';
+            @endphp
             <div class="form-row">
                 <div class="form-group">
                     <label style="display:flex;align-items:center;gap:6px;">
                         <i class="bi bi-key-fill" style="color:#005baa;"></i> Password Akun Saat Ini
                     </label>
                     <div style="display:flex;align-items:center;gap:10px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:10px 14px;max-width:400px;">
-                        <span id="currentPassDisplay" style="font-family:Consolas,monospace;font-weight:700;letter-spacing:1px;font-size:14px;color:#1e293b;" data-plain="{{ $user->password_plain }}">••••••••</span>
+                        <span id="currentPassDisplay" style="font-family:Consolas,monospace;font-weight:700;letter-spacing:1px;font-size:14px;color:#1e293b;" data-plain="{{ $currentPlain }}">••••••••</span>
                         <button type="button" onclick="toggleCurrentPass()" style="background:none;border:none;cursor:pointer;color:#005baa;margin-left:auto;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:5px;">
                             <i class="bi bi-eye" id="currentPassIcon"></i> <span id="currentPassLabel">Lihat</span>
                         </button>
                     </div>
                 </div>
             </div>
-            @endif
 
             <div class="form-row">
                 <div class="form-group">

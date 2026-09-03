@@ -142,19 +142,18 @@
                         </td>
                         {{-- Password Viewer Column --}}
                         <td>
-                            @if(!empty($user->password_plain))
-                                <div style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;padding:4px 10px;border-radius:8px;">
-                                    <span id="pass-text-{{ $user->id }}" style="font-family:Consolas,monospace;font-weight:700;letter-spacing:1px;font-size:13px;color:#1e293b;" data-plain="{{ $user->password_plain }}">••••••••</span>
-                                    <button type="button" onclick="togglePassVisibility('{{ $user->id }}')" title="Lihat / Sembunyikan Password" style="background:none;border:none;cursor:pointer;color:#005baa;padding:2px 4px;border-radius:4px;display:inline-flex;align-items:center;font-size:14px;">
-                                        <i class="bi bi-eye" id="pass-icon-{{ $user->id }}"></i>
-                                    </button>
-                                    <button type="button" onclick="copyPassword('{{ $user->password_plain }}', this)" title="Salin Password" style="background:none;border:none;cursor:pointer;color:#64748b;padding:2px 4px;border-radius:4px;display:inline-flex;align-items:center;font-size:13px;">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                </div>
-                            @else
-                                <span style="color:#94a3b8;font-size:12px;"><i>kpwbisulut</i></span>
-                            @endif
+                            @php
+                                $displayPassword = !empty($user->password_plain) ? $user->password_plain : 'kpwbisulut';
+                            @endphp
+                            <div style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;padding:4px 10px;border-radius:8px;">
+                                <span id="pass-text-{{ $user->id }}" style="font-family:Consolas,monospace;font-weight:700;letter-spacing:1px;font-size:13px;color:#1e293b;" data-plain="{{ $displayPassword }}">••••••••</span>
+                                <button type="button" onclick="togglePassVisibility('{{ $user->id }}')" title="Lihat / Sembunyikan Password" style="background:none;border:none;cursor:pointer;color:#005baa;padding:2px 4px;border-radius:4px;display:inline-flex;align-items:center;font-size:14px;">
+                                    <i class="bi bi-eye" id="pass-icon-{{ $user->id }}"></i>
+                                </button>
+                                <button type="button" onclick="copyPassword('{{ $displayPassword }}', this)" title="Salin Password" style="background:none;border:none;cursor:pointer;color:#64748b;padding:2px 4px;border-radius:4px;display:inline-flex;align-items:center;font-size:13px;">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
                         </td>
                         <td style="text-align:center;">
                             <div class="action-group" style="justify-content:center;">
