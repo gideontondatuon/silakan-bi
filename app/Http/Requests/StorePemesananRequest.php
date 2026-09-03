@@ -235,6 +235,8 @@ class StorePemesananRequest extends FormRequest
             'file_disposisi.max' =>
                 'Ukuran file disposisi tidak boleh melebihi 5MB.',
 
+            'file_disposisi.uploaded' =>
+                'Ukuran file disposisi tidak boleh melebihi 5MB.',
         ];
 
     }

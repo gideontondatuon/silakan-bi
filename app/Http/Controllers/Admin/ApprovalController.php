@@ -298,6 +298,9 @@ class ApprovalController extends Controller
             'keterangan_layout' => 'nullable|string',
             'catatan_user' => 'nullable|string',
             'file_disposisi' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ], [
+            'file_disposisi.max' => 'Ukuran file disposisi tidak boleh melebihi 5MB.',
+            'file_disposisi.uploaded' => 'Ukuran file disposisi tidak boleh melebihi 5MB.',
         ]);
 
         $ruangan = Ruangan::findOrFail($validated['ruangan_id']);

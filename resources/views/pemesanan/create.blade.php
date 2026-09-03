@@ -174,16 +174,42 @@
             </div>
 
             <script>
-            document.getElementById('file_disposisi_input').addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    document.getElementById('dropzone-placeholder').style.display = 'none';
-                    document.getElementById('dropzone-preview').style.display = 'block';
-                    document.getElementById('dropzone-filename').textContent = file.name;
-                    document.getElementById('dropzone-disposisi').style.borderColor = '#16a34a';
-                    document.getElementById('dropzone-disposisi').style.background = '#f0fdf4';
+            function validateAndDisplayDisposisi(input, file) {
+                if (!file) return;
+
+                const maxBytes = 5 * 1024 * 1024; // 5 MB
+                if (file.size > maxBytes) {
+                    input.value = '';
+                    document.getElementById('dropzone-placeholder').style.display = 'block';
+                    document.getElementById('dropzone-preview').style.display = 'none';
+                    document.getElementById('dropzone-disposisi').style.borderColor = '#cbd5e1';
+                    document.getElementById('dropzone-disposisi').style.background = '#f8fafc';
+
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    if (typeof showErrorAlertModal === 'function') {
+                        showErrorAlertModal({
+                            title: 'Ukuran Berkas Melebihi Batas',
+                            message: `Ukuran berkas lembar disposisi yang Anda pilih adalah <strong>${sizeMB} MB</strong>.<br><br>Sesuai ketentuan sistem, ukuran berkas <strong>tidak boleh lebih dari 5 MB</strong>.<br><br><span style="color:#64748b;font-size:12.5px;">Silakan pilih berkas PDF atau gambar dengan ukuran yang lebih kecil.</span>`,
+                            confirmText: 'Mengerti'
+                        });
+                    } else {
+                        alert('Ukuran berkas tidak boleh lebih dari 5 MB. File yang Anda pilih berukuran ' + sizeMB + ' MB.');
+                    }
+                    return false;
                 }
+
+                document.getElementById('dropzone-placeholder').style.display = 'none';
+                document.getElementById('dropzone-preview').style.display = 'block';
+                document.getElementById('dropzone-filename').textContent = file.name + ' (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB)';
+                document.getElementById('dropzone-disposisi').style.borderColor = '#16a34a';
+                document.getElementById('dropzone-disposisi').style.background = '#f0fdf4';
+                return true;
+            }
+
+            document.getElementById('file_disposisi_input').addEventListener('change', function() {
+                validateAndDisplayDisposisi(this, this.files[0]);
             });
+
             // Drag & Drop support
             const dz = document.getElementById('dropzone-disposisi');
             dz.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = '#005baa'; });
@@ -191,8 +217,10 @@
             dz.addEventListener('drop', function(e) {
                 e.preventDefault();
                 const input = document.getElementById('file_disposisi_input');
-                input.files = e.dataTransfer.files;
-                input.dispatchEvent(new Event('change'));
+                if (e.dataTransfer.files.length > 0) {
+                    input.files = e.dataTransfer.files;
+                    validateAndDisplayDisposisi(input, e.dataTransfer.files[0]);
+                }
             });
             </script>
 

@@ -169,6 +169,15 @@
             @endif
 
             @if(isset($errors) && $errors->any() && !request()->routeIs('login', 'register'))
+            @php
+                $hasFileError = $errors->has('file_disposisi');
+                $otherErrors = collect($errors->keys())
+                    ->reject(fn($key) => $key === 'file_disposisi')
+                    ->flatMap(fn($key) => $errors->get($key));
+            @endphp
+
+            {{-- Tampilkan pesan error lain di banner merah hanya jika BUKAN error file_disposisi --}}
+            @if($otherErrors->isNotEmpty())
             <div class="alert alert-danger" id="global-flash-validation" style="padding:14px 18px;background:#fef2f2;border:1px solid #fecdd3;border-radius:12px;color:#9f1239;margin-bottom:20px;box-shadow:0 4px 12px rgba(225,29,72,0.12);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                     <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;">
@@ -178,11 +187,27 @@
                     <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#9f1239;cursor:pointer;font-size:18px;padding:0;">&times;</button>
                 </div>
                 <ul style="margin:0;padding-left:24px;font-size:13px;">
-                    @foreach($errors->all() as $err)
+                    @foreach($otherErrors as $err)
                         <li>{{ $err }}</li>
                     @endforeach
                 </ul>
             </div>
+            @endif
+
+            {{-- Error file disposisi langsung dimunculkan sebagai POPUP MODAL --}}
+            @if($hasFileError)
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof showErrorAlertModal === 'function') {
+                    showErrorAlertModal({
+                        title: 'Ukuran Berkas Melebihi Batas',
+                        message: 'Ukuran berkas lembar disposisi yang diunggah <strong>tidak boleh lebih dari 5 MB</strong>.<br><br><span style="color:#64748b;font-size:12.5px;">Silakan pilih atau kompres berkas PDF / Gambar lain dengan ukuran maksimal 5 MB.</span>',
+                        confirmText: 'Mengerti & Pilih Ulang'
+                    });
+                }
+            });
+            </script>
+            @endif
             @endif
 
             {{ $slot }}
@@ -278,9 +303,49 @@ function confirmAction(options) {
 function closeGlobalConfirmModal() {
     const modal = document.getElementById('global-confirm-modal');
     if (modal) modal.style.display = 'none';
+    const cancelBtn = modal?.querySelector('.btn-secondary');
+    if (cancelBtn) cancelBtn.style.display = '';
     document.body.style.overflow = '';
     pendingConfirmCallback = null;
 }
+
+// Modal Popup khusus Notifikasi Error / Peringatan (Single Action)
+function showErrorAlertModal(options) {
+    const modal = document.getElementById('global-confirm-modal');
+    const titleEl = document.getElementById('global-modal-title');
+    const messageEl = document.getElementById('global-modal-message');
+    const iconEl = document.getElementById('global-modal-icon');
+    const cancelBtn = modal?.querySelector('.btn-secondary');
+    const confirmBtn = document.getElementById('global-modal-btn-confirm');
+    
+    if (!modal) {
+        alert(options.message || 'Ukuran berkas tidak boleh lebih dari 5 MB.');
+        return;
+    }
+
+    titleEl.textContent = options.title || 'Ukuran Berkas Melebihi Batas';
+    messageEl.innerHTML = options.message || 'Ukuran berkas tidak boleh melebihi 5 MB.';
+    
+    iconEl.style.background = '#fee2e2';
+    iconEl.style.borderColor = '#fecdd3';
+    iconEl.style.color = '#dc2626';
+    iconEl.innerHTML = '<i class="bi bi-file-earmark-x-fill" style="font-size:20px;"></i>';
+
+    if (cancelBtn) cancelBtn.style.display = 'none';
+    confirmBtn.style.background = 'linear-gradient(135deg,#005baa,#003b73)';
+    confirmBtn.style.color = '#fff';
+    confirmBtn.style.border = 'none';
+    confirmBtn.style.padding = '9px 24px';
+    confirmBtn.innerHTML = `<i class="bi bi-check-lg"></i> ${options.confirmText || 'Mengerti'}`;
+
+    pendingConfirmCallback = function() {
+        closeGlobalConfirmModal();
+    };
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+window.showErrorAlertModal = showErrorAlertModal;
 
 document.getElementById('global-modal-btn-confirm')?.addEventListener('click', function() {
     if (typeof pendingConfirmCallback === 'function') {
