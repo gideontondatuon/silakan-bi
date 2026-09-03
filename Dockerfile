@@ -1,4 +1,7 @@
-FROM php:8.2-cli
+FROM php:8.4-cli
+
+# Set environment variables
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
