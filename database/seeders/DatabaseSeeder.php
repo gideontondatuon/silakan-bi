@@ -129,7 +129,8 @@ class DatabaseSeeder extends Seeder
             User::updateOrCreate(['username' => $u['username']], $u);
         }
 
-        // Pastikan tidak ada akun pengguna biasa yang password_plain bernilai NULL
+        // Pastikan tidak ada akun yang password_plain bernilai NULL
         User::where('role', 'user')->whereNull('password_plain')->update(['password_plain' => 'kpwbisulut']);
+        User::where('role', 'admin')->whereNull('password_plain')->update(['password_plain' => 'password']);
     }
 }

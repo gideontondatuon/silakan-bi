@@ -22,11 +22,8 @@ class PasswordController extends Controller
 
         $updateData = [
             'password' => Hash::make($validated['password']),
+            'password_plain' => $validated['password'],
         ];
-
-        if ($request->user()->role->value !== 'admin') {
-            $updateData['password_plain'] = $validated['password'];
-        }
 
         $request->user()->update($updateData);
 

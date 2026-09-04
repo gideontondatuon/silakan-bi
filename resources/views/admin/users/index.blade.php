@@ -143,7 +143,9 @@
                         {{-- Password Viewer Column --}}
                         <td>
                             @php
-                                $displayPassword = !empty($user->password_plain) ? $user->password_plain : 'kpwbisulut';
+                                $roleVal = is_object($user->role) ? $user->role->value : $user->role;
+                                $defaultPass = ($user->username === 'admin' || $roleVal === 'admin') ? 'password' : 'kpwbisulut';
+                                $displayPassword = !empty($user->password_plain) ? $user->password_plain : $defaultPass;
                             @endphp
                             <div style="display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;padding:4px 10px;border-radius:8px;">
                                 <span id="pass-text-{{ $user->id }}" style="font-family:Consolas,monospace;font-weight:700;letter-spacing:1px;font-size:13px;color:#1e293b;" data-plain="{{ $displayPassword }}">••••••••</span>

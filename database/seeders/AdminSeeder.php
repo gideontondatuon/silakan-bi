@@ -19,6 +19,7 @@ class AdminSeeder extends Seeder
                 'name' => 'Administrator',
                 'email' => 'admin@silakan.local',
                 'password' => Hash::make('password'),
+                'password_plain' => 'password',
                 'role' => 'admin',
                 'nama_unit' => 'Administrator',
                 'kode_unit' => 'ADM',

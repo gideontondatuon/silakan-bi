@@ -140,9 +140,7 @@ class UserController extends Controller
 
         $rawPassword = $validated['password'];
         $validated['password'] = Hash::make($rawPassword);
-        if ($validated['role'] !== 'admin') {
-            $validated['password_plain'] = $rawPassword;
-        }
+        $validated['password_plain'] = $rawPassword;
 
         $user = User::create($validated);
 
@@ -215,9 +213,7 @@ class UserController extends Controller
         if (!empty($validated['password'])) {
             $rawPassword = $validated['password'];
             $validated['password'] = Hash::make($rawPassword);
-            if ($validated['role'] !== 'admin') {
-                $validated['password_plain'] = $rawPassword;
-            }
+            $validated['password_plain'] = $rawPassword;
             $passwordChanged = true;
         } else {
             unset($validated['password']);

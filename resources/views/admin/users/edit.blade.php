@@ -38,7 +38,9 @@
             </div>
 
             @php
-                $currentPlain = !empty($user->password_plain) ? $user->password_plain : 'kpwbisulut';
+                $roleVal = is_object($user->role) ? $user->role->value : $user->role;
+                $defaultPass = ($user->username === 'admin' || $roleVal === 'admin') ? 'password' : 'kpwbisulut';
+                $currentPlain = !empty($user->password_plain) ? $user->password_plain : $defaultPass;
             @endphp
             <div class="form-row">
                 <div class="form-group">
