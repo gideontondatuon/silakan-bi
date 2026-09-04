@@ -32,40 +32,38 @@
 
         {{-- Notifications --}}
         <div class="notification dropdown">
-            <button class="notification-button" onclick="toggleNotification()" title="Notifikasi">
-                <i class="bi bi-bell"></i>
-                @if($notifications->count() > 0)
-                    <span class="notification-count">{{ $notifications->count() }}</span>
-                @endif
+            <button class="notification-button" id="navbarBellBtn" onclick="toggleNotification()" title="Notifikasi">
+                <i class="bi bi-bell" id="navbarBellIcon"></i>
+                <span class="notification-count" id="navbarNotificationCount" style="{{ $notifications->count() > 0 ? '' : 'display:none;' }}">{{ $notifications->count() }}</span>
             </button>
 
             <div class="notification-panel" id="notificationPanel">
                 <div class="notification-header">
                     <span><i class="bi bi-bell-fill" style="color:#005baa;margin-right:6px;"></i> Notifikasi</span>
-                    @if($notifications->count() > 0)
-                        <span class="badge badge-primary">{{ $notifications->count() }} Baru</span>
-                    @endif
+                    <span class="badge badge-primary" id="navbarNotificationBadge" style="{{ $notifications->count() > 0 ? '' : 'display:none;' }}">{{ $notifications->count() }} Baru</span>
                 </div>
 
-                @if($notifications->count())
-                    @foreach($notifications as $notification)
-                        <a href="{{ route('notification.read', $notification->id) }}" class="notification-item">
-                            <div class="notification-icon">
-                                <i class="bi bi-calendar-event"></i>
-                            </div>
-                            <div class="notification-content">
-                                <strong>{{ $notification->data['judul'] }}</strong>
-                                <p>{{ $notification->data['pesan'] }}</p>
-                                <small><i class="bi bi-clock"></i> {{ $notification->data['waktu'] }}</small>
-                            </div>
-                        </a>
-                    @endforeach
-                @else
-                    <div class="notification-empty">
-                        <i class="bi bi-bell-slash"></i>
-                        <p>Tidak ada notifikasi baru.</p>
-                    </div>
-                @endif
+                <div id="navbarNotificationList">
+                    @if($notifications->count())
+                        @foreach($notifications as $notification)
+                            <a href="{{ route('notification.read', $notification->id) }}" class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <strong>{{ $notification->data['judul'] }}</strong>
+                                    <p>{{ $notification->data['pesan'] }}</p>
+                                    <small><i class="bi bi-clock"></i> {{ $notification->data['waktu'] }}</small>
+                                </div>
+                            </a>
+                        @endforeach
+                    @else
+                        <div class="notification-empty">
+                            <i class="bi bi-bell-slash"></i>
+                            <p>Tidak ada notifikasi baru.</p>
+                        </div>
+                    @endif
+                </div>
                 <div class="notification-footer" style="padding:10px 14px;text-align:center;border-top:1px solid #f1f5f9;background:#f8fafc;border-radius:0 0 12px 12px;">
                     <a href="{{ route('notifications.index') }}" style="font-size:12.5px;font-weight:700;color:#005baa;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
                         <i class="bi bi-arrow-right-circle-fill"></i> Lihat Semua Notifikasi

@@ -23,11 +23,9 @@
     @php
         $pendingBookingCount = \App\Models\Pemesanan::where('status', 'Pending')->count();
     @endphp
-    @if($pendingBookingCount > 0)
-        <small class="sidebar-badge" style="background:#f59e0b;color:#fff;">
-            {{ $pendingBookingCount }}
-        </small>
-    @endif
+    <small class="sidebar-badge" id="sidebarPendingBadge" style="background:#f59e0b;color:#fff;{{ $pendingBookingCount > 0 ? '' : 'display:none;' }}">
+        {{ $pendingBookingCount }}
+    </small>
 </a>
 
 
@@ -71,11 +69,9 @@
             ->count();
     @endphp
 
-    @if($unreadNotification > 0)
-        <small class="sidebar-badge">
-            {{ $unreadNotification }}
-        </small>
-    @endif
+    <small class="sidebar-badge" id="sidebarNotificationBadge" style="{{ $unreadNotification > 0 ? '' : 'display:none;' }}">
+        {{ $unreadNotification }}
+    </small>
 
 </a>
 

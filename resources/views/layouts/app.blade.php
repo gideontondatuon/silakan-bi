@@ -132,6 +132,127 @@
         .sidebar-nav-link, .sidebar-link {
             cursor: pointer;
         }
+
+        /* ===== SILENT REAL-TIME NOTIFICATION TOAST ===== */
+        #silakan-toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            width: calc(100vw - 32px);
+            pointer-events: none;
+        }
+
+        .silakan-toast-card {
+            pointer-events: auto;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-left: 5px solid #005baa;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 12px 30px -4px rgba(0, 59, 115, 0.22), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            position: relative;
+        }
+
+        .silakan-toast-card.removing {
+            opacity: 0;
+            transform: translateX(60px);
+        }
+
+        .silakan-toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #e0f2fe;
+            color: #005baa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .silakan-toast-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .silakan-toast-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #003b73;
+            margin: 0 0 3px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .silakan-toast-message {
+            font-size: 12.5px;
+            color: #334155;
+            margin: 0 0 6px 0;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .silakan-toast-time {
+            font-size: 11px;
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .silakan-toast-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0;
+            font-size: 18px;
+            line-height: 1;
+            margin-left: 6px;
+            transition: color 0.15s;
+        }
+
+        .silakan-toast-close:hover {
+            color: #475569;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes bellSwing {
+            0% { transform: rotate(0); }
+            15% { transform: rotate(15deg); }
+            30% { transform: rotate(-15deg); }
+            45% { transform: rotate(10deg); }
+            60% { transform: rotate(-10deg); }
+            75% { transform: rotate(4deg); }
+            100% { transform: rotate(0); }
+        }
+
+        .bell-ringing {
+            animation: bellSwing 0.8s ease-in-out;
+            color: #f59e0b !important;
+        }
     </style>
 </head>
 <body>
@@ -565,6 +686,320 @@ document.addEventListener('DOMContentLoaded', function() {
 
 })();
 </script>
+
+{{-- ===================================================
+     SILAKAN SILENT REAL-TIME BACKGROUND SYNC ENGINE
+     Memperbarui notifikasi, lonceng navbar, badge sidebar,
+     tabel pemesanan, dan memainkan audio chime secara hening
+     tanpa reload halaman dan tanpa memunculkan loading screen.
+     =================================================== --}}
+<div id="silakan-toast-container"></div>
+
+@auth
+<script>
+(function() {
+    const LIVE_SYNC_URL = "{{ route('notifications.liveSync') }}";
+    const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content;
+    let lastUnreadCount = null;
+    let lastPendingCount = null;
+    let lastBookingId = null;
+    let lastUpdatedAt = null;
+    let isSyncing = false;
+
+    /* --- Pleasant Dual-Tone Chime (Web Audio API) --- */
+    function playChime() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            if (ctx.state === 'suspended') ctx.resume();
+            const now = ctx.currentTime;
+
+            // Tone 1: C5 (523.25Hz)
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(523.25, now);
+            gain1.gain.setValueAtTime(0.14, now);
+            gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.35);
+
+            // Tone 2: G5 (783.99Hz)
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(783.99, now + 0.12);
+            gain2.gain.setValueAtTime(0.16, now + 0.12);
+            gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(now + 0.12);
+            osc2.stop(now + 0.55);
+        } catch(e) {
+            /* Handled gracefully if browser audio autoplay blocked */
+        }
+    }
+
+    /* --- Floating Toast Notification --- */
+    function showToast(title, message, url, timeText) {
+        const container = document.getElementById('silakan-toast-container');
+        if (!container) return;
+
+        const card = document.createElement('div');
+        card.className = 'silakan-toast-card';
+        card.innerHTML = `
+            <div class="silakan-toast-icon">
+                <i class="bi bi-bell-fill"></i>
+            </div>
+            <div class="silakan-toast-body">
+                <div class="silakan-toast-title">
+                    <span>${title}</span>
+                    <button type="button" class="silakan-toast-close" title="Tutup">&times;</button>
+                </div>
+                <p class="silakan-toast-message">${message}</p>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span class="silakan-toast-time"><i class="bi bi-clock"></i> ${timeText || 'Baru saja'}</span>
+                    ${url ? `<a href="${url}" style="font-size:11.5px;font-weight:700;color:#005baa;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">Buka <i class="bi bi-arrow-right-short"></i></a>` : ''}
+                </div>
+            </div>
+        `;
+
+        card.querySelector('.silakan-toast-close').addEventListener('click', (e) => {
+            e.stopPropagation();
+            card.classList.add('removing');
+            setTimeout(() => card.remove(), 300);
+        });
+
+        if (url) {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.silakan-toast-close') || e.target.tagName === 'A') return;
+                window.location.href = url;
+            });
+        }
+
+        container.appendChild(card);
+
+        // Auto remove after 8 seconds
+        setTimeout(() => {
+            if (card.parentNode) {
+                card.classList.add('removing');
+                setTimeout(() => card.remove(), 300);
+            }
+        }, 8000);
+    }
+
+    /* --- Ring Bell Icon Animation --- */
+    function animateBell() {
+        const bellIcon = document.getElementById('navbarBellIcon');
+        if (bellIcon) {
+            bellIcon.classList.remove('bell-ringing');
+            void bellIcon.offsetWidth; // Reflow
+            bellIcon.classList.add('bell-ringing');
+            setTimeout(() => bellIcon.classList.remove('bell-ringing'), 1000);
+        }
+    }
+
+    /* --- Silent In-Page DOM Updater (Zero Reload / Zero Loading Overlay) --- */
+    async function silentRefreshCurrentPage() {
+        try {
+            const res = await fetch(window.location.href, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Silakan-Silent-Refresh': 'true'
+                }
+            });
+            if (!res.ok) return;
+            const html = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const targets = [
+                '#live-approval-container',
+                '#live-pemesanan-container',
+                '.live-cards-grid',
+                '.stat-grid',
+                '.data-table tbody'
+            ];
+
+            targets.forEach(sel => {
+                const newElem = doc.querySelector(sel);
+                const currElem = document.querySelector(sel);
+                if (newElem && currElem) {
+                    currElem.innerHTML = newElem.innerHTML;
+                }
+            });
+        } catch(err) {
+            console.log('SILAKAN silent refresh notice', err);
+        }
+    }
+
+    /* --- Main Sync Loop --- */
+    async function performLiveSync() {
+        if (isSyncing) return;
+        isSyncing = true;
+
+        try {
+            const res = await fetch(LIVE_SYNC_URL, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': CSRF_TOKEN || ''
+                }
+            });
+
+            if (!res.ok) {
+                isSyncing = false;
+                return;
+            }
+
+            const data = await res.json();
+            if (data.status !== 'success') {
+                isSyncing = false;
+                return;
+            }
+
+            const unreadCount = data.unread_count || 0;
+            const extra = data.extra || {};
+
+            // Initial baseline run
+            if (lastUnreadCount === null) {
+                lastUnreadCount = unreadCount;
+                lastPendingCount = extra.count_pending ?? extra.count_my_pending ?? 0;
+                lastBookingId = extra.latest_booking_id ?? extra.latest_my_booking_id ?? 0;
+                lastUpdatedAt = extra.latest_updated_at ?? extra.latest_my_updated_at ?? 0;
+                isSyncing = false;
+                return;
+            }
+
+            let hasNewNotification = (unreadCount > lastUnreadCount);
+            let hasBookingChange = false;
+
+            if (extra.is_admin) {
+                if ((extra.count_pending !== undefined && extra.count_pending !== lastPendingCount) ||
+                    (extra.latest_booking_id !== undefined && extra.latest_booking_id !== lastBookingId) ||
+                    (extra.latest_updated_at !== undefined && extra.latest_updated_at !== lastUpdatedAt)) {
+                    hasBookingChange = true;
+                }
+            } else {
+                if ((extra.latest_my_updated_at !== undefined && extra.latest_my_updated_at !== lastUpdatedAt) ||
+                    (extra.latest_my_booking_id !== undefined && extra.latest_my_booking_id !== lastBookingId)) {
+                    hasBookingChange = true;
+                }
+            }
+
+            // 1. Update unread notification badges
+            const navCount = document.getElementById('navbarNotificationCount');
+            const navBadge = document.getElementById('navbarNotificationBadge');
+            const sideBadge = document.getElementById('sidebarNotificationBadge');
+
+            if (navCount) {
+                navCount.textContent = unreadCount;
+                navCount.style.display = unreadCount > 0 ? '' : 'none';
+            }
+            if (navBadge) {
+                navBadge.textContent = `${unreadCount} Baru`;
+                navBadge.style.display = unreadCount > 0 ? '' : 'none';
+            }
+            if (sideBadge) {
+                sideBadge.textContent = unreadCount;
+                sideBadge.style.display = unreadCount > 0 ? '' : 'none';
+            }
+
+            // 2. Update admin pending booking badge in sidebar
+            if (extra.is_admin && extra.count_pending !== undefined) {
+                const sidePendingBadge = document.getElementById('sidebarPendingBadge');
+                if (sidePendingBadge) {
+                    sidePendingBadge.textContent = extra.count_pending;
+                    sidePendingBadge.style.display = extra.count_pending > 0 ? '' : 'none';
+                }
+            }
+
+            // 3. Render notification list in navbar dropdown
+            if (data.notifications && data.notifications.length > 0) {
+                const listContainer = document.getElementById('navbarNotificationList');
+                if (listContainer) {
+                    let itemsHtml = '';
+                    data.notifications.forEach(n => {
+                        itemsHtml += `
+                            <a href="${n.url}" class="notification-item">
+                                <div class="notification-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <strong>${n.judul}</strong>
+                                    <p>${n.pesan}</p>
+                                    <small><i class="bi bi-clock"></i> ${n.waktu}</small>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    listContainer.innerHTML = itemsHtml;
+                }
+            } else if (unreadCount === 0) {
+                const listContainer = document.getElementById('navbarNotificationList');
+                if (listContainer) {
+                    listContainer.innerHTML = `
+                        <div class="notification-empty">
+                            <i class="bi bi-bell-slash"></i>
+                            <p>Tidak ada notifikasi baru.</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // 4. Trigger alert if new notification arrived
+            if (hasNewNotification) {
+                playChime();
+                animateBell();
+
+                // Show toast for latest notification
+                if (data.notifications && data.notifications.length > 0) {
+                    const topNotif = data.notifications[0];
+                    showToast(topNotif.judul, topNotif.pesan, topNotif.url, topNotif.waktu);
+                }
+            }
+
+            // 5. If booking state changed, silently refresh page content
+            if (hasBookingChange) {
+                if (!hasNewNotification) {
+                    playChime();
+                    if (extra.is_admin && extra.count_pending > (lastPendingCount || 0)) {
+                        showToast('Pengajuan Pemesanan Baru', 'Terdapat pengajuan pemesanan ruangan baru yang menunggu verifikasi Anda.', '{{ route("admin.approval.index") }}', 'Baru saja');
+                    }
+                }
+                silentRefreshCurrentPage();
+            }
+
+            // Update baseline state
+            lastUnreadCount = unreadCount;
+            if (extra.is_admin) {
+                lastPendingCount = extra.count_pending;
+                lastBookingId = extra.latest_booking_id;
+                lastUpdatedAt = extra.latest_updated_at;
+            } else {
+                lastPendingCount = extra.count_my_pending;
+                lastBookingId = extra.latest_my_booking_id;
+                lastUpdatedAt = extra.latest_my_updated_at;
+            }
+
+        } catch (err) {
+            console.log('SILAKAN live sync exception:', err);
+        } finally {
+            isSyncing = false;
+        }
+    }
+
+    // Polling setiap 8 detik (ringan, cepat, hening)
+    setInterval(performLiveSync, 8000);
+    // Baseline check setelah 2.5 detik
+    setTimeout(performLiveSync, 2500);
+})();
+</script>
+@endauth
 
 @stack('scripts')
 

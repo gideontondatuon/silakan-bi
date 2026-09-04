@@ -175,6 +175,11 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get(
+        '/notifications/live-sync',
+        [NotificationController::class, 'liveSync']
+    )->name('notifications.liveSync');
+
+    Route::get(
         '/notifications',
         [NotificationController::class, 'index']
     )->name('notifications.index');

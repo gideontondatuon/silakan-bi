@@ -15,6 +15,7 @@
     </div>
 </div>
 
+<div id="live-approval-container">
 {{-- Tab Switcher --}}
 <div style="display:flex;gap:10px;margin-bottom:20px;border-bottom:2px solid #e2e8f0;padding-bottom:2px;flex-wrap:wrap;">
     <a href="{{ route('admin.approval.index', array_merge(request()->except('page'), ['tab' => 'pending'])) }}" 
@@ -160,33 +161,33 @@
                             </span>
                         @else
                             <span class="badge badge-secondary" style="font-size:11px;padding:4px 10px;">
-                                Dibatalkan
+                                <i class="bi bi-dash-circle"></i> Cancel
                             </span>
                         @endif
                     </td>
                     <td style="padding:14px 18px;text-align:center;">
-                        <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;">
+                        <div style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;">
                             {{-- Review / Detail --}}
-                            <a href="{{ route('admin.approval.show', $item) }}" class="btn-primary btn-sm" style="padding:6px 12px;font-size:12px;border-radius:8px;" title="Review / Kelola Pemesanan">
-                                <i class="bi bi-eye"></i> Detail
+                            <a href="{{ route('admin.approval.show', $item) }}" class="btn-primary btn-sm" style="padding:6px 12px;font-size:12px;" title="Verifikasi / Detail">
+                                <i class="bi bi-pencil-square"></i> Periksa
                             </a>
 
                             {{-- Early Release if Live Today --}}
                             @if($isLiveToday)
-                            <form action="{{ route('admin.approval.selesai-awal', $item) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $item->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="margin:0;">
+                            <form action="{{ route('admin.approval.selesai-awal', $item) }}" method="POST" onsubmit="return submitFormWithConfirm(this, { title: 'Selesaikan Rapat Lebih Awal', message: 'Apakah rapat di ruangan <strong>{{ $item->ruangan->nama_ruangan }}</strong> telah selesai lebih cepat dan ruangan siap dibebaskan?', type: 'primary', confirmText: 'Ya, Selesaikan Sekarang' })" style="margin:0;">
                                 @csrf
-                                <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;" title="Selesaikan Rapat Sekarang">
-                                    <i class="bi bi-check2-circle"></i> Selesai
+                                <button type="submit" class="btn-sm" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Rapat usai lebih cepat">
+                                    <i class="bi bi-check2-circle"></i> Selesai Awal
                                 </button>
                             </form>
                             @endif
 
                             {{-- Delete Booking Form --}}
-                            <form method="POST" action="{{ route('admin.approval.destroy', $item) }}" onsubmit="return submitFormWithConfirm(this, { title: 'Hapus Pemesanan Ruangan', message: 'Apakah Anda yakin ingin <strong>menghapus data pemesanan {{ $item->kode_pemesanan }}</strong> ({{ $item->judul_kegiatan }} di {{ $item->ruangan->nama_ruangan }}) secara permanen dari sistem?', type: 'danger', confirmText: 'Ya, Hapus Pemesanan' });" style="margin:0;">
+                            <form method="POST" action="{{ route('admin.approval.destroy', $item) }}" onsubmit="return submitFormWithConfirm(this, { title: 'Hapus Pemesanan', message: 'Apakah Anda yakin ingin menghapus data pemesanan <strong>{{ $item->kode_pemesanan }}</strong> ({{ $item->judul_kegiatan }}) secara permanen dari sistem?', type: 'danger', confirmText: 'Ya, Hapus Data' });" style="margin:0;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-danger btn-sm" style="padding:6px 10px;background:#dc2626;color:white;border:none;border-radius:8px;cursor:pointer;font-size:12px;" title="Hapus Pemesanan">
-                                    <i class="bi bi-trash-fill"></i>
+                                <button type="submit" class="btn-danger btn-sm" style="padding:6px 9px;font-size:12px;" title="Hapus Permanen">
+                                    <i class="bi bi-trash3-fill"></i>
                                 </button>
                             </form>
                         </div>
@@ -194,9 +195,9 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7">
-                        <div class="empty-state" style="padding:48px 24px;text-align:center;">
-                            <div style="width:64px;height:64px;border-radius:50%;background:#f1f5f9;color:#94a3b8;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px;">
+                    <td colspan="7" style="text-align:center;padding:48px 24px;">
+                        <div style="max-width:320px;margin:0 auto;">
+                            <div style="width:56px;height:56px;border-radius:50%;background:#f1f5f9;color:#94a3b8;display:flex;align-items:center;justify-content:center;margin:0 auto 14px auto;font-size:24px;">
                                 <i class="bi bi-calendar-x"></i>
                             </div>
                             <h4 style="margin:0 0 6px 0;color:#0f172a;font-size:16px;">Tidak ada data pemesanan ditemukan</h4>
@@ -222,6 +223,7 @@
         {{ $pemesanan->links() }}
     </div>
     @endif
+</div>
 </div>
 
 </x-app-layout>

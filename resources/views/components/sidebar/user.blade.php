@@ -68,14 +68,9 @@
             ->count();
     @endphp
 
-
-    @if($unreadNotification > 0)
-
-        <small class="sidebar-badge">
-            {{ $unreadNotification }}
-        </small>
-
-    @endif
+    <small class="sidebar-badge" id="sidebarNotificationBadge" style="{{ $unreadNotification > 0 ? '' : 'display:none;' }}">
+        {{ $unreadNotification }}
+    </small>
 
 </a>
 
