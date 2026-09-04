@@ -98,6 +98,34 @@ Route::get('/download-panduan-ringkas-pdf', function() {
     ]);
 })->name('download.panduan-ringkas-pdf');
 
+Route::get('/manual-book-slides', function() {
+    $path = base_path('manual_book_slides.html');
+    abort_if(!file_exists($path), 404, 'Tampilan slide panduan belum tersedia.');
+    return response()->file($path);
+})->name('manual-book-slides.view');
+
+Route::get('/download-manual-book-slide-pptx', function() {
+    $path = base_path('Manual_Book_Slide_SILAKAN.pptx');
+    if (!file_exists($path)) {
+        $path = public_path('Manual_Book_Slide_SILAKAN.pptx');
+    }
+    abort_if(!file_exists($path), 404, 'Berkas Manual Book Slide PPTX belum tersedia di server.');
+    return response()->download($path, 'Manual_Book_Slide_SILAKAN_v1.0.pptx', [
+        'Content-Type' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ]);
+})->name('download.manual-book-slide-pptx');
+
+Route::get('/download-manual-book-slide-pdf', function() {
+    $path = base_path('Manual_Book_Slide_SILAKAN.pdf');
+    if (!file_exists($path)) {
+        $path = public_path('Manual_Book_Slide_SILAKAN.pdf');
+    }
+    abort_if(!file_exists($path), 404, 'Berkas Manual Book Slide PDF belum tersedia di server.');
+    return response()->download($path, 'Manual_Book_Slide_SILAKAN_v1.0.pdf', [
+        'Content-Type' => 'application/pdf',
+    ]);
+})->name('download.manual-book-slide-pdf');
+
 Route::get('/download-sdd', function() {
     $path = base_path('SDD_SILAKAN_v2.doc');
     if (!file_exists($path)) {

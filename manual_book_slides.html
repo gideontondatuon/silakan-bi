@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Book Slide — SILAKAN KPwBI Prov. Sulawesi Utara</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --bi-navy: #003B73;
+            --bi-blue: #005BAA;
+            --bi-gold: #B8972A;
+            --bi-gold-light: #FBF8EE;
+            --bi-dark: #0F172A;
+            --bi-slate: #334155;
+            --bi-muted: #64748B;
+            --bi-bg: #F8FAFC;
+            --bi-card-bg: #FFFFFF;
+            --bi-border: #E2E8F0;
+            --bi-green: #059669;
+            --bi-red: #DC2626;
+            --bi-yellow: #D97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0B132B;
+            color: var(--bi-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Top Toolbar Controls */
+        .toolbar {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            color: #fff;
+        }
+
+        .toolbar button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .toolbar button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fef08a;
+        }
+
+        .toolbar .slide-counter {
+            font-size: 13px;
+            font-weight: 700;
+            color: #93c5fd;
+            padding: 0 10px;
+            font-family: 'JetBrains Mono', monospace;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Slide Container */
+        .slide-stage {
+            width: 100%;
+            max-width: 1280px;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Running Slide Header */
+        .slide-header {
+            padding: 24px 44px 14px 44px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .slide-top-stripe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--bi-navy) 0%, var(--bi-blue) 70%, var(--bi-gold) 70%, var(--bi-gold) 100%);
+        }
+
+        .slide-category {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--bi-blue);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .slide-category span.badge-part {
+            background: var(--bi-gold-light);
+            color: var(--bi-gold);
+            border: 1px solid rgba(184, 151, 42, 0.3);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+        }
+
+        .slide-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--bi-navy);
+            line-height: 1.25;
+            letter-spacing: -0.3px;
+        }
+
+        .slide-title-divider {
+            height: 2px;
+            background: linear-gradient(90deg, var(--bi-blue) 0%, rgba(0, 91, 170, 0.1) 100%);
+            margin: 10px 44px 0 44px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo img {
+            height: 38px;
+            object-fit: contain;
+        }
+
+        /* Slide Body (Split Left & Right) */
+        .slide-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1.05fr;
+            gap: 32px;
+            padding: 18px 44px 20px 44px;
+            align-items: center;
+            min-height: 0;
+        }
+
+        .slide-body.full-width {
+            grid-template-columns: 1fr;
+            align-items: stretch;
+        }
+
+        /* Left Content: Step Cards */
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step-card {
+            background: var(--bi-bg);
+            border: 1px solid var(--bi-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .step-card:hover {
+            border-color: var(--bi-blue);
+            background: #f1f7fe;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--bi-blue);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+            box-shadow: 0 4px 8px rgba(0, 91, 170, 0.25);
+        }
+
+        .step-number.gold {
+            background: var(--bi-gold);
+            box-shadow: 0 4px 8px rgba(184, 151, 42, 0.25);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content strong {
+            display: block;
+            font-size: 13.5px;
+            color: var(--bi-navy);
+            margin-bottom: 3px;
+        }
+
+        .step-content p {
+            font-size: 12px;
+            color: var(--bi-slate);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .step-content .highlight {
+            color: var(--bi-blue);
+            font-weight: 700;
+        }
+
+        /* Highlight Alert Box */
+        .slide-alert {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-left: 4px solid var(--bi-gold);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .slide-alert.info {
+            background: #eff6ff;
+            border-color: #dbeafe;
+            border-left-color: var(--bi-blue);
+            color: #1e40af;
+        }
+
+        /* Right Content: Screenshot Preview Card */
+        .screenshot-card {
+            background: #ffffff;
+            border: 1px solid var(--bi-border);
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 16px 36px -8px rgba(0, 59, 115, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+        }
+
+        .screenshot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            background: #f8fafc;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--bi-muted);
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .browser-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .browser-dots span:nth-child(1) { background: #ef4444; }
+        .browser-dots span:nth-child(2) { background: #f59e0b; }
+        .browser-dots span:nth-child(3) { background: #10b981; }
+
+        .screenshot-img-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 8px 8px;
+            background: #0f172a;
+        }
+
+        .screenshot-img-wrapper img {
+            width: 100%;
+            height: auto;
+            max-height: 385px;
+            object-fit: contain;
+            display: block;
+            background: #f8fafc;
+        }
+
+        .screenshot-caption {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--bi-muted);
+            text-align: center;
+            padding: 6px 0 2px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* Slide Footer */
+        .slide-footer {
+            padding: 10px 44px;
+            border-top: 1px solid #f1f5f9;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 10.5px;
+            color: var(--bi-muted);
+            font-weight: 600;
+        }
+
+        .slide-footer-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .slide-footer-left i {
+            color: var(--bi-blue);
+        }
+
+        .slide-footer-page {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--bi-navy);
+            font-weight: 700;
+        }
+
+        /* ============================================================
+           SPECIAL SLIDE: COVER SLIDE
+           ============================================================ */
+        .slide-cover {
+            background: linear-gradient(135deg, #002244 0%, #003B73 50%, #005BAA 100%);
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 80px;
+        }
+
+        .cover-bg-decor {
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184, 151, 42, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cover-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .cover-badge {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(8px);
+            padding: 8px 20px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fef08a;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .cover-title {
+            font-size: 44px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            line-height: 1.15;
+            margin-bottom: 12px;
+        }
+
+        .cover-title span {
+            color: #fde047;
+        }
+
+        .cover-subtitle {
+            font-size: 17px;
+            color: #e2e8f0;
+            font-weight: 500;
+            margin-bottom: 36px;
+            line-height: 1.5;
+        }
+
+        .cover-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .cover-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .cover-box i {
+            font-size: 20px;
+            color: #fde047;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .cover-box strong {
+            display: block;
+            font-size: 13px;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .cover-box span {
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+
+        .cover-footer {
+            margin-top: 36px;
+            font-size: 12px;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* ============================================================
+           SPECIAL SLIDE: TABLE OF CONTENTS & ACCOUNTS
+           ============================================================ */
+        .toc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .toc-box {
+            background: var(--bi-bg);
+            border: 1px solid var(--bi-border);
+            border-radius: 12px;
+            padding: 18px 20px;
+        }
+
+        .toc-box h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--bi-navy);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bi-blue);
+        }
+
+        .toc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 12.5px;
+        }
+
+        .toc-item:last-child {
+            border-bottom: none;
+        }
+
+        .toc-item-title {
+            font-weight: 600;
+            color: var(--bi-slate);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-item-title i {
+            color: var(--bi-blue);
+            font-size: 14px;
+        }
+
+        .toc-item-slide {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--bi-navy);
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        /* Account Table */
+        .account-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+            margin-top: 6px;
+        }
+
+        .account-table th {
+            background: #f1f5f9;
+            padding: 6px 10px;
+            text-align: left;
+            color: var(--bi-navy);
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+        }
+
+        .account-table td {
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            color: var(--bi-slate);
+        }
+
+        .account-table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        /* Print Mode: Display all slides sequentially for PDF render */
+        @media print {
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+            }
+
+            .toolbar {
+                display: none !important;
+            }
+
+            .slide-stage {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                max-width: none !important;
+            }
+
+            .slide {
+                position: relative !important;
+                display: flex !important;
+                opacity: 1 !important;
+                page-break-after: always;
+                break-after: page;
+                height: 100vh !important;
+                aspect-ratio: 16 / 9;
+            }
+
+            @page {
+                size: 16in 9in;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {{-- Top Navigation Toolbar --}}
+    <div class="toolbar" id="toolbar">
+        <button onclick="prevSlide()" title="Slide Sebelumnya (Panah Kiri)">
+            <i class="bi bi-chevron-left"></i> Prev
+        </button>
+        <span class="slide-counter" id="slideCounter">01 / 14</span>
+        <button onclick="nextSlide()" title="Slide Berikutnya (Panah Kanan / Spasi)">
+            Next <i class="bi bi-chevron-right"></i>
+        </button>
+        <button onclick="toggleFullScreen()" title="Mode Layar Penuh (F)">
+            <i class="bi bi-arrows-fullscreen"></i>
+        </button>
+        <button onclick="window.print()" title="Cetak / Simpan ke PDF">
+            <i class="bi bi-printer-fill"></i> Cetak PDF
+        </button>
+    </div>
+
+    {{-- 16:9 Slide Stage --}}
+    <div class="slide-stage" id="slideStage">
+
+        {{-- ============================================================
+             SLIDE 1: COVER
+             ============================================================ --}}
+        <div class="slide slide-cover active" data-slide="1">
+            <div class="cover-bg-decor"></div>
+            <div class="cover-content">
+                <div class="cover-badge">
+                    <i class="bi bi-shield-check"></i> Edisi Resmi Versi 1.0 &bull; Tahun 2026
+                </div>
+                <h1 class="cover-title">
+                    MANUAL BOOK SLIDE<br>
+                    <span>SISTEM SILAKAN</span>
+                </h1>
+                <p class="cover-subtitle">
+                    Panduan Praktis Langkah Demi Langkah Penggunaan Sistem Informasi Layanan Ruangan<br>
+                    untuk Seluruh Unit Kerja &amp; Administrator
+                </p>
+
+                <div class="cover-grid">
+                    <div class="cover-box">
+                        <i class="bi bi-person-check-fill"></i>
+                        <strong>Panduan Unit Kerja</strong>
+                        <span>Login, cek kalender, input pesanan, disposisi, &amp; monitoring.</span>
+                    </div>
+                    <div class="cover-box">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <strong>Panduan Admin</strong>
+                        <span>Verifikasi disposisi, persetujuan, penolakan, &amp; manajemen aset.</span>
+                    </div>
+                    <div class="cover-box">
+                        <i class="bi bi-display-fill"></i>
+                        <strong>Layanan Eksekutif</strong>
+                        <span>Integrasi WhatsApp, TV monitor lobi, &amp; cetak laporan KOP BI.</span>
+                    </div>
+                </div>
+
+                <div class="cover-footer">
+                    Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara &mdash; KPwBI Sulut
+                </div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 2: DAFTAR ISI & AKUN RESMI
+             ============================================================ --}}
+        <div class="slide" data-slide="2">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        PANDUAN OPERASIONAL <span class="badge-part">IKHTISAR</span>
+                    </div>
+                    <h2 class="slide-title">Daftar Isi &amp; Kredensial Akun Resmi</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body full-width">
+                <div class="toc-grid">
+                    <div class="toc-box">
+                        <h3><i class="bi bi-journal-bookmark-fill" style="color:var(--bi-blue);"></i> Struktur Panduan Slide</h3>
+                        <div class="toc-item">
+                            <span class="toc-item-title"><i class="bi bi-1-circle-fill"></i> Alur Kerja Sistem (Integrated Workflow)</span>
+                            <span class="toc-item-slide">Slide 03</span>
+                        </div>
+                        <div class="toc-item">
+                            <span class="toc-item-title"><i class="bi bi-people-fill"></i> <strong>BAGIAN I: PANDUAN UNIT KERJA (USER)</strong></span>
+                            <span class="toc-item-slide">Slide 04 - 08</span>
+                        </div>
+                        <div class="toc-item" style="padding-left:18px;">
+                            <span class="toc-item-title"><i class="bi bi-arrow-return-right"></i> Login &amp; Kalender Ruangan</span>
+                            <span class="toc-item-slide">Slide 04</span>
+                        </div>
+                        <div class="toc-item" style="padding-left:18px;">
+                            <span class="toc-item-title"><i class="bi bi-arrow-return-right"></i> Formulir Pemesanan &amp; Layout</span>
+                            <span class="toc-item-slide">Slide 05</span>
+                        </div>
+                        <div class="toc-item" style="padding-left:18px;">
+                            <span class="toc-item-title"><i class="bi bi-arrow-return-right"></i> Unggah Disposisi &amp; Proteksi 5 MB</span>
+                            <span class="toc-item-slide">Slide 06</span>
+                        </div>
+                        <div class="toc-item" style="padding-left:18px;">
+                            <span class="toc-item-title"><i class="bi bi-arrow-return-right"></i> Monitoring Status &amp; Selesai Awal</span>
+                            <span class="toc-item-slide">Slide 07 - 08</span>
+                        </div>
+                        <div class="toc-item">
+                            <span class="toc-item-title"><i class="bi bi-person-gear"></i> <strong>BAGIAN II: PANDUAN ADMINISTRATOR</strong></span>
+                            <span class="toc-item-slide">Slide 09 - 14</span>
+                        </div>
+                    </div>
+
+                    <div class="toc-box">
+                        <h3><i class="bi bi-key-fill" style="color:var(--bi-gold);"></i> Akses Akun Resmi KPwBI Sulut</h3>
+                        <p style="font-size:12px;color:var(--bi-slate);margin-bottom:8px;">
+                            Sistem berjalan pada jaringan internal / browser kantor via URL: <strong style="color:var(--bi-blue);font-family:monospace;">http://localhost:8000</strong>
+                        </p>
+                        <table class="account-table">
+                            <thead>
+                                <tr>
+                                    <th>Role / Tipe</th>
+                                    <th>Username Contoh</th>
+                                    <th>Password Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Administrator</strong></td>
+                                    <td><code style="color:#005baa;font-weight:700;">admin</code></td>
+                                    <td><code style="color:#dc2626;font-weight:700;">password</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Tim Manajemen Internal</td>
+                                    <td><code>tmi_kpwbisulut</code></td>
+                                    <td><code>kpwbisulut</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Unit Kehumasan</td>
+                                    <td><code>uk_kpwbisulut</code></td>
+                                    <td><code>kpwbisulut</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Fungsi Data &amp; Ekon. Keuangan</td>
+                                    <td><code>fdsek_kpwbisulut</code></td>
+                                    <td><code>kpwbisulut</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Pengelolaan Uang Rupiah</td>
+                                    <td><code>pur_kpwbisulut</code></td>
+                                    <td><code>kpwbisulut</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Unit Lainnya (Total 10 Unit)</td>
+                                    <td><code>fiksp, fpkp, fppu, dll.</code></td>
+                                    <td><code>kpwbisulut</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">02 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 3: WORKFLOW OVERVIEW
+             ============================================================ --}}
+        <div class="slide" data-slide="3">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        ARSITEKTUR LAYANAN <span class="badge-part">ALUR PROSES</span>
+                    </div>
+                    <h2 class="slide-title">Alur Kerja Sistem Terintegrasi (End-to-End)</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Unit Kerja Memeriksa Kalender &amp; Mengajukan</strong>
+                            <p>Cek ketersediaan jam di kalender visual, isi formulir rapat, dan unggah berkas disposisi resmi pimpinan (maks. 5 MB).</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Verifikasi Disposisi &amp; Persetujuan Admin</strong>
+                            <p>Admin sarpras memeriksa kelayakan permohonan. Admin berhak **Menyetujui** atau **Menolak** (wajib mencantumkan alasan resmi).</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Notifikasi WhatsApp Gateway Instan</strong>
+                            <p>Sistem seketika mengirim konfirmasi persetujuan atau penolakan langsung ke nomor WhatsApp HP PIC unit pemohon.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number gold">4</div>
+                        <div class="step-content">
+                            <strong>Live TV Display &amp; Laporan Eksekutif</strong>
+                            <p>Agenda otomatis tampil di layar TV lobi kantor, dan riwayat pemakaian dapat diekspor ke Excel &amp; PDF Kop Resmi BI.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>INTEGRATED SYSTEM ARCHITECTURE</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/12_approval_index.png" alt="Approval System">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-diagram-3-fill" style="color:var(--bi-blue);"></i> Dashboard Verifikasi Terpusat &amp; Audit Trail
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">03 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 4: [USER 1] LOGIN & KALENDER
+             ============================================================ --}}
+        <div class="slide" data-slide="4">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN I: PANDUAN UNIT KERJA <span class="badge-part">LANGKAH 1</span>
+                    </div>
+                    <h2 class="slide-title">Login &amp; Membaca Kalender Ketersediaan Ruangan</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Masuk Menggunakan Akun Unit Kerja Resmi</strong>
+                            <p>Gunakan username unit Anda (misal: <span class="highlight">tmi_kpwbisulut</span>) dan kata sandi <span class="highlight">kpwbisulut</span>.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Buka Menu "Kalender Ruangan"</strong>
+                            <p>Kalender menyajikan seluruh agenda rapat 9 ruangan kantor (Tondano, Klabat, Bunaken, Linow, Lokon, dll.) secara transparan.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Periksa Slot Jam Kosong (Waktu WITA)</strong>
+                            <p>Pastikan jam mulai dan selesai yang Anda rencanakan belum terisi oleh unit kerja lain untuk mencegah bentrok jadwal.</p>
+                        </div>
+                    </div>
+                    <div class="slide-alert info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <span><strong>Prinsip Keterbukaan:</strong> Kalender dapat dilihat oleh seluruh pegawai agar koordinasi lintas unit lebih harmonis.</span>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/kalender</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/08_kalender_ruangan.png" alt="Kalender Ruangan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-calendar-week" style="color:var(--bi-blue);"></i> Tampilan Kalender Visual Jadwal Pemakaian Ruangan
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">04 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 5: [USER 2] FORM PEMESANAN
+             ============================================================ --}}
+        <div class="slide" data-slide="5">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN I: PANDUAN UNIT KERJA <span class="badge-part">LANGKAH 2</span>
+                    </div>
+                    <h2 class="slide-title">Mengisi Formulir Pengajuan Pemesanan Ruangan</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Pilih Ruangan &amp; Isi Identitas Rapat</strong>
+                            <p>Klik tombol <strong>"Buat Pemesanan"</strong>. Pilih ruangan (misal: Ruang Tondano) lalu ketik nama kegiatan dan perkiraan jumlah peserta.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Tentukan Tanggal &amp; Waktu (WITA)</strong>
+                            <p>Masukkan tanggal kegiatan serta jam mulai dan jam selesai dalam zona Waktu Indonesia Tengah (WITA).</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Pilih Konfigurasi Layout Meja</strong>
+                            <p>Pilih susunan kursi yang diinginkan: <span class="highlight">Classroom, U-Shape, Boardroom, atau Round Table</span>.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong>Masukkan PIC &amp; Nomor WhatsApp Aktif</strong>
+                            <p>Pastikan nomor HP/WA benar agar notifikasi persetujuan otomatis terkirim tanpa kendala.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/pemesanan/create</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/03_form_pemesanan.png" alt="Formulir Pemesanan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-pencil-square" style="color:var(--bi-blue);"></i> Antarmuka Pengisian Formulir Pemesanan Ruangan
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">05 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 6: [USER 3] DISPOSISI & POPUP 5MB
+             ============================================================ --}}
+        <div class="slide" data-slide="6">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN I: PANDUAN UNIT KERJA <span class="badge-part">LANGKAH 3</span>
+                    </div>
+                    <h2 class="slide-title">Unggah Disposisi &amp; Proteksi Validasi Maksimal 5 MB</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Wajib Melampirkan Bukti Disposisi / Undangan</strong>
+                            <p>Sesuai tata kelola BI, pengajuan wajib menyertakan lembar disposisi pimpinan atau surat undangan resmi (Format: PDF, JPG, PNG).</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number gold">!</div>
+                        <div class="step-content">
+                            <strong>Ketentuan Batas Ukuran File: Maksimal 5 MB</strong>
+                            <p>Untuk menjaga kestabilan dan kecepatan server kantor, berkas lampiran dibatasi maksimal berukuran <strong>5 MegaByte (5 MB)</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Proteksi Popup Otomatis</strong>
+                            <p>Jika pengguna memilih file di atas 5 MB, sistem langsung membatalkan pilihan berkas dan menampilkan <strong>Popup Peringatan Berwarna Merah</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="slide-alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span><strong>Solusi File Besar:</strong> Kompres file PDF Anda atau ubah resolusi scan sebelum mengunggah ke sistem.</span>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>POPUP VALIDASI KEAMANAN FILE 5 MB</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/03b_popup_file_5mb.png" alt="Popup File 5MB">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-shield-fill-exclamation" style="color:var(--bi-red);"></i> Notifikasi Popup Otomatis Bila Ukuran File Melebihi 5 MB
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">06 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 7: [USER 4] MONITORING STATUS
+             ============================================================ --}}
+        <div class="slide" data-slide="7">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN I: PANDUAN UNIT KERJA <span class="badge-part">LANGKAH 4</span>
+                    </div>
+                    <h2 class="slide-title">Memantau Riwayat &amp; Status Pengajuan Pemesanan</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Buka Menu "Pemesanan Saya"</strong>
+                            <p>Menampilkan tabel daftar seluruh kegiatan yang diajukan oleh unit kerja Anda beserta kode unik transaksi pemesanan.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Kenali 3 Indikator Status Warna</strong>
+                            <p>
+                                <span style="background:#fef3c7;color:#b45309;padding:1px 6px;border-radius:4px;font-weight:700;">Pending</span> Menunggu review admin.<br>
+                                <span style="background:#dcfce7;color:#15803d;padding:1px 6px;border-radius:4px;font-weight:700;">Disetujui</span> Ruangan resmi terpesan &amp; jadwal terkunci.<br>
+                                <span style="background:#fee2e2;color:#b91c1c;padding:1px 6px;border-radius:4px;font-weight:700;">Ditolak</span> Pengajuan ditolak disertai alasan tertulis.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number gold">3</div>
+                        <div class="step-content">
+                            <strong>Fitur Silent Real-Time Auto-Sync</strong>
+                            <p>Jika Anda sedang standby di halaman ini, perubahan status akan **langsung ter-update otomatis** tanpa perlu me-refresh browser.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/pemesanan</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/06_riwayat_pemesanan.png" alt="Riwayat Pemesanan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-clock-history" style="color:var(--bi-blue);"></i> Daftar Riwayat Status Pemesanan Ruangan Unit Kerja
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">07 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 8: [USER 5] SELESAI AWAL & BATAL
+             ============================================================ --}}
+        <div class="slide" data-slide="8">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN I: PANDUAN UNIT KERJA <span class="badge-part">LANGKAH 5</span>
+                    </div>
+                    <h2 class="slide-title">Fitur "Selesai Awal" &amp; Pembatalan Mandiri</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number gold"><i class="bi bi-check2-circle"></i></div>
+                        <div class="step-content">
+                            <strong>Fitur Unggulan: "Selesai Awal" (Early Finish)</strong>
+                            <p>Bila rapat Anda usai 1 jam lebih cepat, buka detail pemesanan lalu klik tombol hijau <strong>"Selesai Awal"</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Manfaat Efisiensi Aset Kantor</strong>
+                            <p>Status ruangan seketika berubah kembali menjadi <strong>Hijau (Tersedia)</strong> di kalender &amp; TV lobi sehingga dapat langsung dimanfaatkan unit lain.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Hak Pembatalan Mandiri (*Cancel*)</strong>
+                            <p>Selama pengajuan masih berstatus <em>Pending</em>, unit kerja dapat membatalkan pesanan secara mandiri jika agenda rapat dibatalkan.</p>
+                        </div>
+                    </div>
+                    <div class="slide-alert info">
+                        <i class="bi bi-bell-fill"></i>
+                        <span><strong>Notifikasi Real-Time:</strong> Setiap pembatalan atau selesai awal otomatis terekam ke sistem audit log admin.</span>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>DETAIL PEMESANAN &amp; SELESAI AWAL</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/07_detail_pemesanan_user.png" alt="Detail Pemesanan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-check-circle-fill" style="color:var(--bi-green);"></i> Lembar Detail Rapat dengan Tombol Selesai Awal
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">08 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 9: [ADMIN 1] DASHBOARD & LIVE MONITORING
+             ============================================================ --}}
+        <div class="slide" data-slide="9">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN II: PANDUAN ADMINISTRATOR <span class="badge-part">LANGKAH 1</span>
+                    </div>
+                    <h2 class="slide-title">Dashboard Administrator &amp; Monitoring Rapat Live</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Login dengan Akun Administrator</strong>
+                            <p>Masuk menggunakan username <span class="highlight">admin</span> dan kata sandi <span class="highlight">password</span>.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Pantau Banner "Kegiatan Berlangsung"</strong>
+                            <p>Banner gradien biru tua menyajikan ruangan mana saja yang sedang aktif digunakan saat ini lengkap dengan hitung mundur (*live countdown*).</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Statistik Pemakaian &amp; Antrean Approval</strong>
+                            <p>Melihat jumlah pemesanan bulan ini, total rapat disetujui, dan badge kuning angka permohonan yang menunggu verifikasi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/admin/dashboard</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/14_live_monitoring.png" alt="Live Monitoring Admin">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-play-circle-fill" style="color:var(--bi-gold);"></i> Banner Rapat Sedang Berlangsung (Real-Time Countdown)
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">09 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 10: [ADMIN 2] VERIFIKASI & APPROVAL
+             ============================================================ --}}
+        <div class="slide" data-slide="10">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN II: PANDUAN ADMINISTRATOR <span class="badge-part">LANGKAH 2</span>
+                    </div>
+                    <h2 class="slide-title">Verifikasi Disposisi &amp; Persetujuan Pemesanan</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Buka Menu "Pemesanan Ruangan"</strong>
+                            <p>Admin disajikan tab switcher: <span class="highlight">Menunggu Approval, Disetujui, Selesai, dan Semua</span>.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Klik Tombol "Periksa" pada Pesanan Masuk</strong>
+                            <p>Admin memeriksa kesesuaian kapasitas ruangan, ketersediaan sound/mic, dan mengklik tautan berkas disposisi untuk verifikasi berkas.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number gold">3</div>
+                        <div class="step-content">
+                            <strong>Klik "Setujui" &rarr; WhatsApp Otomatis Terkirim</strong>
+                            <p>Begitu tombol persetujuan diklik, WhatsApp Gateway langsung mengirim pesan resmi ke HP PIC bahwa ruangan telah disetujui.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/admin/approval</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/12_approval_index.png" alt="Kelola Pemesanan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-check-all" style="color:var(--bi-green);"></i> Antarmuka Verifikasi Pemesanan Ruangan oleh Admin
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">10 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 11: [ADMIN 3] PENOLAKAN DISPOSISI
+             ============================================================ --}}
+        <div class="slide" data-slide="11">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN II: PANDUAN ADMINISTRATOR <span class="badge-part">LANGKAH 3</span>
+                    </div>
+                    <h2 class="slide-title">Mekanisme Penolakan Berkas (Kewajiban Alasan)</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number" style="background:var(--bi-red);">!</div>
+                        <div class="step-content">
+                            <strong>Prinsip Akuntabilitas &amp; Tata Kelola BI</strong>
+                            <p>Admin berhak menolak permohonan jika jadwal bertubrukan dengan agenda prioritas pimpinan atau disposisi tidak lengkap.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Klik Tombol Merah "Tolak Pemesanan"</strong>
+                            <p>Sistem akan memunculkan modal dialog resmi penolakan permohonan pemesanan ruangan.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Wajib Mengisi "Alasan Penolakan"</strong>
+                            <p>Sistem mengunci tombol konfirmasi hingga admin mengisi alasan yang jelas (misal: <em>"Ruang Tondano digunakan rapat Dewan Gubernur"</em>).</p>
+                        </div>
+                    </div>
+                    <div class="slide-alert info">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Alasan penolakan otomatis dicatat di Audit Log dan dikirimkan secara transparan ke WhatsApp PIC pemohon.</span>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>MODAL PENOLAKAN DENGAN ALASAN WAJIB</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/13b_modal_penolakan.png" alt="Modal Penolakan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-x-octagon-fill" style="color:var(--bi-red);"></i> Dialog Pengisian Alasan Resmi Penolakan Pemesanan
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">11 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 12: [ADMIN 4] DATA MASTER & USERS
+             ============================================================ --}}
+        <div class="slide" data-slide="12">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN II: PANDUAN ADMINISTRATOR <span class="badge-part">LANGKAH 4</span>
+                    </div>
+                    <h2 class="slide-title">Manajemen Data Master Ruangan &amp; Pengguna</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Master Ruangan (9 Ruangan KPwBI Sulut)</strong>
+                            <p>Kelola nama ruangan, kapasitas maksimal tamu, lantai gedung, fasilitas AC/proyektor, serta status aktif/nonaktif pemeliharaan.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Master Layout Meja &amp; Kursi</strong>
+                            <p>Konfigurasi tata letak (Classroom, U-Shape, Roundtable) disesuaikan dengan kapasitas riil tiap ruangan rapat.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Master User &amp; Reset Password Akun</strong>
+                            <p>Admin dapat melihat password aktif unit kerja melalui fitur intip (*eye icon*), menyalin password, atau mereset password akun.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/admin/ruangan</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/15_master_ruangan.png" alt="Master Ruangan">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-building-gear" style="color:var(--bi-blue);"></i> Pengelolaan 9 Ruangan Rapat Kantor Perwakilan BI Sulut
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">12 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 13: [ADMIN 5] LAPORAN EXCEL & PDF KOP BI
+             ============================================================ --}}
+        <div class="slide" data-slide="13">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        BAGIAN II: PANDUAN ADMINISTRATOR <span class="badge-part">LANGKAH 5</span>
+                    </div>
+                    <h2 class="slide-title">Ekspor Laporan Excel Cepat &amp; Cetak PDF KOP BI</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Pilih Filter Periode &amp; Ruangan</strong>
+                            <p>Masuk ke menu <strong>"Laporan"</strong>. Tentukan rentang tanggal (harian, bulanan, atau tahunan) dan ruangan yang ingin direkap.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number gold">2</div>
+                        <div class="step-content">
+                            <strong>1-Klik "Ekspor Excel" (High Speed)</strong>
+                            <p>Mengunduh file <code>.xlsx</code> secara instan tanpa jeda loading screen untuk kebutuhan analisis data pemanfaatan aset kantor.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Cetak Dokumen PDF Resmi (KOP Surat BI)</strong>
+                            <p>Menghasilkan dokumen cetak resmi A4 yang sudah dilengkapi <strong>KOP Surat Kantor Perwakilan Bank Indonesia Provinsi Sulawesi Utara</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>CETAK PDF RESMI KOP SURAT BANK INDONESIA</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/21_laporan_cetak_pdf.png" alt="Cetak Laporan PDF">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-file-earmark-pdf-fill" style="color:var(--bi-red);"></i> Format Laporan PDF Resmi Lengkap dengan Kop Surat BI
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">13 / 14</div>
+            </div>
+        </div>
+
+        {{-- ============================================================
+             SLIDE 14: TV DISPLAY & PENUTUP
+             ============================================================ --}}
+        <div class="slide" data-slide="14">
+            <div class="slide-top-stripe"></div>
+            <div class="slide-header">
+                <div>
+                    <div class="slide-category">
+                        MODUL EKSEKUTIF <span class="badge-part">LAYAR LOBI</span>
+                    </div>
+                    <h2 class="slide-title">TV Display Monitor Lobby &amp; Kontak Bantuan</h2>
+                </div>
+                <div class="header-logo">
+                    <img src="public/images/logo-bi4.png" alt="Logo Bank Indonesia">
+                </div>
+            </div>
+            <div class="slide-title-divider"></div>
+
+            <div class="slide-body">
+                <div class="step-list">
+                    <div class="step-card">
+                        <div class="step-number"><i class="bi bi-tv"></i></div>
+                        <div class="step-content">
+                            <strong>Kiosk Mode TV Lobi Utama: /display</strong>
+                            <p>Buka URL <span class="highlight">http://localhost:8000/display</span> pada PC yang terhubung ke TV monitor lobi atau depan ruang rapat.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Auto-Refresh 15 Detik Tanpa Disentuh</strong>
+                            <p>Tampilan otomatis diperbarui secara hening. Tamu eksternal dan pimpinan langsung membaca jadwal rapat hari ini secara elegan.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number gold"><i class="bi bi-headset"></i></div>
+                        <div class="step-content">
+                            <strong>Narahubung Bantuan &amp; Dukungan Teknis</strong>
+                            <p>Jika mengalami kendala operasional, hubungi: <strong>Tim Manajemen Internal (TMI) / Sarpras KPwBI Sulawesi Utara</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screenshot-card">
+                    <div class="screenshot-header">
+                        <div class="browser-dots"><span></span><span></span><span></span></div>
+                        <span>http://localhost:8000/display (TV LOBBY KIOSK)</span>
+                    </div>
+                    <div class="screenshot-img-wrapper">
+                        <img src="public/images/manual/23_tv_display_kiosk.png" alt="TV Display Lobby">
+                    </div>
+                    <div class="screenshot-caption">
+                        <i class="bi bi-display" style="color:var(--bi-blue);"></i> Monitor TV Lobi Gedung Kantor Bank Indonesia Prov. Sulut
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-footer">
+                <div class="slide-footer-left"><i class="bi bi-bank2"></i> Manual Book Slide SILAKAN v1.0 &bull; Bank Indonesia Sulut</div>
+                <div class="slide-footer-page">14 / 14</div>
+            </div>
+        </div>
+
+    </div>
+
+    {{-- Interactive Navigation Script --}}
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 14;
+
+        function showSlide(n) {
+            if (n < 1) n = 1;
+            if (n > totalSlides) n = totalSlides;
+            currentSlide = n;
+
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            const target = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+            if (target) {
+                target.classList.add('active');
+            }
+
+            document.getElementById('slideCounter').textContent = 
+                `${String(currentSlide).padStart(2, '0')} / ${String(totalSlides).padStart(2, '0')}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) showSlide(currentSlide - 1);
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.getElementById('slideStage').requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Keyboard Navigation (Arrow Left, Arrow Right, Spacebar)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key.toLowerCase() === 'f') {
+                toggleFullScreen();
+            } else if (e.key === 'Home') {
+                showSlide(1);
+            } else if (e.key === 'End') {
+                showSlide(totalSlides);
+            }
+        });
+
+        // Initialize Slide 1
+        showSlide(1);
+    </script>
+</body>
+</html>
