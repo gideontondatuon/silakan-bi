@@ -29,6 +29,7 @@ export interface ApprovalListData {
         pending: number;
         disetujui: number;
         selesai: number;
+        semua?: number;
     };
 }
 
@@ -47,6 +48,15 @@ export const adminService = {
 
     async getApprovalDetail(id: number | string): Promise<ApiResponse<Pemesanan>> {
         const response = await api.get<ApiResponse<Pemesanan>>(`/admin/approval/${id}`);
+        return response.data;
+    },
+
+    async createBooking(formData: FormData): Promise<ApiResponse<Pemesanan>> {
+        const response = await api.post<ApiResponse<Pemesanan>>('/admin/approval', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
         return response.data;
     },
 

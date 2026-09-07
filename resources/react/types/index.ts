@@ -77,6 +77,7 @@ export interface Pemesanan {
     catatan_admin?: string | null;
     file_disposisi?: string | null;
     status: BookingStatus;
+    is_finished?: boolean;
     approved_by?: number | null;
     approved_at?: string | null;
     rejected_by?: number | null;

@@ -94,6 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Approvals Management
         Route::get('/admin/approval', [AdminApprovalApiController::class, 'index']);
+        Route::post('/admin/approval', [AdminApprovalApiController::class, 'store']);
         Route::get('/admin/approval/{pemesanan}', [AdminApprovalApiController::class, 'show']);
         Route::post('/admin/approval/{pemesanan}/approve', [AdminApprovalApiController::class, 'approve']);
         Route::post('/admin/approval/{pemesanan}/reject', [AdminApprovalApiController::class, 'reject']);

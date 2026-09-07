@@ -71,6 +71,7 @@ class AdminApprovalApiController extends Controller
         $countPending = Pemesanan::where('status', PemesananStatus::PENDING->value)->count();
         $countDisetujui = Pemesanan::where('status', PemesananStatus::DISETUJUI->value)->count();
         $countSelesai = Pemesanan::where('status', PemesananStatus::SELESAI->value)->count();
+        $countSemua = Pemesanan::count();
 
         return response()->json([
             'status' => 'success',
@@ -80,9 +81,102 @@ class AdminApprovalApiController extends Controller
                     'pending' => $countPending,
                     'disetujui' => $countDisetujui,
                     'selesai' => $countSelesai,
+                    'semua' => $countSemua,
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Store new booking by Admin (instantly Disetujui).
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'ruangan_id' => 'required|exists:ruangan,id',
+            'layout_ruangan_id' => 'nullable|exists:layout_ruangan,id',
+            'tanggal_kegiatan' => 'required|date',
+            'waktu_mulai' => ['required'],
+            'waktu_selesai' => ['required', 'after:waktu_mulai'],
+            'judul_kegiatan' => 'required|string|max:150',
+            'user_id' => 'nullable|exists:users,id',
+            'pic_kegiatan' => 'required|string|max:255',
+            'jenis_pic' => 'required|in:Organik,Non Organik',
+            'no_wa_pic' => 'nullable|string|max:20',
+            'jumlah_tamu' => 'required|integer|min:1',
+            'keterangan_layout' => 'nullable|string',
+            'catatan_user' => 'nullable|string',
+            'file_disposisi' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ]);
+
+        $ruangan = \App\Models\Ruangan::findOrFail($validated['ruangan_id']);
+        if ($validated['jumlah_tamu'] > $ruangan->kapasitas) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Jumlah tamu ({$validated['jumlah_tamu']}) melebihi kapasitas maksimal ruangan {$ruangan->nama_ruangan} ({$ruangan->kapasitas} orang).",
+            ], 422);
+        }
+
+        $bentrok = Pemesanan::where('ruangan_id', $validated['ruangan_id'])
+            ->whereDate('tanggal_kegiatan', $validated['tanggal_kegiatan'])
+            ->whereIn('status', [PemesananStatus::DISETUJUI->value, PemesananStatus::SELESAI->value])
+            ->where(function ($query) use ($validated) {
+                $query->where('waktu_mulai', '<', $validated['waktu_selesai'])
+                      ->where('waktu_selesai', '>', $validated['waktu_mulai']);
+            })
+            ->exists();
+
+        if ($bentrok) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ruangan sudah memiliki agenda kegiatan pada tanggal dan jam tersebut.',
+            ], 422);
+        }
+
+        $filePath = null;
+        if ($request->hasFile('file_disposisi')) {
+            $filePath = $request->file('file_disposisi')->store('disposisi', 'public');
+        }
+
+        do {
+            $kode = 'SIL-' . now()->format('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5));
+        } while (Pemesanan::where('kode_pemesanan', $kode)->exists());
+
+        $ownerUserId = !empty($validated['user_id']) ? $validated['user_id'] : $request->user()->id;
+
+        $pemesanan = Pemesanan::create([
+            'kode_pemesanan' => $kode,
+            'user_id' => $ownerUserId,
+            'ruangan_id' => $validated['ruangan_id'],
+            'layout_ruangan_id' => !empty($validated['layout_ruangan_id']) ? $validated['layout_ruangan_id'] : null,
+            'tanggal_kegiatan' => $validated['tanggal_kegiatan'],
+            'waktu_mulai' => $validated['waktu_mulai'],
+            'waktu_selesai' => $validated['waktu_selesai'],
+            'judul_kegiatan' => $validated['judul_kegiatan'],
+            'pic_kegiatan' => $validated['pic_kegiatan'],
+            'jenis_pic' => $validated['jenis_pic'],
+            'no_wa_pic' => $validated['no_wa_pic'] ?? null,
+            'jumlah_tamu' => $validated['jumlah_tamu'],
+            'keterangan_layout' => $validated['keterangan_layout'] ?? null,
+            'catatan_user' => $validated['catatan_user'] ?? null,
+            'file_disposisi' => $filePath,
+            'status' => PemesananStatus::DISETUJUI->value,
+            'approved_by' => $request->user()->id,
+            'approved_at' => now(),
+            'catatan_admin' => 'Rapat dijadwalkan langsung oleh Administrator Sarpras.',
+        ]);
+
+        \App\Services\AuditLogService::create(
+            'Menambahkan Rapat (Admin)',
+            'Approval',
+            "Admin menambahkan rapat {$pemesanan->kode_pemesanan} ({$pemesanan->judul_kegiatan}) di ruangan {$ruangan->nama_ruangan}."
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Rapat '{$pemesanan->judul_kegiatan}' berhasil dijadwalkan dan langsung berstatus Disetujui.",
+            'data' => $pemesanan->load(['ruangan', 'layout', 'user']),
+        ], 201);
     }
 
     /**

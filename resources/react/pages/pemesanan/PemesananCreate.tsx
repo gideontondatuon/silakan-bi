@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { bookingService, ConflictCheckResult } from '../../services/bookingService';
+import { adminService } from '../../services/adminService';
 import { LayoutRuangan, Ruangan } from '../../types';
 import { AlertBanner } from '../../components/feedback/AlertBanner';
 
 export const PemesananCreate: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const isAdminMode = location.pathname.startsWith('/admin');
 
     const [ruanganList, setRuanganList] = useState<Ruangan[]>([]);
     const [layoutList, setLayoutList] = useState<LayoutRuangan[]>([]);
@@ -153,11 +156,20 @@ export const PemesananCreate: React.FC = () => {
         if (fileDisposisi) formData.append('file_disposisi', fileDisposisi);
 
         try {
-            const res = await bookingService.createPemesanan(formData);
-            if (res.status === 'success') {
-                navigate('/pemesanan', {
-                    state: { flashSuccess: 'Pemesanan berhasil dibuat dan menunggu persetujuan admin.' },
-                });
+            if (isAdminMode) {
+                const res = await adminService.createBooking(formData);
+                if (res.status === 'success') {
+                    navigate('/admin/approval', {
+                        state: { flashSuccess: res.message || 'Rapat berhasil dijadwalkan dan langsung berstatus Disetujui.' },
+                    });
+                }
+            } else {
+                const res = await bookingService.createPemesanan(formData);
+                if (res.status === 'success') {
+                    navigate('/pemesanan', {
+                        state: { flashSuccess: 'Pemesanan berhasil dibuat dan menunggu persetujuan admin.' },
+                    });
+                }
             }
         } catch (err: any) {
             const msg = err.response?.data?.message || 'Gagal menyimpan pemesanan. Periksa input formulir Anda.';
@@ -173,10 +185,23 @@ export const PemesananCreate: React.FC = () => {
             <div className="dashboard-header" style={{ marginBottom: '20px' }}>
                 <div>
                     <h1>
-                        <i className="bi bi-calendar-plus" style={{ color: '#005baa', marginRight: '8px' }}></i>
-                        Formulir Pemesanan Ruangan
+                        <i className={`bi ${isAdminMode ? 'bi-calendar-plus-fill' : 'bi-calendar-plus'}`} style={{ color: '#005baa', marginRight: '8px' }}></i>
+                        {isAdminMode ? 'Tambah Rapat (Admin)' : 'Formulir Pemesanan Ruangan'}
                     </h1>
-                    <p>Silakan isi informasi kegiatan dan jadwal pemakaian ruangan dengan lengkap</p>
+                    <p>
+                        {isAdminMode
+                            ? 'Jadwalkan rapat atau kegiatan secara langsung dari sisi Administrator. Rapat langsung berstatus Disetujui.'
+                            : 'Silakan isi informasi kegiatan dan jadwal pemakaian ruangan dengan lengkap'}
+                    </p>
+                </div>
+                <div>
+                    <Link
+                        to={isAdminMode ? '/admin/approval' : '/pemesanan'}
+                        className="btn-secondary"
+                        style={{ textDecoration: 'none' }}
+                    >
+                        <i className="bi bi-arrow-left"></i> Kembali
+                    </Link>
                 </div>
             </div>
 
@@ -189,6 +214,17 @@ export const PemesananCreate: React.FC = () => {
             )}
 
             <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '28px', maxWidth: '900px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                {isAdminMode && (
+                    <div style={{ padding: '14px 18px', borderRadius: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', fontSize: '13px', lineHeight: 1.5, marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <i className="bi bi-lightning-charge-fill" style={{ fontSize: '20px', color: '#16a34a', flexShrink: 0 }}></i>
+                        <div>
+                            <strong>Penjadwalan Instan Administrator:</strong>
+                            <p style={{ margin: '2px 0 0 0', color: '#15803d', fontSize: '12.5px' }}>
+                                Rapat yang dibuat melalui formulir ini tidak memerlukan verifikasi persetujuan lagi. Status pemesanan langsung <strong>Disetujui</strong> dan seketika tercatat pada kalender ruangan serta layar monitor TV Lobby.
+                            </p>
+                        </div>
+                    </div>
+                )}
                 <form onSubmit={handleSubmit}>
                     {/* Ruangan & Layout */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
@@ -448,7 +484,7 @@ export const PemesananCreate: React.FC = () => {
                         <button
                             type="button"
                             className="btn-secondary"
-                            onClick={() => navigate('/pemesanan')}
+                            onClick={() => navigate(isAdminMode ? '/admin/approval' : '/pemesanan')}
                             disabled={isSubmitting}
                         >
                             Batal
@@ -476,7 +512,8 @@ export const PemesananCreate: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <i className="bi bi-send-fill"></i> Ajukan Pemesanan
+                                    <i className={`bi ${isAdminMode ? 'bi-calendar-check-fill' : 'bi-send-fill'}`}></i>{' '}
+                                    {isAdminMode ? 'Jadwalkan Rapat (Otomatis Disetujui)' : 'Ajukan Pemesanan'}
                                 </>
                             )}
                         </button>
