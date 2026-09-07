@@ -133,9 +133,13 @@ export interface NotificationItem {
 export interface AuditLog {
     id: number;
     user_id?: number | null;
-    activity: string;
+    aksi?: string;
+    activity?: string;
+    aktivitas?: string;
     modul?: string | null;
-    description: string;
+    keterangan?: string;
+    description?: string;
+    deskripsi?: string;
     ip_address?: string | null;
     user_agent?: string | null;
     user?: User | null;

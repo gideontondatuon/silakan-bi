@@ -25,18 +25,28 @@ class AuditLogApiController extends Controller
         }
 
         if ($request->filled('modul')) {
-            $query->where('modul', $request->modul);
+            $modul = $request->modul;
+            if ($modul === 'Master Data') {
+                $query->where('modul', 'like', '%Master%');
+            } elseif ($modul === 'User') {
+                $query->where(function ($sub) {
+                    $sub->where('modul', 'like', '%User%')->orWhere('modul', 'like', '%Auth%');
+                });
+            } else {
+                $query->where('modul', 'like', "%{$modul}%");
+            }
         }
 
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
-                $sub->where('activity', 'like', "%{$q}%")
-                    ->orWhere('description', 'like', "%{$q}%")
-                    ->orWhere('ip_address', 'like', "%{$q}%")
+                $sub->where('aksi', 'like', "%{$q}%")
+                    ->orWhere('keterangan', 'like', "%{$q}%")
+                    ->orWhere('modul', 'like', "%{$q}%")
                     ->orWhereHas('user', function ($qu) use ($q) {
                         $qu->where('name', 'like', "%{$q}%")
-                           ->orWhere('username', 'like', "%{$q}%");
+                           ->orWhere('username', 'like', "%{$q}%")
+                           ->orWhere('nama_unit', 'like', "%{$q}%");
                     });
             });
         }
