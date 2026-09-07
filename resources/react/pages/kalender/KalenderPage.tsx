@@ -163,6 +163,8 @@ export const KalenderPage: React.FC = () => {
                         borderRadius: '12px',
                         border: '1px solid #cbd5e1',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                        flexWrap: 'wrap',
+                        maxWidth: '100%',
                     }}
                 >
                     <i className="bi bi-funnel-fill" style={{ color: '#005baa', fontSize: '16px' }}></i>
@@ -186,6 +188,8 @@ export const KalenderPage: React.FC = () => {
                             background: '#f8fafc',
                             outline: 'none',
                             cursor: 'pointer',
+                            flex: 1,
+                            minWidth: '160px',
                         }}
                     >
                         <option value="">-- Seluruh Ruangan Rapat --</option>
@@ -321,241 +325,258 @@ export const KalenderPage: React.FC = () => {
                         <LoadingSpinner message="Memuat agenda kalender..." height="400px" />
                     ) : calendarView === 'month' ? (
                         /* Month View */
-                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                            {/* Day Header */}
-                            <div
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(7, 1fr)',
-                                    background: '#f8fafc',
-                                    borderBottom: '1px solid #e2e8f0',
-                                    textAlign: 'center',
-                                    fontWeight: 700,
-                                    fontSize: '12.5px',
-                                    color: '#475569',
-                                }}
-                            >
-                                {dayHeaders.map((dh, idx) => {
-                                    const isWeekend = idx === 0 || idx === 6;
-                                    return (
-                                        <div
-                                            key={dh}
-                                            style={{
-                                                padding: '10px 0',
-                                                background: isWeekend ? '#fee2e2' : '#f8fafc',
-                                                color: isWeekend ? '#991b1b' : '#475569',
-                                                borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
-                                            }}
-                                        >
-                                            {dh}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Days Grid */}
-                            <div
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(7, 1fr)',
-                                    gridAutoRows: 'minmax(105px, auto)',
-                                }}
-                            >
-                                {/* Empty days before 1st of month */}
-                                {Array.from({ length: firstDayIndex }).map((_, idx) => (
-                                    <div
-                                        key={`empty-${idx}`}
-                                        style={{
-                                            background: '#fafafa',
-                                            borderRight: '1px solid #f1f5f9',
-                                            borderBottom: '1px solid #f1f5f9',
-                                        }}
-                                    />
-                                ))}
-
-                                {/* Month Days */}
-                                {Array.from({ length: daysInMonth }).map((_, idx) => {
-                                    const dayNum = idx + 1;
-                                    const dayEvents = getEventsForDay(dayNum);
-                                    const today = isToday(dayNum);
-                                    const dayOfWeek = (firstDayIndex + idx) % 7;
-                                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
-                                    return (
-                                        <div
-                                            key={`day-${dayNum}`}
-                                            style={{
-                                                borderRight: dayOfWeek === 6 ? 'none' : '1px solid #f1f5f9',
-                                                borderBottom: '1px solid #f1f5f9',
-                                                padding: '8px',
-                                                background: today
-                                                    ? '#f0f9ff'
-                                                    : isWeekend
-                                                    ? 'rgba(254, 242, 242, 0.45)'
-                                                    : '#ffffff',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                gap: '4px',
-                                                minHeight: '105px',
-                                                boxSizing: 'border-box',
-                                            }}
-                                        >
+                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                            <div style={{ minWidth: '680px' }}>
+                                {/* Day Header */}
+                                <div
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(7, 1fr)',
+                                        background: '#f8fafc',
+                                        borderBottom: '1px solid #e2e8f0',
+                                        textAlign: 'center',
+                                        fontWeight: 700,
+                                        fontSize: '12.5px',
+                                        color: '#475569',
+                                    }}
+                                >
+                                    {dayHeaders.map((dh, idx) => {
+                                        const isWeekend = idx === 0 || idx === 6;
+                                        return (
                                             <div
+                                                key={dh}
                                                 style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    marginBottom: '2px',
+                                                    padding: '10px 0',
+                                                    background: isWeekend ? '#fee2e2' : '#f8fafc',
+                                                    color: isWeekend ? '#991b1b' : '#475569',
+                                                    borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
                                                 }}
                                             >
-                                                <span
+                                                {dh}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Days Grid */}
+                                <div
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(7, 1fr)',
+                                        gridAutoRows: 'minmax(105px, auto)',
+                                    }}
+                                >
+                                    {/* Empty days before 1st of month */}
+                                    {Array.from({ length: firstDayIndex }).map((_, idx) => (
+                                        <div
+                                            key={`empty-${idx}`}
+                                            style={{
+                                                background: '#fafafa',
+                                                borderRight: '1px solid #f1f5f9',
+                                                borderBottom: '1px solid #f1f5f9',
+                                            }}
+                                        />
+                                    ))}
+
+                                    {/* Month Days */}
+                                    {Array.from({ length: daysInMonth }).map((_, idx) => {
+                                        const dayNum = idx + 1;
+                                        const dayEvents = getEventsForDay(dayNum);
+                                        const today = isToday(dayNum);
+                                        const dayOfWeek = (firstDayIndex + idx) % 7;
+                                        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                                        return (
+                                            <div
+                                                key={`day-${dayNum}`}
+                                                style={{
+                                                    borderRight: dayOfWeek === 6 ? 'none' : '1px solid #f1f5f9',
+                                                    borderBottom: '1px solid #f1f5f9',
+                                                    padding: '8px',
+                                                    background: today
+                                                        ? '#f0f9ff'
+                                                        : isWeekend
+                                                        ? 'rgba(254, 242, 242, 0.45)'
+                                                        : '#ffffff',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: '4px',
+                                                    minHeight: '105px',
+                                                    boxSizing: 'border-box',
+                                                }}
+                                            >
+                                                <div
                                                     style={{
-                                                        fontSize: '12px',
-                                                        fontWeight: isWeekend || today ? 800 : 600,
-                                                        color: today ? '#0284c7' : isWeekend ? '#dc2626' : '#334155',
-                                                        width: today ? '22px' : 'auto',
-                                                        height: today ? '22px' : 'auto',
-                                                        borderRadius: '50%',
-                                                        display: 'inline-flex',
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        background: today ? '#bae6fd' : 'transparent',
+                                                        marginBottom: '2px',
                                                     }}
                                                 >
-                                                    {dayNum}
-                                                </span>
-                                            </div>
-
-                                            {/* Events list */}
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
-                                                {dayEvents.slice(0, 3).map((ev) => (
-                                                    <div
-                                                        key={ev.id}
-                                                        onClick={() => setSelectedEvent(ev)}
+                                                    <span
                                                         style={{
-                                                            fontSize: '11px',
-                                                            padding: '3px 6px',
-                                                            borderRadius: '6px',
-                                                            background: ev.backgroundColor || '#005baa',
-                                                            color: '#ffffff',
-                                                            cursor: 'pointer',
-                                                            whiteSpace: 'nowrap',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis',
-                                                            fontWeight: ev.type === 'holiday' ? 700 : 600,
-                                                            transition: 'transform 0.15s ease',
+                                                            fontSize: '13px',
+                                                            fontWeight: today ? 800 : 700,
+                                                            color: today ? '#0284c7' : isWeekend ? '#dc2626' : '#1e293b',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            width: today ? '24px' : 'auto',
+                                                            height: today ? '24px' : 'auto',
+                                                            borderRadius: today ? '50%' : '0',
+                                                            background: today ? '#e0f2fe' : 'transparent',
                                                         }}
-                                                        title={ev.title}
                                                     >
-                                                        {ev.title}
-                                                    </div>
-                                                ))}
-                                                {dayEvents.length > 3 && (
-                                                    <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
-                                                        +{dayEvents.length - 3} lainnya
+                                                        {dayNum}
                                                     </span>
-                                                )}
+                                                    {dayEvents.some((e) => e.type === 'holiday') && (
+                                                        <span
+                                                            style={{
+                                                                width: '6px',
+                                                                height: '6px',
+                                                                borderRadius: '50%',
+                                                                background: '#ef4444',
+                                                                display: 'inline-block',
+                                                            }}
+                                                            title="Hari Libur"
+                                                        />
+                                                    )}
+                                                </div>
+
+                                                {/* Event Badges */}
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                                    {dayEvents.slice(0, 3).map((ev) => (
+                                                        <div
+                                                            key={ev.id}
+                                                            onClick={() => setSelectedEvent(ev)}
+                                                            style={{
+                                                                fontSize: '11px',
+                                                                padding: '2px 5px',
+                                                                borderRadius: '4px',
+                                                                background: ev.color,
+                                                                color: '#ffffff',
+                                                                cursor: 'pointer',
+                                                                whiteSpace: 'nowrap',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                fontWeight: ev.type === 'holiday' ? 700 : 600,
+                                                                transition: 'transform 0.15s ease',
+                                                            }}
+                                                            title={ev.title}
+                                                        >
+                                                            {ev.title}
+                                                        </div>
+                                                    ))}
+                                                    {dayEvents.length > 3 && (
+                                                        <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
+                                                            +{dayEvents.length - 3} lainnya
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     ) : (
                         /* Week View */
-                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                            <div
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(7, 1fr)',
-                                    background: '#f8fafc',
-                                    borderBottom: '1px solid #e2e8f0',
-                                    textAlign: 'center',
-                                }}
-                            >
-                                {getWeekDays().map((d, idx) => {
-                                    const isWeekend = idx === 0 || idx === 6;
-                                    const isDayToday =
-                                        d.getDate() === new Date().getDate() &&
-                                        d.getMonth() === new Date().getMonth() &&
-                                        d.getFullYear() === new Date().getFullYear();
+                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                            <div style={{ minWidth: '680px' }}>
+                                <div
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(7, 1fr)',
+                                        background: '#f8fafc',
+                                        borderBottom: '1px solid #e2e8f0',
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    {getWeekDays().map((d, idx) => {
+                                        const isWeekend = idx === 0 || idx === 6;
+                                        const isDayToday =
+                                            d.getDate() === new Date().getDate() &&
+                                            d.getMonth() === new Date().getMonth() &&
+                                            d.getFullYear() === new Date().getFullYear();
 
-                                    return (
-                                        <div
-                                            key={d.toISOString()}
-                                            style={{
-                                                padding: '12px 6px',
-                                                background: isWeekend ? '#fee2e2' : isDayToday ? '#e0f2fe' : '#f8fafc',
-                                                color: isWeekend ? '#991b1b' : isDayToday ? '#0369a1' : '#334155',
-                                                borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
-                                            }}
-                                        >
-                                            <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>
-                                                {dayHeaders[idx]}
-                                            </div>
-                                            <div style={{ fontSize: '16px', fontWeight: 800, marginTop: '2px' }}>
-                                                {d.getDate()}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            <div
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(7, 1fr)',
-                                    minHeight: '380px',
-                                }}
-                            >
-                                {getWeekDays().map((d, idx) => {
-                                    const dateStr = d.toISOString().split('T')[0];
-                                    const dayEvents = getEventsForDate(dateStr);
-                                    const isWeekend = idx === 0 || idx === 6;
-
-                                    return (
-                                        <div
-                                            key={d.toISOString()}
-                                            style={{
-                                                borderRight: idx < 6 ? '1px solid #f1f5f9' : 'none',
-                                                padding: '10px',
-                                                background: isWeekend ? 'rgba(254, 242, 242, 0.45)' : '#ffffff',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                gap: '6px',
-                                            }}
-                                        >
-                                            {dayEvents.map((ev) => (
-                                                <div
-                                                    key={ev.id}
-                                                    onClick={() => setSelectedEvent(ev)}
-                                                    style={{
-                                                        fontSize: '11px',
-                                                        padding: '6px 8px',
-                                                        borderRadius: '6px',
-                                                        background: ev.backgroundColor || '#005baa',
-                                                        color: '#ffffff',
-                                                        cursor: 'pointer',
-                                                        fontWeight: 600,
-                                                        lineHeight: 1.35,
-                                                    }}
-                                                >
-                                                    <div>{ev.title}</div>
-                                                    {ev.extendedProps?.waktu && (
-                                                        <small style={{ opacity: 0.9, fontSize: '10px' }}>
-                                                            {ev.extendedProps.waktu}
-                                                        </small>
-                                                    )}
+                                        return (
+                                            <div
+                                                key={d.toISOString()}
+                                                style={{
+                                                    padding: '12px 6px',
+                                                    background: isWeekend ? '#fee2e2' : isDayToday ? '#e0f2fe' : '#f8fafc',
+                                                    color: isWeekend ? '#991b1b' : isDayToday ? '#0369a1' : '#334155',
+                                                    borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
+                                                }}
+                                            >
+                                                <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>
+                                                    {dayHeaders[idx]}
                                                 </div>
-                                            ))}
-                                            {dayEvents.length === 0 && (
-                                                <div style={{ color: '#cbd5e1', fontSize: '11px', textAlign: 'center', marginTop: '20px' }}>
-                                                    - Kosong -
+                                                <div style={{ fontSize: '16px', fontWeight: 800, marginTop: '2px' }}>
+                                                    {d.getDate()}
                                                 </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <div
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(7, 1fr)',
+                                        minHeight: '380px',
+                                    }}
+                                >
+                                    {getWeekDays().map((d, idx) => {
+                                        const dateStr = d.toISOString().split('T')[0];
+                                        const dayEvents = getEventsForDate(dateStr);
+                                        const isWeekend = idx === 0 || idx === 6;
+
+                                        return (
+                                            <div
+                                                key={d.toISOString()}
+                                                style={{
+                                                    borderRight: idx < 6 ? '1px solid #f1f5f9' : 'none',
+                                                    padding: '10px 8px',
+                                                    background: isWeekend ? 'rgba(254, 242, 242, 0.45)' : '#ffffff',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: '6px',
+                                                }}
+                                            >
+                                                {dayEvents.length > 0 ? (
+                                                    dayEvents.map((ev) => (
+                                                        <div
+                                                            key={ev.id}
+                                                            onClick={() => setSelectedEvent(ev)}
+                                                            style={{
+                                                                fontSize: '11.5px',
+                                                                padding: '6px 8px',
+                                                                borderRadius: '6px',
+                                                                background: ev.color,
+                                                                color: '#ffffff',
+                                                                cursor: 'pointer',
+                                                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                                            }}
+                                                            title={ev.title}
+                                                        >
+                                                            <div style={{ fontWeight: 700, marginBottom: '2px' }}>{ev.title}</div>
+                                                            <div style={{ fontSize: '10.5px', opacity: 0.9 }}>
+                                                                {ev.type === 'holiday'
+                                                                    ? 'Hari Libur Nasional'
+                                                                    : `${ev.raw?.waktu_mulai?.substring(0, 5)} - ${ev.raw?.waktu_selesai?.substring(0, 5)}`}
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div style={{ color: '#cbd5e1', fontSize: '11px', textAlign: 'center', marginTop: '20px' }}>
+                                                        Tidak ada agenda
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     )}

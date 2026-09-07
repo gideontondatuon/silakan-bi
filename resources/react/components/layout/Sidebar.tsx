@@ -32,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onCloseMo
     return (
         <aside className={`sidebar ${isOpen ? 'show-mobile' : ''}`} id="sidebar">
             {/* Fixed Sidebar Brand */}
-            <div className="sidebar-brand">
+            <div className="sidebar-brand" style={{ position: 'relative' }}>
                 <img
                     src="/images/logo-bi2.png"
                     className="sidebar-logo"
@@ -43,6 +43,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onCloseMo
                     <span>Sistem Informasi Layanan Kantor</span>
                     <small>KPwBI Prov. Sulut</small>
                 </div>
+                {/* Mobile Close Button */}
+                <button
+                    type="button"
+                    className="sidebar-close-btn"
+                    id="sidebarCloseBtn"
+                    onClick={onCloseMobile}
+                    aria-label="Tutup Menu"
+                >
+                    <i className="bi bi-x-lg"></i>
+                </button>
             </div>
 
             {/* Scrollable Sidebar Menu */}

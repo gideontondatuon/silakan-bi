@@ -32,6 +32,7 @@ export const Modal: React.FC<ModalProps> = ({
 
     return (
         <div
+            className="custom-modal-backdrop"
             style={{
                 position: 'fixed',
                 inset: 0,
@@ -41,11 +42,12 @@ export const Modal: React.FC<ModalProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '20px',
+                padding: '12px',
             }}
             onClick={onClose}
         >
             <div
+                className="custom-modal-box"
                 style={{
                     backgroundColor: '#ffffff',
                     borderRadius: '16px',
@@ -62,6 +64,7 @@ export const Modal: React.FC<ModalProps> = ({
             >
                 {/* Header */}
                 <div
+                    className="custom-modal-header"
                     style={{
                         padding: '18px 24px',
                         borderBottom: '1px solid #e2e8f0',
@@ -101,6 +104,7 @@ export const Modal: React.FC<ModalProps> = ({
 
                 {/* Body */}
                 <div
+                    className="custom-modal-body"
                     style={{
                         padding: '24px',
                         overflowY: 'auto',
@@ -113,6 +117,7 @@ export const Modal: React.FC<ModalProps> = ({
                 {/* Footer */}
                 {footer && (
                     <div
+                        className="custom-modal-footer"
                         style={{
                             padding: '16px 24px',
                             borderTop: '1px solid #e2e8f0',
@@ -120,6 +125,7 @@ export const Modal: React.FC<ModalProps> = ({
                             justifyContent: 'flex-end',
                             gap: '12px',
                             background: '#f8fafc',
+                            flexWrap: 'wrap',
                         }}
                     >
                         {footer}

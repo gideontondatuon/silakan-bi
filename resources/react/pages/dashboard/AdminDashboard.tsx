@@ -533,7 +533,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Visual Analytics & Chart Section (Exact Blade Line 282-310) */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', marginTop: '24px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', marginTop: '24px', marginBottom: '24px' }}>
                 {/* Chart 1: Tren Pemesanan */}
                 <div className="dashboard-section" style={{ marginBottom: 0, padding: '20px', background: '#ffffff', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 4px 16px rgba(0,0,0,0.02)' }}>
                     <div className="section-header" style={{ marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>

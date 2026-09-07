@@ -227,7 +227,7 @@ export const PemesananCreate: React.FC = () => {
                 )}
                 <form onSubmit={handleSubmit}>
                     {/* Ruangan & Layout */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '20px', marginBottom: '20px' }}>
                         <div className="form-group">
                             <label className="required" style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '13.5px', color: '#1e293b' }}>
                                 Pilih Ruangan Rapat
@@ -450,7 +450,7 @@ export const PemesananCreate: React.FC = () => {
                     </div>
 
                     {/* Upload Disposisi & Catatan */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '20px', marginBottom: '24px' }}>
                         <div className="form-group">
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '13.5px', color: '#1e293b' }}>
                                 Upload Dokumen Disposisi / Surat (PDF / JPG / PNG max 5MB)
@@ -480,7 +480,7 @@ export const PemesananCreate: React.FC = () => {
                     </div>
 
                     {/* Submit Actions */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
+                    <div className="form-action" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '20px' }}>
                         <button
                             type="button"
                             className="btn-secondary"

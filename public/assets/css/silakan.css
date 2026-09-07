@@ -2441,12 +2441,31 @@ body.sidebar-collapsed .user-info {
         box-shadow: 10px 0 35px rgba(0, 0, 0, 0.35);
     }
 
-    body.mobile-sidebar-open .sidebar {
-        transform: translateX(0);
+    body.mobile-sidebar-open .sidebar,
+    .sidebar.show-mobile {
+        transform: translateX(0) !important;
     }
 
     body.mobile-sidebar-open .sidebar-overlay {
         display: block;
+    }
+
+    .sidebar-close-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.12);
+        border: none;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 16px;
+        cursor: pointer;
     }
 
     .main {
@@ -2472,18 +2491,21 @@ body.sidebar-collapsed .user-info {
         align-items: center;
         gap: 10px;
         text-decoration: none;
+        min-width: 0;
     }
 
     .mobile-brand-logo {
         height: 34px;
         width: auto;
         object-fit: contain;
+        flex-shrink: 0;
     }
 
     .mobile-brand-text {
         display: flex;
         flex-direction: column;
         line-height: 1.1;
+        min-width: 0;
     }
 
     .mobile-brand-title {
@@ -2497,11 +2519,42 @@ body.sidebar-collapsed .user-info {
         font-size: 9.5px;
         font-weight: 700;
         color: #005baa;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
-    .profile-info,
-    .profile-menu {
+    .profile-info {
         display: none !important;
+    }
+
+    .profile-menu {
+        display: none;
+    }
+
+    .profile-menu.show {
+        display: block !important;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        min-width: 175px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+    }
+
+    .notification-panel {
+        position: fixed !important;
+        top: 64px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: none !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+        z-index: 10000 !important;
     }
 
     .profile-avatar {
@@ -2520,6 +2573,15 @@ body.sidebar-collapsed .user-info {
         align-items: flex-start;
         padding: 20px 18px !important;
         gap: 12px;
+    }
+
+    .page-header .btn-primary,
+    .page-header .btn-secondary,
+    .dashboard-header .btn-primary,
+    .dashboard-header .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
     }
 
     .dashboard-header h1 {
@@ -2592,8 +2654,18 @@ body.sidebar-collapsed .user-info {
     }
 
     .approval-action {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+
+    .approval-action > a,
+    .approval-action > div,
+    .approval-action > div > button,
+    .approval-action > div > a {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
     }
 
     .reject-input {
@@ -2606,8 +2678,17 @@ body.sidebar-collapsed .user-info {
     }
 
     .custom-modal-box {
-        max-width: 92% !important;
+        max-width: 95% !important;
         margin: 0 auto;
+    }
+
+    .custom-modal-header,
+    .custom-modal-footer {
+        padding: 14px 16px !important;
+    }
+
+    .custom-modal-body {
+        padding: 16px !important;
     }
 }
 
@@ -2625,9 +2706,35 @@ body.sidebar-collapsed .user-info {
         font-size: 12px !important;
         padding: 8px 12px !important;
     }
-}
+
     .facility-grid {
         grid-template-columns: 1fr;
+    }
+
+    .dashboard-section,
+    .detail-card,
+    .form-card {
+        padding: 16px !important;
+    }
+
+    .login-page {
+        padding: 16px 12px !important;
+    }
+
+    .login-card {
+        padding: 24px 16px !important;
+    }
+
+    .mobile-brand-sub {
+        display: none !important;
+    }
+
+    #silakan-toast-container {
+        right: 12px !important;
+        left: 12px !important;
+        bottom: 12px !important;
+        width: auto !important;
+        max-width: none !important;
     }
 }
 
