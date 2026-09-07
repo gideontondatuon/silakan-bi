@@ -32,6 +32,7 @@ export interface LayoutRuangan {
     kapasitas_layout?: number | null;
     gambar_layout?: string | null;
     ruangan?: Ruangan | null;
+    ruangans?: Ruangan[];
     created_at?: string;
     updated_at?: string;
 }

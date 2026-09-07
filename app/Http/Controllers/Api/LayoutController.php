@@ -30,7 +30,7 @@ class LayoutController extends Controller
             return response()->json($layouts);
         }
 
-        $query = LayoutRuangan::with('ruangan');
+        $query = LayoutRuangan::with(['ruangan', 'ruangans']);
 
         if ($request->filled('q')) {
             $query->where('nama_layout', 'like', "%{$request->q}%");
@@ -71,7 +71,7 @@ class LayoutController extends Controller
     {
         return response()->json([
             'status' => 'success',
-            'data' => $layout->load('ruangan'),
+            'data' => $layout->load(['ruangan', 'ruangans']),
         ]);
     }
 

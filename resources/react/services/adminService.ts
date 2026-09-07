@@ -116,6 +116,11 @@ export const adminService = {
         return response.data;
     },
 
+    async getLayoutDetail(id: number | string): Promise<ApiResponse<LayoutRuangan>> {
+        const response = await api.get<ApiResponse<LayoutRuangan>>(`/admin/layout/${id}`);
+        return response.data;
+    },
+
     async createLayout(data: { nama_layout: string; ruangan_id?: number | null }): Promise<ApiResponse<LayoutRuangan>> {
         const response = await api.post<ApiResponse<LayoutRuangan>>('/admin/layout', data);
         return response.data;

@@ -26,6 +26,8 @@ import { RuanganList } from '../pages/ruangan/RuanganList';
 import { RuanganCreate } from '../pages/ruangan/RuanganCreate';
 import { RuanganEdit } from '../pages/ruangan/RuanganEdit';
 import { LayoutList } from '../pages/layout/LayoutList';
+import { LayoutCreate } from '../pages/layout/LayoutCreate';
+import { LayoutEdit } from '../pages/layout/LayoutEdit';
 import { HariLiburList } from '../pages/harilibur/HariLiburList';
 import { UserList } from '../pages/users/UserList';
 import { LaporanPage } from '../pages/laporan/LaporanPage';
@@ -83,6 +85,8 @@ export const AppRoutes: React.FC = () => {
                     <Route path="/admin/ruangan/create" element={<RuanganCreate />} />
                     <Route path="/admin/ruangan/:id/edit" element={<RuanganEdit />} />
                     <Route path="/admin/layout" element={<LayoutList />} />
+                    <Route path="/admin/layout/create" element={<LayoutCreate />} />
+                    <Route path="/admin/layout/:id/edit" element={<LayoutEdit />} />
                     <Route path="/admin/hari-libur" element={<HariLiburList />} />
                     <Route path="/admin/users" element={<UserList />} />
                     <Route path="/admin/laporan" element={<LaporanPage />} />
