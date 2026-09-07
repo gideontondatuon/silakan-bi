@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { bookingService } from '../../services/bookingService';
-import { Ruangan } from '../../types';
+import { Link } from 'react-router-dom';
+import { bookingService, KalenderIndexData } from '../../services/bookingService';
+import { useAuth } from '../../context/AuthContext';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { Modal } from '../../components/common/Modal';
 
 export const KalenderPage: React.FC = () => {
-    const [ruanganList, setRuanganList] = useState<Ruangan[]>([]);
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'admin';
+
+    const [indexData, setIndexData] = useState<KalenderIndexData | null>(null);
     const [selectedRuanganId, setSelectedRuanganId] = useState('');
     const [events, setEvents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Current calendar month view state
+    // Current calendar month / week view state
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
     const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
 
+    // Load initial index data (rooms, summary stats, upcoming bookings)
     useEffect(() => {
-        bookingService.getRuanganList(true).then((res) => {
-            if (res.status === 'success') setRuanganList(res.data);
+        bookingService.getKalenderIndex().then((res) => {
+            if (res.status === 'success' && res.data) {
+                setIndexData(res.data);
+            }
         });
     }, []);
 
+    // Load calendar events
     const loadEvents = async () => {
         setIsLoading(true);
         try {
             const data = await bookingService.getKalenderEvents(selectedRuanganId || undefined);
             setEvents(data);
         } catch (e) {
-            // Ignore
+            console.error('Failed to load calendar events:', e);
         } finally {
             setIsLoading(false);
         }
@@ -40,7 +48,7 @@ export const KalenderPage: React.FC = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Sun, 1 = Mon ...
+    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Min, 1 = Sen ...
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const monthNames = [
@@ -51,21 +59,42 @@ export const KalenderPage: React.FC = () => {
     const dayHeaders = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
     const prevMonth = () => {
-        setCurrentDate(new Date(year, month - 1, 1));
+        if (calendarView === 'month') {
+            setCurrentDate(new Date(year, month - 1, 1));
+        } else {
+            const prev = new Date(currentDate);
+            prev.setDate(prev.getDate() - 7);
+            setCurrentDate(prev);
+        }
     };
 
     const nextMonth = () => {
-        setCurrentDate(new Date(year, month + 1, 1));
+        if (calendarView === 'month') {
+            setCurrentDate(new Date(year, month + 1, 1));
+        } else {
+            const next = new Date(currentDate);
+            next.setDate(next.getDate() + 7);
+            setCurrentDate(next);
+        }
     };
 
     const goToday = () => {
         setCurrentDate(new Date());
     };
 
-    // Filter events for specific day
+    // Filter events for specific day (YYYY-MM-DD)
+    const getEventsForDate = (dateStr: string) => {
+        return events.filter((e) => {
+            if (e.allDay) {
+                return e.start.startsWith(dateStr);
+            }
+            return e.start.startsWith(dateStr);
+        });
+    };
+
     const getEventsForDay = (day: number) => {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        return events.filter((e) => e.start.startsWith(dateStr));
+        return getEventsForDate(dateStr);
     };
 
     const isToday = (day: number) => {
@@ -77,254 +106,817 @@ export const KalenderPage: React.FC = () => {
         );
     };
 
+    // Calculate start of current week for week view
+    const getWeekDays = () => {
+        const curr = new Date(currentDate);
+        const dayOfWeek = curr.getDay(); // 0 = Sun
+        const sunday = new Date(curr);
+        sunday.setDate(curr.getDate() - dayOfWeek);
+
+        const days: Date[] = [];
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(sunday);
+            d.setDate(sunday.getDate() + i);
+            days.push(d);
+        }
+        return days;
+    };
+
+    const ruanganList = indexData?.ruangan || [];
+    const stats = indexData?.stats || {
+        total_ruangan: ruanganList.length,
+        jadwal_aktif: 0,
+        akan_datang: 0,
+    };
+    const upcomingSchedule = indexData?.upcoming || [];
+
     return (
         <div>
-            {/* Header */}
-            <div className="dashboard-header" style={{ marginBottom: '20px' }}>
+            {/* Header matching Blade 1:1 */}
+            <div
+                className="dashboard-header"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '16px',
+                    marginBottom: '20px',
+                }}
+            >
                 <div>
                     <h1>
                         <i className="bi bi-calendar3" style={{ color: '#005baa', marginRight: '8px' }}></i>
-                        Kalender Pemakaian Ruangan
+                        Kalender Ruangan
                     </h1>
-                    <p>Jadwal seluruh kegiatan rapat dan hari libur nasional di KPwBI Sulut</p>
-                </div>
-            </div>
-
-            {/* Filter Bar & Controls */}
-            <div
-                style={{
-                    background: '#fff',
-                    borderRadius: '16px',
-                    padding: '16px 24px',
-                    border: '1px solid #e2e8f0',
-                    marginBottom: '20px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '14px',
-                }}
-            >
-                {/* Navigation controls */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <button type="button" className="btn-secondary" onClick={prevMonth} style={{ padding: '6px 12px' }}>
-                        <i className="bi bi-chevron-left"></i>
-                    </button>
-                    <button type="button" className="btn-secondary" onClick={goToday} style={{ padding: '6px 12px', fontSize: '13px' }}>
-                        Hari Ini
-                    </button>
-                    <button type="button" className="btn-secondary" onClick={nextMonth} style={{ padding: '6px 12px' }}>
-                        <i className="bi bi-chevron-right"></i>
-                    </button>
-                    <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#003b73', margin: '0 0 0 10px' }}>
-                        {monthNames[month]} {year}
-                    </h2>
+                    <p>Monitoring jadwal penggunaan ruangan kantor secara visual dan terpusat.</p>
                 </div>
 
-                {/* Filter Room */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>Filter Ruangan:</label>
+                {/* Room Filter Dropdown */}
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        background: '#ffffff',
+                        padding: '8px 16px',
+                        borderRadius: '12px',
+                        border: '1px solid #cbd5e1',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    }}
+                >
+                    <i className="bi bi-funnel-fill" style={{ color: '#005baa', fontSize: '16px' }}></i>
+                    <label
+                        htmlFor="filter-ruangan"
+                        style={{ fontSize: '13px', fontWeight: 700, color: '#334155', whiteSpace: 'nowrap', margin: 0 }}
+                    >
+                        Filter Ruangan:
+                    </label>
                     <select
-                        className="login-input"
+                        id="filter-ruangan"
                         value={selectedRuanganId}
                         onChange={(e) => setSelectedRuanganId(e.target.value)}
-                        style={{ height: '38px', minWidth: '180px', fontSize: '13px' }}
+                        style={{
+                            padding: '6px 12px',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: '#003b73',
+                            background: '#f8fafc',
+                            outline: 'none',
+                            cursor: 'pointer',
+                        }}
                     >
-                        <option value="">Semua Ruangan</option>
+                        <option value="">-- Seluruh Ruangan Rapat --</option>
                         {ruanganList.map((r) => (
                             <option key={r.id} value={r.id}>
-                                {r.nama_ruangan}
+                                {r.nama_ruangan} ({r.kapasitas} Org)
                             </option>
                         ))}
                     </select>
                 </div>
             </div>
 
-            {/* Calendar Grid View */}
-            <div
-                style={{
-                    background: '#fff',
-                    borderRadius: '16px',
-                    border: '1px solid #e2e8f0',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-                }}
-            >
-                {isLoading ? (
-                    <LoadingSpinner message="Memuat agenda kalender..." height="400px" />
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        {/* Day Header */}
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(7, 1fr)',
-                                background: '#f8fafc',
-                                borderBottom: '1px solid #e2e8f0',
-                                textAlign: 'center',
-                                fontWeight: 700,
-                                fontSize: '13px',
-                                color: '#475569',
-                                padding: '12px 0',
-                            }}
-                        >
-                            {dayHeaders.map((dh, idx) => (
-                                <div key={dh} style={{ color: idx === 0 ? '#ef4444' : '#475569' }}>
-                                    {dh}
-                                </div>
-                            ))}
+            {/* Calendar Summary Stats matching Blade 1:1 */}
+            <div className="calendar-summary">
+                <div className="calendar-stat">
+                    <div className="calendar-stat-icon">
+                        <i className="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <span>Total Ruangan</span>
+                        <strong>{stats.total_ruangan}</strong>
+                    </div>
+                </div>
+
+                <div className="calendar-stat">
+                    <div className="calendar-stat-icon">
+                        <i className="bi bi-calendar-check"></i>
+                    </div>
+                    <div>
+                        <span>Jadwal Aktif</span>
+                        <strong>{stats.jadwal_aktif}</strong>
+                    </div>
+                </div>
+
+                <div className="calendar-stat">
+                    <div className="calendar-stat-icon">
+                        <i className="bi bi-calendar-event"></i>
+                    </div>
+                    <div>
+                        <span>Akan Datang</span>
+                        <strong>{stats.akan_datang}</strong>
+                    </div>
+                </div>
+            </div>
+
+            {/* Calendar Layout: Main + Sidebar matching Blade 1:1 */}
+            <div className="calendar-layout">
+                {/* Main Calendar View */}
+                <div className="calendar-main">
+                    {/* Toolbar */}
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '12px',
+                            marginBottom: '18px',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={prevMonth}
+                                style={{ padding: '6px 12px', borderRadius: '8px' }}
+                                title="Sebelumnya"
+                            >
+                                <i className="bi bi-chevron-left"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={goToday}
+                                style={{ padding: '6px 14px', fontSize: '13px', borderRadius: '8px' }}
+                            >
+                                Hari Ini
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={nextMonth}
+                                style={{ padding: '6px 12px', borderRadius: '8px' }}
+                                title="Selanjutnya"
+                            >
+                                <i className="bi bi-chevron-right"></i>
+                            </button>
                         </div>
 
-                        {/* Days Grid */}
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(7, 1fr)',
-                                gridAutoRows: 'minmax(110px, auto)',
-                            }}
-                        >
-                            {/* Empty days before 1st of month */}
-                            {Array.from({ length: firstDayIndex }).map((_, idx) => (
-                                <div
-                                    key={`empty-${idx}`}
-                                    style={{
-                                        background: '#fafafa',
-                                        borderRight: '1px solid #f1f5f9',
-                                        borderBottom: '1px solid #f1f5f9',
-                                    }}
-                                />
-                            ))}
+                        <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#003b73', margin: 0 }}>
+                            {monthNames[month]} {year}
+                        </h2>
 
-                            {/* Month Days */}
-                            {Array.from({ length: daysInMonth }).map((_, idx) => {
-                                const dayNum = idx + 1;
-                                const dayEvents = getEventsForDay(dayNum);
-                                const today = isToday(dayNum);
+                        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+                            <button
+                                type="button"
+                                onClick={() => setCalendarView('month')}
+                                style={{
+                                    border: 'none',
+                                    padding: '5px 14px',
+                                    borderRadius: '6px',
+                                    fontSize: '12.5px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    background: calendarView === 'month' ? '#005baa' : 'transparent',
+                                    color: calendarView === 'month' ? '#ffffff' : '#475569',
+                                    transition: 'all .2s',
+                                }}
+                            >
+                                Bulan
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setCalendarView('week')}
+                                style={{
+                                    border: 'none',
+                                    padding: '5px 14px',
+                                    borderRadius: '6px',
+                                    fontSize: '12.5px',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    background: calendarView === 'week' ? '#005baa' : 'transparent',
+                                    color: calendarView === 'week' ? '#ffffff' : '#475569',
+                                    transition: 'all .2s',
+                                }}
+                            >
+                                Minggu
+                            </button>
+                        </div>
+                    </div>
 
-                                return (
-                                    <div
-                                        key={`day-${dayNum}`}
-                                        style={{
-                                            borderRight: '1px solid #f1f5f9',
-                                            borderBottom: '1px solid #f1f5f9',
-                                            padding: '8px',
-                                            background: today ? '#f0f9ff' : '#ffffff',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            gap: '4px',
-                                        }}
-                                    >
+                    {isLoading ? (
+                        <LoadingSpinner message="Memuat agenda kalender..." height="400px" />
+                    ) : calendarView === 'month' ? (
+                        /* Month View */
+                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+                            {/* Day Header */}
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(7, 1fr)',
+                                    background: '#f8fafc',
+                                    borderBottom: '1px solid #e2e8f0',
+                                    textAlign: 'center',
+                                    fontWeight: 700,
+                                    fontSize: '12.5px',
+                                    color: '#475569',
+                                }}
+                            >
+                                {dayHeaders.map((dh, idx) => {
+                                    const isWeekend = idx === 0 || idx === 6;
+                                    return (
                                         <div
+                                            key={dh}
                                             style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                marginBottom: '4px',
+                                                padding: '10px 0',
+                                                background: isWeekend ? '#fee2e2' : '#f8fafc',
+                                                color: isWeekend ? '#991b1b' : '#475569',
+                                                borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
                                             }}
                                         >
-                                            <span
+                                            {dh}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Days Grid */}
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(7, 1fr)',
+                                    gridAutoRows: 'minmax(105px, auto)',
+                                }}
+                            >
+                                {/* Empty days before 1st of month */}
+                                {Array.from({ length: firstDayIndex }).map((_, idx) => (
+                                    <div
+                                        key={`empty-${idx}`}
+                                        style={{
+                                            background: '#fafafa',
+                                            borderRight: '1px solid #f1f5f9',
+                                            borderBottom: '1px solid #f1f5f9',
+                                        }}
+                                    />
+                                ))}
+
+                                {/* Month Days */}
+                                {Array.from({ length: daysInMonth }).map((_, idx) => {
+                                    const dayNum = idx + 1;
+                                    const dayEvents = getEventsForDay(dayNum);
+                                    const today = isToday(dayNum);
+                                    const dayOfWeek = (firstDayIndex + idx) % 7;
+                                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                                    return (
+                                        <div
+                                            key={`day-${dayNum}`}
+                                            style={{
+                                                borderRight: dayOfWeek === 6 ? 'none' : '1px solid #f1f5f9',
+                                                borderBottom: '1px solid #f1f5f9',
+                                                padding: '8px',
+                                                background: today
+                                                    ? '#f0f9ff'
+                                                    : isWeekend
+                                                    ? 'rgba(254, 242, 242, 0.45)'
+                                                    : '#ffffff',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '4px',
+                                                minHeight: '105px',
+                                                boxSizing: 'border-box',
+                                            }}
+                                        >
+                                            <div
                                                 style={{
-                                                    fontSize: '12px',
-                                                    fontWeight: today ? 800 : 600,
-                                                    color: today ? '#0284c7' : '#334155',
-                                                    width: today ? '22px' : 'auto',
-                                                    height: today ? '22px' : 'auto',
-                                                    borderRadius: '50%',
-                                                    display: 'inline-flex',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    background: today ? '#bae6fd' : 'transparent',
+                                                    marginBottom: '2px',
                                                 }}
                                             >
-                                                {dayNum}
-                                            </span>
-                                        </div>
+                                                <span
+                                                    style={{
+                                                        fontSize: '12px',
+                                                        fontWeight: isWeekend || today ? 800 : 600,
+                                                        color: today ? '#0284c7' : isWeekend ? '#dc2626' : '#334155',
+                                                        width: today ? '22px' : 'auto',
+                                                        height: today ? '22px' : 'auto',
+                                                        borderRadius: '50%',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        background: today ? '#bae6fd' : 'transparent',
+                                                    }}
+                                                >
+                                                    {dayNum}
+                                                </span>
+                                            </div>
 
-                                        {/* Events list */}
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
-                                            {dayEvents.slice(0, 3).map((ev) => (
+                                            {/* Events list */}
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', overflowY: 'auto' }}>
+                                                {dayEvents.slice(0, 3).map((ev) => (
+                                                    <div
+                                                        key={ev.id}
+                                                        onClick={() => setSelectedEvent(ev)}
+                                                        style={{
+                                                            fontSize: '11px',
+                                                            padding: '3px 6px',
+                                                            borderRadius: '6px',
+                                                            background: ev.backgroundColor || '#005baa',
+                                                            color: '#ffffff',
+                                                            cursor: 'pointer',
+                                                            whiteSpace: 'nowrap',
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            fontWeight: ev.type === 'holiday' ? 700 : 600,
+                                                            transition: 'transform 0.15s ease',
+                                                        }}
+                                                        title={ev.title}
+                                                    >
+                                                        {ev.title}
+                                                    </div>
+                                                ))}
+                                                {dayEvents.length > 3 && (
+                                                    <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
+                                                        +{dayEvents.length - 3} lainnya
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ) : (
+                        /* Week View */
+                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(7, 1fr)',
+                                    background: '#f8fafc',
+                                    borderBottom: '1px solid #e2e8f0',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                {getWeekDays().map((d, idx) => {
+                                    const isWeekend = idx === 0 || idx === 6;
+                                    const isDayToday =
+                                        d.getDate() === new Date().getDate() &&
+                                        d.getMonth() === new Date().getMonth() &&
+                                        d.getFullYear() === new Date().getFullYear();
+
+                                    return (
+                                        <div
+                                            key={d.toISOString()}
+                                            style={{
+                                                padding: '12px 6px',
+                                                background: isWeekend ? '#fee2e2' : isDayToday ? '#e0f2fe' : '#f8fafc',
+                                                color: isWeekend ? '#991b1b' : isDayToday ? '#0369a1' : '#334155',
+                                                borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
+                                            }}
+                                        >
+                                            <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>
+                                                {dayHeaders[idx]}
+                                            </div>
+                                            <div style={{ fontSize: '16px', fontWeight: 800, marginTop: '2px' }}>
+                                                {d.getDate()}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(7, 1fr)',
+                                    minHeight: '380px',
+                                }}
+                            >
+                                {getWeekDays().map((d, idx) => {
+                                    const dateStr = d.toISOString().split('T')[0];
+                                    const dayEvents = getEventsForDate(dateStr);
+                                    const isWeekend = idx === 0 || idx === 6;
+
+                                    return (
+                                        <div
+                                            key={d.toISOString()}
+                                            style={{
+                                                borderRight: idx < 6 ? '1px solid #f1f5f9' : 'none',
+                                                padding: '10px',
+                                                background: isWeekend ? 'rgba(254, 242, 242, 0.45)' : '#ffffff',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '6px',
+                                            }}
+                                        >
+                                            {dayEvents.map((ev) => (
                                                 <div
                                                     key={ev.id}
                                                     onClick={() => setSelectedEvent(ev)}
                                                     style={{
                                                         fontSize: '11px',
-                                                        padding: '3px 6px',
-                                                        borderRadius: '4px',
+                                                        padding: '6px 8px',
+                                                        borderRadius: '6px',
                                                         background: ev.backgroundColor || '#005baa',
                                                         color: '#ffffff',
                                                         cursor: 'pointer',
-                                                        whiteSpace: 'nowrap',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
                                                         fontWeight: 600,
+                                                        lineHeight: 1.35,
                                                     }}
-                                                    title={ev.title}
                                                 >
-                                                    {ev.title}
+                                                    <div>{ev.title}</div>
+                                                    {ev.extendedProps?.waktu && (
+                                                        <small style={{ opacity: 0.9, fontSize: '10px' }}>
+                                                            {ev.extendedProps.waktu}
+                                                        </small>
+                                                    )}
                                                 </div>
                                             ))}
-                                            {dayEvents.length > 3 && (
-                                                <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
-                                                    +{dayEvents.length - 3} lainnya
-                                                </span>
+                                            {dayEvents.length === 0 && (
+                                                <div style={{ color: '#cbd5e1', fontSize: '11px', textAlign: 'center', marginTop: '20px' }}>
+                                                    - Kosong -
+                                                </div>
                                             )}
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
+
+                {/* Sidebar: Jadwal yang Akan Datang matching Blade 1:1 */}
+                <div className="calendar-sidebar" style={{ overflow: 'hidden', boxSizing: 'border-box' }}>
+                    <h3>
+                        <i className="bi bi-calendar-event" style={{ color: '#005baa', marginRight: '6px' }}></i>
+                        Jadwal yang Akan Datang
+                    </h3>
+
+                    {upcomingSchedule.length > 0 ? (
+                        upcomingSchedule.map((item) => (
+                            <div
+                                key={item.id}
+                                style={{
+                                    marginBottom: '12px',
+                                    padding: '12px 14px',
+                                    borderRadius: '12px',
+                                    background: '#ffffff',
+                                    border: '1px solid #e2e8f0',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+                                    boxSizing: 'border-box',
+                                    maxWidth: '100%',
+                                    overflow: 'hidden',
+                                    transition: 'all .2s',
+                                }}
+                            >
+                                {/* Header: Ruangan & Tanggal Badge */}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px' }}>
+                                    <span
+                                        style={{
+                                            fontSize: '11.5px',
+                                            fontWeight: 700,
+                                            color: '#005baa',
+                                            background: '#e0f2fe',
+                                            padding: '3px 8px',
+                                            borderRadius: '6px',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}
+                                    >
+                                        <i className="bi bi-door-open-fill"></i> {item.nama_ruangan}
+                                    </span>
+                                    <span
+                                        style={{
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            color: '#0369a1',
+                                            background: '#f0f9ff',
+                                            border: '1px solid #bae6fd',
+                                            padding: '2px 8px',
+                                            borderRadius: '6px',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
+                                        <i className="bi bi-calendar3"></i> {item.tanggal_kegiatan}
+                                    </span>
+                                </div>
+
+                                {/* Judul Kegiatan */}
+                                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', lineHeight: 1.35, wordBreak: 'break-word' }}>
+                                    {item.judul_kegiatan}
+                                </div>
+
+                                {/* Footer Info: Waktu & PIC */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11.5px', color: '#64748b', paddingTop: '8px', borderTop: '1px dashed #e2e8f0' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155', fontWeight: 600 }}>
+                                        <i className="bi bi-clock-fill" style={{ color: '#0284c7', fontSize: '12px' }}></i>
+                                        <span>{item.waktu_mulai} – {item.waktu_selesai} WITA</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', overflow: 'hidden' }}>
+                                        <i className="bi bi-person-fill" style={{ color: '#64748b', fontSize: '12px', flexShrink: 0 }}></i>
+                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                            {item.pic_kegiatan} ({item.nama_unit})
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="empty-schedule">
+                            <i className="bi bi-calendar-x"></i>
+                            <p>Tidak ada jadwal penggunaan ruangan yang akan datang.</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Event Detail Modal */}
-            <Modal
-                isOpen={!!selectedEvent}
-                onClose={() => setSelectedEvent(null)}
-                title={selectedEvent?.type === 'holiday' ? 'Hari Libur / Cuti Bersama' : 'Detail Agenda Rapat'}
-                footer={
-                    <button type="button" className="btn-secondary" onClick={() => setSelectedEvent(null)}>
-                        Tutup
-                    </button>
-                }
-            >
-                {selectedEvent?.type === 'holiday' ? (
-                    <div>
-                        <h4 style={{ color: '#003b73', fontSize: '16px', marginBottom: '8px' }}>
-                            {selectedEvent.title}
-                        </h4>
-                        <p style={{ color: '#64748b', fontSize: '13.5px' }}>
-                            Tanggal: <strong>{selectedEvent.extendedProps?.tanggal}</strong>
-                        </p>
+            {/* Event Detail Modal matching Blade 1:1 */}
+            {selectedEvent && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(15,23,42,0.65)',
+                        backdropFilter: 'blur(6px)',
+                        zIndex: 99999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '16px',
+                    }}
+                    onClick={() => setSelectedEvent(null)}
+                >
+                    <div
+                        style={{
+                            background: '#fff',
+                            width: '100%',
+                            maxWidth: '540px',
+                            borderRadius: '16px',
+                            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                            overflow: 'hidden',
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div
+                            style={{
+                                padding: '18px 24px',
+                                borderBottom: '1px solid #f1f5f9',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                background: '#f8fafc',
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div
+                                    style={{
+                                        width: '38px',
+                                        height: '38px',
+                                        borderRadius: '50%',
+                                        background:
+                                            selectedEvent.type === 'holiday'
+                                                ? selectedEvent.extendedProps?.kategori === 'cuti_bersama'
+                                                    ? '#fef3c7'
+                                                    : selectedEvent.extendedProps?.kategori === 'internal'
+                                                    ? '#e0f2fe'
+                                                    : '#fee2e2'
+                                                : '#e0f2fe',
+                                        color:
+                                            selectedEvent.type === 'holiday'
+                                                ? selectedEvent.extendedProps?.kategori === 'cuti_bersama'
+                                                    ? '#d97706'
+                                                    : selectedEvent.extendedProps?.kategori === 'internal'
+                                                    ? '#0284c7'
+                                                    : '#dc2626'
+                                                : '#0284c7',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '18px',
+                                    }}
+                                >
+                                    {selectedEvent.type === 'holiday' ? (
+                                        selectedEvent.extendedProps?.kategori === 'cuti_bersama' ? (
+                                            '🏖️'
+                                        ) : selectedEvent.extendedProps?.kategori === 'internal' ? (
+                                            '🏛️'
+                                        ) : (
+                                            '🚩'
+                                        )
+                                    ) : (
+                                        <i className="bi bi-calendar-check-fill"></i>
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+                                        {selectedEvent.type === 'holiday'
+                                            ? selectedEvent.extendedProps?.kategori_label ||
+                                              (selectedEvent.extendedProps?.kategori === 'cuti_bersama'
+                                                  ? 'Cuti Bersama'
+                                                  : 'Hari Libur Nasional')
+                                            : selectedEvent.extendedProps?.ruangan || 'Rincian Jadwal'}
+                                    </h3>
+                                    <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
+                                        Sistem SILAKAN Bank Indonesia
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedEvent(null)}
+                                style={{ background: 'none', border: 'none', fontSize: '24px', color: '#64748b', cursor: 'pointer', lineHeight: 1 }}
+                            >
+                                &times;
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div style={{ padding: '22px 24px' }}>
+                            {selectedEvent.type === 'holiday' ? (
+                                <>
+                                    <div
+                                        style={{
+                                            padding: '14px',
+                                            background: '#f8fafc',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e2e8f0',
+                                            marginBottom: '14px',
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            Keterangan Hari Libur
+                                        </span>
+                                        <h4 style={{ margin: '4px 0 0', fontSize: '16px', color: '#003b73', fontWeight: 800 }}>
+                                            {selectedEvent.extendedProps?.keterangan || selectedEvent.title}
+                                        </h4>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px' }}>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Tanggal</span>
+                                            <strong style={{ color: '#0f172a' }}>
+                                                {selectedEvent.extendedProps?.tanggal || selectedEvent.start}
+                                            </strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Status</span>
+                                            <span
+                                                className={`badge ${
+                                                    selectedEvent.extendedProps?.kategori === 'cuti_bersama'
+                                                        ? 'badge-warning'
+                                                        : selectedEvent.extendedProps?.kategori === 'internal'
+                                                        ? 'badge-info'
+                                                        : 'badge-danger'
+                                                }`}
+                                            >
+                                                {selectedEvent.extendedProps?.kategori_label || 'Libur'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div
+                                        style={{
+                                            padding: '14px',
+                                            background: '#f0f9ff',
+                                            borderRadius: '12px',
+                                            border: '1px solid #bae6fd',
+                                            marginBottom: '14px',
+                                        }}
+                                    >
+                                        <span style={{ fontSize: '11.5px', color: '#0369a1', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                            Agenda / Kegiatan
+                                        </span>
+                                        <h4 style={{ margin: '4px 0 0', fontSize: '15.5px', color: '#003b73', fontWeight: 800 }}>
+                                            {selectedEvent.extendedProps?.judul || selectedEvent.title}
+                                        </h4>
+                                        <span style={{ display: 'inline-block', marginTop: '6px', fontFamily: 'monospace', fontSize: '11px', color: '#0284c7', fontWeight: 700 }}>
+                                            Kode: {selectedEvent.extendedProps?.kode_pemesanan || '-'}
+                                        </span>
+                                    </div>
+
+                                    <div
+                                        style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: '1fr 1fr',
+                                            gap: '12px',
+                                            fontSize: '13px',
+                                            background: '#f8fafc',
+                                            padding: '14px',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e2e8f0',
+                                        }}
+                                    >
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Ruangan</span>
+                                            <strong style={{ color: '#005baa' }}>{selectedEvent.extendedProps?.ruangan}</strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Layout</span>
+                                            <strong style={{ color: '#0f172a' }}>{selectedEvent.extendedProps?.layout || '-'}</strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Tanggal</span>
+                                            <strong style={{ color: '#0f172a' }}>{selectedEvent.extendedProps?.tanggal || selectedEvent.start}</strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Waktu (WITA)</span>
+                                            <strong style={{ color: '#0f172a' }}>
+                                                <i className="bi bi-clock"></i> {selectedEvent.extendedProps?.waktu}
+                                            </strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>PIC Kegiatan</span>
+                                            <strong style={{ color: '#0f172a' }}>{selectedEvent.extendedProps?.pic}</strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>No. WhatsApp PIC</span>
+                                            {selectedEvent.extendedProps?.no_wa_pic && selectedEvent.extendedProps?.no_wa_pic !== '-' ? (
+                                                <a
+                                                    href={`https://wa.me/${selectedEvent.extendedProps.no_wa_pic.replace(/[^0-9]/g, '')}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    style={{ color: '#16a34a', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                                >
+                                                    <i className="bi bi-whatsapp"></i> {selectedEvent.extendedProps.no_wa_pic}
+                                                </a>
+                                            ) : (
+                                                <span style={{ color: '#94a3b8' }}>-</span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Unit Kerja</span>
+                                            <strong style={{ color: '#0f172a' }}>{selectedEvent.extendedProps?.unit}</strong>
+                                        </div>
+                                        <div>
+                                            <span style={{ color: '#64748b', fontSize: '11.5px', display: 'block' }}>Jumlah Tamu</span>
+                                            <strong style={{ color: '#0f172a' }}>{selectedEvent.extendedProps?.tamu || '-'} Orang</strong>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div
+                            style={{
+                                padding: '14px 24px',
+                                background: '#f8fafc',
+                                borderTop: '1px solid #e2e8f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                gap: '10px',
+                            }}
+                        >
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={() => setSelectedEvent(null)}
+                                style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '8px' }}
+                            >
+                                Tutup
+                            </button>
+                            {selectedEvent.extendedProps?.booking_id && (
+                                <Link
+                                    to={isAdmin ? `/admin/approval/${selectedEvent.extendedProps.booking_id}` : `/pemesanan/${selectedEvent.extendedProps.booking_id}`}
+                                    className="btn-primary"
+                                    style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '8px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                                >
+                                    <i className="bi bi-box-arrow-up-right"></i> Buka Detail Lengkap
+                                </Link>
+                            )}
+                        </div>
                     </div>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px' }}>
-                        <div>
-                            <span style={{ color: '#64748b', fontSize: '12px', display: 'block' }}>Judul Agenda:</span>
-                            <strong style={{ fontSize: '15px', color: '#003b73' }}>
-                                {selectedEvent?.extendedProps?.judul}
-                            </strong>
-                        </div>
-                        <div>
-                            <span style={{ color: '#64748b', fontSize: '12px', display: 'block' }}>Ruangan:</span>
-                            <strong>{selectedEvent?.extendedProps?.ruangan}</strong> ({selectedEvent?.extendedProps?.lokasi})
-                        </div>
-                        <div>
-                            <span style={{ color: '#64748b', fontSize: '12px', display: 'block' }}>Waktu Pelaksanaan:</span>
-                            <strong style={{ color: '#005baa' }}>{selectedEvent?.extendedProps?.waktu}</strong>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>{selectedEvent?.extendedProps?.tanggal}</div>
-                        </div>
-                        <div>
-                            <span style={{ color: '#64748b', fontSize: '12px', display: 'block' }}>Unit Pemohon & PIC:</span>
-                            <strong>{selectedEvent?.extendedProps?.unit}</strong> &mdash; {selectedEvent?.extendedProps?.pic}
-                        </div>
-                        <div>
-                            <span style={{ color: '#64748b', fontSize: '12px', display: 'block' }}>Peserta:</span>
-                            <strong>{selectedEvent?.extendedProps?.tamu} Orang</strong>
-                        </div>
-                    </div>
-                )}
-            </Modal>
+                </div>
+            )}
         </div>
     );
 };

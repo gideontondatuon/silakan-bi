@@ -30,7 +30,32 @@ export interface UserDashboardData {
     kegiatan_berlangsung: Pemesanan[];
 }
 
+export interface KalenderIndexData {
+    ruangan: Ruangan[];
+    stats: {
+        total_ruangan: number;
+        jadwal_aktif: number;
+        akan_datang: number;
+    };
+    upcoming: Array<{
+        id: number;
+        kode_pemesanan: string;
+        judul_kegiatan: string;
+        tanggal_kegiatan: string;
+        waktu_mulai: string;
+        waktu_selesai: string;
+        pic_kegiatan: string;
+        nama_ruangan: string;
+        nama_unit: string;
+    }>;
+}
+
 export const bookingService = {
+    async getKalenderIndex(): Promise<ApiResponse<KalenderIndexData>> {
+        const response = await api.get<ApiResponse<KalenderIndexData>>('/kalender');
+        return response.data;
+    },
+
     async getUserDashboard(): Promise<ApiResponse<UserDashboardData>> {
         const response = await api.get<ApiResponse<UserDashboardData>>('/dashboard/user');
         return response.data;

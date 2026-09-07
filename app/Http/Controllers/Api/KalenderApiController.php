@@ -21,10 +21,41 @@ class KalenderApiController extends Controller
             ->orderBy('nama_ruangan')
             ->get(['id', 'nama_ruangan', 'kapasitas', 'lokasi']);
 
+        $totalRuangan = Ruangan::count();
+        $jadwalAktif = Pemesanan::approved()->count();
+        $akanDatang = Pemesanan::approved()->upcoming()->count();
+
+        $upcomingSchedule = Pemesanan::with(['ruangan', 'layout', 'user'])
+            ->approved()
+            ->upcoming()
+            ->orderBy('tanggal_kegiatan', 'asc')
+            ->orderBy('waktu_mulai', 'asc')
+            ->take(10)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'kode_pemesanan' => $item->kode_pemesanan,
+                    'judul_kegiatan' => $item->judul_kegiatan,
+                    'tanggal_kegiatan' => $item->tanggal_kegiatan ? $item->tanggal_kegiatan->translatedFormat('d M Y') : '-',
+                    'waktu_mulai' => substr($item->waktu_mulai, 0, 5),
+                    'waktu_selesai' => substr($item->waktu_selesai, 0, 5),
+                    'pic_kegiatan' => $item->pic_kegiatan,
+                    'nama_ruangan' => $item->ruangan?->nama_ruangan ?? '-',
+                    'nama_unit' => $item->user?->nama_unit ?? 'Unit',
+                ];
+            });
+
         return response()->json([
             'status' => 'success',
             'data' => [
                 'ruangan' => $ruangans,
+                'stats' => [
+                    'total_ruangan' => $totalRuangan,
+                    'jadwal_aktif' => $jadwalAktif,
+                    'akan_datang' => $akanDatang,
+                ],
+                'upcoming' => $upcomingSchedule,
             ],
         ]);
     }
