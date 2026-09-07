@@ -23,6 +23,8 @@ import { AdminDashboard } from '../pages/dashboard/AdminDashboard';
 import { ApprovalList } from '../pages/approval/ApprovalList';
 import { ApprovalDetail } from '../pages/approval/ApprovalDetail';
 import { RuanganList } from '../pages/ruangan/RuanganList';
+import { RuanganCreate } from '../pages/ruangan/RuanganCreate';
+import { RuanganEdit } from '../pages/ruangan/RuanganEdit';
 import { LayoutList } from '../pages/layout/LayoutList';
 import { HariLiburList } from '../pages/harilibur/HariLiburList';
 import { UserList } from '../pages/users/UserList';
@@ -78,6 +80,8 @@ export const AppRoutes: React.FC = () => {
                     <Route path="/admin/approval/:id" element={<ApprovalDetail />} />
                     <Route path="/admin/kegiatan-berlangsung" element={<KegiatanBerlangsungPage />} />
                     <Route path="/admin/ruangan" element={<RuanganList />} />
+                    <Route path="/admin/ruangan/create" element={<RuanganCreate />} />
+                    <Route path="/admin/ruangan/:id/edit" element={<RuanganEdit />} />
                     <Route path="/admin/layout" element={<LayoutList />} />
                     <Route path="/admin/hari-libur" element={<HariLiburList />} />
                     <Route path="/admin/users" element={<UserList />} />

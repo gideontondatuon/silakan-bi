@@ -1,106 +1,57 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { adminService } from '../../services/adminService';
-import { LayoutRuangan, Ruangan } from '../../types';
+import { Ruangan } from '../../types';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
-import { Modal } from '../../components/common/Modal';
-import { Badge } from '../../components/common/Badge';
 import { AlertBanner } from '../../components/feedback/AlertBanner';
 
 export const RuanganList: React.FC = () => {
+    const location = useLocation();
     const [ruanganList, setRuanganList] = useState<Ruangan[]>([]);
-    const [layoutOptions, setLayoutOptions] = useState<LayoutRuangan[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
     const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-    // Modal Create / Edit
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingRoom, setEditingRoom] = useState<Ruangan | null>(null);
-    const [formNama, setFormNama] = useState('');
-    const [formLokasi, setFormLokasi] = useState('');
-    const [formKapasitas, setFormKapasitas] = useState('');
-    const [formStatus, setFormStatus] = useState<'aktif' | 'nonaktif' | 'perawatan'>('aktif');
-    const [formLayouts, setFormLayouts] = useState<number[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Modal Delete
     const [deleteTarget, setDeleteTarget] = useState<Ruangan | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const loadData = async () => {
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [perPage] = useState(10);
+
+    const loadData = async (page = 1) => {
         setIsLoading(true);
         try {
-            const res = await adminService.getRuanganList({ q: searchQuery || undefined });
+            const res = await adminService.getRuanganList({ page, per_page: perPage });
             if (res.status === 'success') {
-                const data = Array.isArray(res.data) ? res.data : res.data.data;
-                setRuanganList(data || []);
+                if (Array.isArray(res.data)) {
+                    setRuanganList(res.data);
+                    setTotalItems(res.data.length);
+                    setTotalPages(1);
+                    setCurrentPage(1);
+                } else if (res.data?.data) {
+                    setRuanganList(res.data.data);
+                    setCurrentPage(res.data.current_page || 1);
+                    setTotalPages(res.data.last_page || 1);
+                    setTotalItems(res.data.total || res.data.data.length);
+                }
             }
-        } catch (e) {
-            // Ignore
+        } catch {
+            setAlertMessage({ type: 'error', text: 'Gagal memuat data ruangan.' });
         } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        loadData();
-        // Load layout options for checkboxes
-        adminService.getLayoutList().then((res) => {
-            if (res.status === 'success') {
-                const data = Array.isArray(res.data) ? res.data : res.data.data;
-                setLayoutOptions(data || []);
-            }
-        });
-    }, []);
-
-    const openCreateModal = () => {
-        setEditingRoom(null);
-        setFormNama('');
-        setFormLokasi('');
-        setFormKapasitas('');
-        setFormStatus('aktif');
-        setFormLayouts([]);
-        setIsModalOpen(true);
-    };
-
-    const openEditModal = (room: Ruangan) => {
-        setEditingRoom(room);
-        setFormNama(room.nama_ruangan);
-        setFormLokasi(room.lokasi);
-        setFormKapasitas(String(room.kapasitas));
-        setFormStatus(room.status);
-        setFormLayouts(room.layouts?.map((l) => l.id) || []);
-        setIsModalOpen(true);
-    };
-
-    const handleFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            const payload = {
-                nama_ruangan: formNama,
-                lokasi: formLokasi,
-                kapasitas: Number(formKapasitas),
-                status: formStatus,
-                layouts: formLayouts,
-            };
-
-            if (editingRoom) {
-                const res = await adminService.updateRuangan(editingRoom.id, payload);
-                setAlertMessage({ type: 'success', text: res.message || 'Ruangan berhasil diperbarui.' });
-            } else {
-                const res = await adminService.createRuangan(payload);
-                setAlertMessage({ type: 'success', text: res.message || 'Ruangan baru berhasil ditambahkan.' });
-            }
-
-            setIsModalOpen(false);
-            loadData();
-        } catch (err: any) {
-            setAlertMessage({ type: 'error', text: err.response?.data?.message || 'Gagal menyimpan ruangan.' });
-        } finally {
-            setIsSubmitting(false);
+        if (location.state?.flashMessage) {
+            setAlertMessage({ type: 'success', text: location.state.flashMessage });
+            window.history.replaceState({}, document.title);
         }
-    };
+        loadData(currentPage);
+    }, [currentPage]);
 
     const handleDeleteSubmit = async () => {
         if (!deleteTarget) return;
@@ -109,9 +60,15 @@ export const RuanganList: React.FC = () => {
             const res = await adminService.deleteRuangan(deleteTarget.id);
             setAlertMessage({ type: 'success', text: res.message || 'Ruangan berhasil dihapus.' });
             setDeleteTarget(null);
-            loadData();
+            loadData(currentPage);
         } catch (err: any) {
-            setAlertMessage({ type: 'error', text: err.response?.data?.message || 'Gagal menghapus ruangan.' });
+            setAlertMessage({
+                type: 'error',
+                text:
+                    err.response?.data?.message ||
+                    `Ruangan '${deleteTarget.nama_ruangan}' tidak dapat dihapus karena memiliki riwayat pemesanan. Anda dapat mengubah statusnya menjadi Nonaktif.`,
+            });
+            setDeleteTarget(null);
         } finally {
             setIsDeleting(false);
         }
@@ -119,20 +76,18 @@ export const RuanganList: React.FC = () => {
 
     return (
         <div>
-            {/* Header */}
-            <div className="dashboard-header" style={{ marginBottom: '20px' }}>
+            {/* Page Header */}
+            <div className="dashboard-header">
                 <div>
                     <h1>
                         <i className="bi bi-building" style={{ color: '#005baa', marginRight: '8px' }}></i>
-                        Master Data Ruangan Rapat
+                        Data Ruangan
                     </h1>
-                    <p>Kelola ruangan rapat, kapasitas peserta, denah lokasi, dan layout tersedia</p>
+                    <p>Kelola data ruangan yang tersedia pada sistem SILAKAN.</p>
                 </div>
-                <div>
-                    <button type="button" className="btn-primary" onClick={openCreateModal}>
-                        <i className="bi bi-plus-circle-fill"></i> Tambah Ruangan Baru
-                    </button>
-                </div>
+                <Link to="/admin/ruangan/create" className="btn-primary">
+                    <i className="bi bi-plus-lg"></i> Tambah Ruangan
+                </Link>
             </div>
 
             {alertMessage && (
@@ -143,198 +98,255 @@ export const RuanganList: React.FC = () => {
                 />
             )}
 
-            {/* Content Table */}
-            <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
-                {isLoading ? (
-                    <LoadingSpinner message="Memuat master data ruangan..." />
-                ) : (
-                    <div className="table-responsive">
+            {/* Dashboard Section */}
+            <div className="dashboard-section">
+                <div className="table-wrapper">
+                    {isLoading ? (
+                        <LoadingSpinner message="Memuat data ruangan..." />
+                    ) : (
                         <table className="data-table">
                             <thead>
                                 <tr>
+                                    <th style={{ width: '40px' }}>#</th>
                                     <th>Nama Ruangan</th>
-                                    <th>Lokasi / Lantai</th>
+                                    <th>Lokasi</th>
                                     <th>Kapasitas</th>
-                                    <th>Layout Tersedia</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {ruanganList.map((room) => (
-                                    <tr key={room.id}>
-                                        <td>
-                                            <strong style={{ fontSize: '14px', color: '#003b73' }}>{room.nama_ruangan}</strong>
-                                        </td>
-                                        <td>{room.lokasi}</td>
-                                        <td><strong>{room.kapasitas} Orang</strong></td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                                                {room.layouts && room.layouts.length > 0 ? (
-                                                    room.layouts.map((l) => (
-                                                        <span key={l.id} style={{ background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600 }}>
-                                                            {l.nama_layout}
-                                                        </span>
-                                                    ))
+                                {ruanganList.length > 0 ? (
+                                    ruanganList.map((ruangan, i) => (
+                                        <tr key={ruangan.id}>
+                                            <td style={{ color: '#94a3b8', fontSize: '12px' }}>
+                                                {(currentPage - 1) * perPage + i + 1}
+                                            </td>
+                                            <td>
+                                                <strong style={{ color: '#003b73' }}>{ruangan.nama_ruangan}</strong>
+                                            </td>
+                                            <td>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#475569' }}>
+                                                    <i className="bi bi-geo-alt" style={{ color: '#005baa' }}></i>
+                                                    {ruangan.lokasi}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                    <i className="bi bi-people" style={{ color: '#005baa', fontSize: '13px' }}></i>
+                                                    {ruangan.kapasitas} Orang
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {ruangan.status === 'aktif' ? (
+                                                    <span className="badge badge-success">
+                                                        <i className="bi bi-circle-fill" style={{ fontSize: '8px', marginRight: '4px' }}></i> Aktif
+                                                    </span>
+                                                ) : ruangan.status === 'perawatan' ? (
+                                                    <span className="badge badge-warning">
+                                                        <i className="bi bi-tools" style={{ fontSize: '10px', marginRight: '4px' }}></i> Perawatan
+                                                    </span>
                                                 ) : (
-                                                    <span style={{ color: '#94a3b8', fontSize: '12px' }}>Standar</span>
+                                                    <span className="badge badge-danger">
+                                                        <i className="bi bi-x-circle" style={{ fontSize: '10px', marginRight: '4px' }}></i> Nonaktif
+                                                    </span>
                                                 )}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <Badge status={room.status} />
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '6px' }}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => openEditModal(room)}
-                                                    className="btn-table-action"
-                                                    style={{ border: 'none', background: 'none' }}
-                                                >
-                                                    <i className="bi bi-pencil"></i> Edit
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setDeleteTarget(room)}
-                                                    style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecdd3', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}
-                                                >
-                                                    <i className="bi bi-trash"></i>
-                                                </button>
+                                            </td>
+                                            <td>
+                                                <div className="action-group">
+                                                    <Link to={`/admin/ruangan/${ruangan.id}/edit`} className="btn-secondary btn-sm">
+                                                        <i className="bi bi-pencil"></i> Edit
+                                                    </Link>
+                                                    <button
+                                                        type="button"
+                                                        className="btn-danger btn-sm"
+                                                        onClick={() => setDeleteTarget(ruangan)}
+                                                    >
+                                                        <i className="bi bi-trash"></i> Hapus
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={6}>
+                                            <div className="empty-state">
+                                                <i className="bi bi-building"></i>
+                                                <p>
+                                                    Belum ada data ruangan.{' '}
+                                                    <Link to="/admin/ruangan/create">Tambah sekarang</Link>
+                                                </p>
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
+                    )}
+                </div>
+
+                {totalPages > 1 && (
+                    <div style={{ padding: '16px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                        <div style={{ fontSize: '13px', color: '#64748b' }}>
+                            Menampilkan {(currentPage - 1) * perPage + 1} - {Math.min(currentPage * perPage, totalItems)} dari {totalItems} ruangan
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                            <button
+                                type="button"
+                                className="btn-secondary btn-sm"
+                                disabled={currentPage <= 1}
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            >
+                                <i className="bi bi-chevron-left"></i> Sebelumnya
+                            </button>
+                            {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pg) => (
+                                <button
+                                    key={pg}
+                                    type="button"
+                                    className={`btn-sm ${pg === currentPage ? 'btn-primary' : 'btn-secondary'}`}
+                                    onClick={() => setCurrentPage(pg)}
+                                >
+                                    {pg}
+                                </button>
+                            ))}
+                            <button
+                                type="button"
+                                className="btn-secondary btn-sm"
+                                disabled={currentPage >= totalPages}
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            >
+                                Selanjutnya <i className="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* Modal Create / Edit */}
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title={editingRoom ? `Edit Ruangan: ${editingRoom.nama_ruangan}` : 'Tambah Ruangan Rapat Baru'}
-                footer={
-                    <>
-                        <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>
-                            Batal
-                        </button>
-                        <button type="submit" form="roomForm" className="btn-primary" disabled={isSubmitting}>
-                            {isSubmitting ? 'Menyimpan...' : 'Simpan Data'}
-                        </button>
-                    </>
-                }
-            >
-                <form id="roomForm" onSubmit={handleFormSubmit}>
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                        <label className="required" style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: '13px' }}>
-                            Nama Ruangan
-                        </label>
-                        <input
-                            type="text"
-                            className="login-input"
-                            value={formNama}
-                            onChange={(e) => setFormNama(e.target.value)}
-                            placeholder="Contoh: Ruang Rapat Maleo"
-                            required
-                        />
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
-                        <div className="form-group">
-                            <label className="required" style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: '13px' }}>
-                                Lokasi / Lantai
-                            </label>
-                            <input
-                                type="text"
-                                className="login-input"
-                                value={formLokasi}
-                                onChange={(e) => setFormLokasi(e.target.value)}
-                                placeholder="Contoh: Gedung A, Lantai 3"
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label className="required" style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: '13px' }}>
-                                Kapasitas Maksimal (Orang)
-                            </label>
-                            <input
-                                type="number"
-                                min={1}
-                                className="login-input"
-                                value={formKapasitas}
-                                onChange={(e) => setFormKapasitas(e.target.value)}
-                                placeholder="Contoh: 30"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: '16px' }}>
-                        <label className="required" style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: '13px' }}>
-                            Status Ruangan
-                        </label>
-                        <select
-                            className="login-input"
-                            value={formStatus}
-                            onChange={(e) => setFormStatus(e.target.value as any)}
-                            required
+            {/* Custom Modal Delete Ruangan (1:1 with submitFormWithConfirm Blade) */}
+            {deleteTarget && (
+                <div
+                    className="custom-modal-overlay"
+                    style={{
+                        display: 'flex',
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(15,23,42,0.6)',
+                        backdropFilter: 'blur(5px)',
+                        WebkitBackdropFilter: 'blur(5px)',
+                        zIndex: 99999,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '16px',
+                    }}
+                    onClick={() => !isDeleting && setDeleteTarget(null)}
+                >
+                    <div
+                        className="custom-modal-box"
+                        style={{
+                            background: '#fff',
+                            width: '100%',
+                            maxWidth: '440px',
+                            borderRadius: '16px',
+                            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                            overflow: 'hidden',
+                            animation: 'modalScaleIn .2s cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div
+                            style={{
+                                padding: '20px 24px',
+                                borderBottom: '1px solid #f1f5f9',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '14px',
+                                background: '#f8fafc',
+                            }}
                         >
-                            <option value="aktif">Aktif (Dapat Dipesan)</option>
-                            <option value="nonaktif">Nonaktif (Tidak Ditampilkan)</option>
-                            <option value="perawatan">Perawatan / Maintenance</option>
-                        </select>
-                    </div>
+                            <div
+                                style={{
+                                    width: '42px',
+                                    height: '42px',
+                                    borderRadius: '50%',
+                                    background: '#fee2e2',
+                                    color: '#dc2626',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '20px',
+                                    flexShrink: 0,
+                                    border: '1px solid #fecdd3',
+                                }}
+                            >
+                                <i className="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+                            <div>
+                                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
+                                    Hapus Ruangan
+                                </h3>
+                                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
+                                    Sistem Informasi SILAKAN BI
+                                </p>
+                            </div>
+                        </div>
 
-                    <div className="form-group">
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '13px' }}>
-                            Pilihan Layout yang Didukung:
-                        </label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px' }}>
-                            {layoutOptions.map((layout) => (
-                                <label key={layout.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={formLayouts.includes(layout.id)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                                setFormLayouts((prev) => [...prev, layout.id]);
-                                            } else {
-                                                setFormLayouts((prev) => prev.filter((id) => id !== layout.id));
-                                            }
-                                        }}
-                                    />
-                                    {layout.nama_layout}
-                                </label>
-                            ))}
+                        <div style={{ padding: '22px 24px' }}>
+                            <p style={{ margin: 0, fontSize: '13.5px', color: '#334155', lineHeight: 1.5 }}>
+                                Apakah Anda yakin ingin menghapus data ruangan{' '}
+                                <strong>{deleteTarget.nama_ruangan}</strong>?
+                            </p>
+                        </div>
+
+                        <div
+                            style={{
+                                padding: '16px 24px',
+                                background: '#f8fafc',
+                                borderTop: '1px solid #e2e8f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                gap: '10px',
+                            }}
+                        >
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={() => setDeleteTarget(null)}
+                                disabled={isDeleting}
+                                style={{ padding: '9px 18px', fontSize: '13px', borderRadius: '10px' }}
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDeleteSubmit}
+                                disabled={isDeleting}
+                                style={{
+                                    background: '#dc2626',
+                                    color: '#fff',
+                                    padding: '9px 20px',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                    borderRadius: '10px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    border: 'none',
+                                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                                    opacity: isDeleting ? 0.7 : 1,
+                                }}
+                            >
+                                <i className="bi bi-trash"></i>
+                                {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
+                            </button>
                         </div>
                     </div>
-                </form>
-            </Modal>
-
-            {/* Modal Delete */}
-            <Modal
-                isOpen={!!deleteTarget}
-                onClose={() => setDeleteTarget(null)}
-                title="Hapus Ruangan"
-                footer={
-                    <>
-                        <button type="button" className="btn-secondary" onClick={() => setDeleteTarget(null)} disabled={isDeleting}>
-                            Batal
-                        </button>
-                        <button type="button" className="btn-primary" style={{ background: '#dc2626', borderColor: '#dc2626' }} onClick={handleDeleteSubmit} disabled={isDeleting}>
-                            {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
-                        </button>
-                    </>
-                }
-            >
-                <p style={{ fontSize: '14px', color: '#334155' }}>
-                    Apakah Anda yakin ingin menghapus ruangan <strong>{deleteTarget?.nama_ruangan}</strong>? Ruangan yang memiliki riwayat pemesanan tidak dapat dihapus, namun dapat dinonaktifkan.
-                </p>
-            </Modal>
+                </div>
+            )}
         </div>
     );
 };

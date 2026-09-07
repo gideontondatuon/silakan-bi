@@ -90,6 +90,11 @@ export const adminService = {
         return response.data;
     },
 
+    async getRuanganDetail(id: number | string): Promise<ApiResponse<Ruangan>> {
+        const response = await api.get<ApiResponse<Ruangan>>(`/admin/ruangan/${id}`);
+        return response.data;
+    },
+
     async createRuangan(data: { nama_ruangan: string; kapasitas: number; lokasi: string; status: string; layouts?: number[] }): Promise<ApiResponse<Ruangan>> {
         const response = await api.post<ApiResponse<Ruangan>>('/admin/ruangan', data);
         return response.data;
