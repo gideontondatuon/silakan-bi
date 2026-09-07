@@ -476,3 +476,14 @@ Route::middleware([
 */
 
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| React Frontend SPA Route (Dual-Route Transition Layer)
+|--------------------------------------------------------------------------
+| Memungkinkan pengujian penuh frontend React + TypeScript tanpa
+| mengganggu sistem Blade yang sedang berjalan.
+*/
+Route::get('/react/{any?}', function () {
+    return view('react-app');
+})->where('any', '.*')->name('react.spa');
