@@ -21,6 +21,9 @@ export interface User {
     role: UserRole;
     department_id?: number | null;
     department?: Department | null;
+    password_plain?: string | null;
+    initials?: string;
+    avatar_style?: string;
     created_at?: string;
     updated_at?: string;
 }

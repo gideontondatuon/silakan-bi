@@ -163,6 +163,11 @@ export const adminService = {
         return response.data;
     },
 
+    async getUserDetail(id: number | string): Promise<ApiResponse<User>> {
+        const response = await api.get<ApiResponse<User>>(`/admin/users/${id}`);
+        return response.data;
+    },
+
     async createUser(data: any): Promise<ApiResponse<User>> {
         const response = await api.post<ApiResponse<User>>('/admin/users', data);
         return response.data;

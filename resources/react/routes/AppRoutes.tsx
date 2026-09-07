@@ -30,6 +30,8 @@ import { LayoutCreate } from '../pages/layout/LayoutCreate';
 import { LayoutEdit } from '../pages/layout/LayoutEdit';
 import { HariLiburList } from '../pages/harilibur/HariLiburList';
 import { UserList } from '../pages/users/UserList';
+import { UserCreate } from '../pages/users/UserCreate';
+import { UserEdit } from '../pages/users/UserEdit';
 import { LaporanPage } from '../pages/laporan/LaporanPage';
 import { AuditLogPage } from '../pages/auditlog/AuditLogPage';
 
@@ -89,6 +91,8 @@ export const AppRoutes: React.FC = () => {
                     <Route path="/admin/layout/:id/edit" element={<LayoutEdit />} />
                     <Route path="/admin/hari-libur" element={<HariLiburList />} />
                     <Route path="/admin/users" element={<UserList />} />
+                    <Route path="/admin/users/create" element={<UserCreate />} />
+                    <Route path="/admin/users/:id/edit" element={<UserEdit />} />
                     <Route path="/admin/laporan" element={<LaporanPage />} />
                     <Route path="/admin/audit-log" element={<AuditLogPage />} />
                 </Route>

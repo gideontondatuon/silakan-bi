@@ -81,6 +81,17 @@ class UserApiController extends Controller
     }
 
     /**
+     * Show single user details.
+     */
+    public function show(User $user): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $user->load('department'),
+        ]);
+    }
+
+    /**
      * Update user.
      */
     public function update(Request $request, User $user): JsonResponse

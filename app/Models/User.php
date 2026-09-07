@@ -43,6 +43,11 @@ class User extends Authenticatable
 
     ];
 
+    protected $appends = [
+        'initials',
+        'avatar_style',
+    ];
+
 
     protected function casts(): array
     {
