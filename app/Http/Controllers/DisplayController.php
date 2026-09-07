@@ -5,42 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Pemesanan;
 use App\Models\Ruangan;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
 
 class DisplayController extends Controller
 {
     /**
-     * Menampilkan tampilan layar TV monitor lobby / kiosk mode.
-     */
-    public function index(): View
-    {
-        $today = today();
-
-        // 1. Kegiatan Sedang Berlangsung (LIVE)
-        $kegiatanLive = Pemesanan::with(['ruangan', 'user', 'layout'])
-            ->isLive()
-            ->orderBy('waktu_mulai')
-            ->get();
-
-        // 2. Agenda Hari Ini
-        $kegiatanHariIni = Pemesanan::with(['ruangan', 'user', 'layout'])
-            ->approved()
-            ->whereDate('tanggal_kegiatan', $today)
-            ->orderBy('waktu_mulai')
-            ->get();
-
-        // 3. Status Seluruh Ruangan Rapat
-        $ruangans = Ruangan::orderBy('nama_ruangan')->get();
-
-        return view('display.index', compact(
-            'kegiatanLive',
-            'kegiatanHariIni',
-            'ruangans'
-        ));
-    }
-
-    /**
-     * API JSON endpoint untuk update data otomatis di layar TV tanpa reload.
+     * API JSON endpoint untuk update data otomatis di layar TV kiosk tanpa reload.
      */
     public function apiData(): JsonResponse
     {

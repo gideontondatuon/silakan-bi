@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
 
+        $middleware->statefulApi();
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
@@ -25,9 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 $user = $request->user();
                 if ($user) {
                     $roleValue = is_object($user->role) ? $user->role->value : $user->role;
-                    return $roleValue === 'admin' ? route('admin.dashboard') : route('user.dashboard');
+                    return $roleValue === 'admin' ? '/admin/dashboard' : '/dashboard';
                 }
-                return route('dashboard');
+                return '/dashboard';
             }
         );
     })

@@ -96,6 +96,12 @@ class StorePemesananRequest extends FormRequest
                 'required',
                 'date_format:H:i',
                 function ($attribute, $value, $fail) {
+                    $parts = explode(':', $value);
+                    if (!isset($parts[1]) || !in_array($parts[1], ['00', '30'])) {
+                        $fail('Pemilihan waktu mulai harus per interval 30 menit (contoh: 08:00 atau 08:30).');
+                    }
+                },
+                function ($attribute, $value, $fail) {
                     if (!$this->tanggal_kegiatan) {
                         return;
                     }
@@ -113,6 +119,12 @@ class StorePemesananRequest extends FormRequest
                 'required',
                 'date_format:H:i',
                 'after:waktu_mulai',
+                function ($attribute, $value, $fail) {
+                    $parts = explode(':', $value);
+                    if (!isset($parts[1]) || !in_array($parts[1], ['00', '30'])) {
+                        $fail('Pemilihan waktu selesai harus per interval 30 menit (contoh: 09:00 atau 09:30).');
+                    }
+                },
             ],
 
             'judul_kegiatan' => [
