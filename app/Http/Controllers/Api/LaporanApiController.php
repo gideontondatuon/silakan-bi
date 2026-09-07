@@ -50,14 +50,20 @@ class LaporanApiController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        } elseif ($request->boolean('disetujui_only')) {
+            $query->whereIn('status', [
+                \App\Enums\PemesananStatus::DISETUJUI->value,
+                \App\Enums\PemesananStatus::SELESAI->value,
+            ]);
         }
 
-        $items = $request->has('per_page')
-            ? $query->latest('tanggal_kegiatan')->paginate($request->get('per_page', 20))
-            : $query->latest('tanggal_kegiatan')->get();
+        $perPage = (int) $request->get('per_page', 15);
+        $items = $request->boolean('all')
+            ? $query->latest('tanggal_kegiatan')->get()
+            : $query->latest('tanggal_kegiatan')->paginate($perPage);
 
         $ruanganList = Ruangan::orderBy('nama_ruangan')->get(['id', 'nama_ruangan']);
-        $userList = User::where('role', 'user')->orderBy('nama_unit')->get(['id', 'name', 'nama_unit']);
+        $userList = User::orderBy('nama_unit')->get(['id', 'name', 'nama_unit']);
 
         return response()->json([
             'status' => 'success',

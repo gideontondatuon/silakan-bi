@@ -194,6 +194,24 @@ export const adminService = {
         return `/api/admin/laporan/export-excel?${query}`;
     },
 
+    async downloadExcelBlob(params?: any): Promise<{ blob: Blob; fileName: string }> {
+        const response = await api.get('/admin/laporan/export-excel', {
+            params,
+            responseType: 'blob',
+        });
+
+        let fileName = 'Laporan_Pemesanan_Ruangan.xlsx';
+        const disposition = response.headers['content-disposition'];
+        if (disposition && disposition.includes('filename=')) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches && matches[1]) {
+                fileName = matches[1].replace(/['"]/g, '').trim();
+            }
+        }
+
+        return { blob: response.data, fileName };
+    },
+
     // Audit Log
     async getAuditLogs(params?: { tanggal_mulai?: string; tanggal_selesai?: string; modul?: string; q?: string; page?: number; per_page?: number }): Promise<ApiResponse<PaginatedData<AuditLog>>> {
         const response = await api.get<ApiResponse<PaginatedData<AuditLog>>>('/admin/audit-log', { params });
