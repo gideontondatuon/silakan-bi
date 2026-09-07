@@ -4,11 +4,12 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 
 interface SidebarProps {
-    isOpen: boolean;
+    isOpen?: boolean;
+    isCollapsed?: boolean;
     onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onCloseMobile }) => {
     const { user, role, logout } = useAuth();
     const { unreadCount, pendingCount } = useNotifications();
     const location = useLocation();
@@ -54,6 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/dashboard"
                             className={isActive('/admin/dashboard') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Dashboard"
                         >
                             <i className="bi bi-grid-fill"></i>
                             <span>Dashboard</span>
@@ -63,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/approval"
                             className={isActive('/admin/approval') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Pemesanan Ruangan"
                         >
                             <i className="bi bi-calendar-check"></i>
                             <span>Pemesanan Ruangan</span>
@@ -70,7 +73,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                                 <small
                                     className="sidebar-badge"
                                     id="sidebarPendingBadge"
-                                    style={{ background: '#f59e0b', color: '#fff' }}
+                                    style={{
+                                        background: '#f59e0b',
+                                        color: '#fff',
+                                        display: isCollapsed ? 'none' : undefined,
+                                    }}
                                 >
                                     {pendingCount}
                                 </small>
@@ -81,6 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/kegiatan-berlangsung"
                             className={isActive('/admin/kegiatan-berlangsung') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Kegiatan Berlangsung"
                         >
                             <i className="bi bi-play-circle"></i>
                             <span>Kegiatan Berlangsung</span>
@@ -90,6 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/kalender"
                             className={isActive('/kalender') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Kalender Ruangan"
                         >
                             <i className="bi bi-calendar3"></i>
                             <span>Kalender Ruangan</span>
@@ -99,11 +108,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/notifications"
                             className={isActive('/notifications') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Notifikasi"
                         >
                             <i className="bi bi-bell"></i>
                             <span>Notifikasi</span>
                             {unreadCount > 0 && (
-                                <small className="sidebar-badge" id="sidebarNotificationBadge">
+                                <small
+                                    className="sidebar-badge"
+                                    id="sidebarNotificationBadge"
+                                    style={{ display: isCollapsed ? 'none' : undefined }}
+                                >
                                     {unreadCount}
                                 </small>
                             )}
@@ -117,6 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/ruangan"
                             className={isActive('/admin/ruangan') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Data Ruangan"
                         >
                             <i className="bi bi-building"></i>
                             <span>Data Ruangan</span>
@@ -126,6 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/layout"
                             className={isActive('/admin/layout') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Data Layout"
                         >
                             <i className="bi bi-layout-text-sidebar-reverse"></i>
                             <span>Data Layout</span>
@@ -135,6 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/hari-libur"
                             className={isActive('/admin/hari-libur') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Hari Libur"
                         >
                             <i className="bi bi-calendar2-week"></i>
                             <span>Hari Libur</span>
@@ -144,6 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/users"
                             className={isActive('/admin/users') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Data User"
                         >
                             <i className="bi bi-people"></i>
                             <span>Data User</span>
@@ -155,6 +173,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/laporan"
                             className={isActive('/admin/laporan') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Laporan"
                         >
                             <i className="bi bi-file-earmark-bar-graph"></i>
                             <span>Laporan</span>
@@ -164,6 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/admin/audit-log"
                             className={isActive('/admin/audit-log') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Audit Log"
                         >
                             <i className="bi bi-journal-text"></i>
                             <span>Audit Log</span>
@@ -177,6 +197,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/dashboard"
                             className={isActive('/dashboard') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Dashboard"
                         >
                             <i className="bi bi-grid-fill"></i>
                             <span>Dashboard</span>
@@ -186,6 +207,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/pemesanan/create"
                             className={isActive('/pemesanan/create') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Pemesanan"
                         >
                             <i className="bi bi-calendar-plus"></i>
                             <span>Pemesanan</span>
@@ -195,6 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/kalender"
                             className={isActive('/kalender') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Kalender Ruangan"
                         >
                             <i className="bi bi-calendar3"></i>
                             <span>Kalender Ruangan</span>
@@ -204,6 +227,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/pemesanan"
                             className={isActive('/pemesanan') && !isActive('/pemesanan/create') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Riwayat Pemesanan"
                         >
                             <i className="bi bi-clock-history"></i>
                             <span>Riwayat</span>
@@ -213,11 +237,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/notifications"
                             className={isActive('/notifications') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Notifikasi"
                         >
                             <i className="bi bi-bell"></i>
                             <span>Notifikasi</span>
                             {unreadCount > 0 && (
-                                <small className="sidebar-badge" id="sidebarNotificationBadge">
+                                <small
+                                    className="sidebar-badge"
+                                    id="sidebarNotificationBadge"
+                                    style={{ display: isCollapsed ? 'none' : undefined }}
+                                >
                                     {unreadCount}
                                 </small>
                             )}
@@ -227,6 +256,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                             to="/profile"
                             className={isActive('/profile') ? 'active' : ''}
                             onClick={onCloseMobile}
+                            title="Profil"
                         >
                             <i className="bi bi-person-circle"></i>
                             <span>Profil</span>

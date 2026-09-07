@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Navbar } from '../components/layout/Navbar';
 import { ToastContainer } from '../components/feedback/ToastContainer';
@@ -9,24 +9,113 @@ interface AppLayoutProps {
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+    const location = useLocation();
+
+    // Track desktop collapsed state (persisted in localStorage)
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+        if (typeof window !== 'undefined' && window.innerWidth > 768) {
+            return localStorage.getItem('silakan_sidebar_collapsed') === 'true';
+        }
+        return false;
+    });
+
+    // Track mobile open state
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+    // Sync body classes with state
+    useEffect(() => {
+        if (isSidebarCollapsed && window.innerWidth > 768) {
+            document.body.classList.add('sidebar-collapsed');
+        } else {
+            document.body.classList.remove('sidebar-collapsed');
+        }
+    }, [isSidebarCollapsed]);
+
+    useEffect(() => {
+        if (isMobileSidebarOpen) {
+            document.body.classList.add('mobile-sidebar-open');
+        } else {
+            document.body.classList.remove('mobile-sidebar-open');
+        }
+    }, [isMobileSidebarOpen]);
+
+    // Handle window resize between mobile and desktop
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth > 768) {
+                // Leaving mobile: close mobile drawer
+                setIsMobileSidebarOpen(false);
+                document.body.classList.remove('mobile-sidebar-open');
+
+                // Restore desktop collapsed preference
+                const saved = localStorage.getItem('silakan_sidebar_collapsed') === 'true';
+                setIsSidebarCollapsed(saved);
+                if (saved) {
+                    document.body.classList.add('sidebar-collapsed');
+                } else {
+                    document.body.classList.remove('sidebar-collapsed');
+                }
+            } else {
+                // Entering mobile: remove desktop collapsed class
+                document.body.classList.remove('sidebar-collapsed');
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Close mobile sidebar whenever location changes
+    useEffect(() => {
+        setIsMobileSidebarOpen(false);
+        document.body.classList.remove('mobile-sidebar-open');
+    }, [location.pathname]);
+
+    // Clean up on unmount
+    useEffect(() => {
+        return () => {
+            document.body.classList.remove('sidebar-collapsed');
+            document.body.classList.remove('mobile-sidebar-open');
+        };
+    }, []);
+
+    // Toggle sidebar function
+    const handleToggleSidebar = () => {
+        if (window.innerWidth <= 768) {
+            setIsMobileSidebarOpen((prev) => !prev);
+        } else {
+            setIsSidebarCollapsed((prev) => {
+                const next = !prev;
+                localStorage.setItem('silakan_sidebar_collapsed', next ? 'true' : 'false');
+                return next;
+            });
+        }
+    };
+
+    const handleCloseMobile = () => {
+        setIsMobileSidebarOpen(false);
+    };
 
     return (
         <div className="app">
             <Sidebar
                 isOpen={isMobileSidebarOpen}
-                onCloseMobile={() => setIsMobileSidebarOpen(false)}
+                isCollapsed={isSidebarCollapsed}
+                onCloseMobile={handleCloseMobile}
             />
 
             {/* Mobile Overlay */}
             <div
-                className={`sidebar-overlay ${isMobileSidebarOpen ? 'show' : ''}`}
+                className="sidebar-overlay"
                 id="sidebarOverlay"
-                onClick={() => setIsMobileSidebarOpen(false)}
+                onClick={handleCloseMobile}
             />
 
             <main className="main">
-                <Navbar onToggleSidebar={() => setIsMobileSidebarOpen((prev) => !prev)} />
+                <Navbar
+                    onToggleSidebar={handleToggleSidebar}
+                    isSidebarCollapsed={isSidebarCollapsed}
+                />
 
                 <section className="content">
                     {children || <Outlet />}

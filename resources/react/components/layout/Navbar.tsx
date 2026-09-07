@@ -5,9 +5,10 @@ import { useNotifications } from '../../context/NotificationContext';
 
 interface NavbarProps {
     onToggleSidebar: () => void;
+    isSidebarCollapsed?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarCollapsed }) => {
     const { user, role, logout } = useAuth();
     const { unreadCount, notifications } = useNotifications();
     const location = useLocation();
@@ -92,7 +93,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                     type="button"
                     className="menu-toggle"
                     id="sidebarToggle"
-                    title="Toggle Sidebar"
+                    title={isSidebarCollapsed ? 'Perluas Menu' : 'Perkecil Menu'}
+                    aria-label={isSidebarCollapsed ? 'Perluas Menu' : 'Perkecil Menu'}
                     onClick={onToggleSidebar}
                 >
                     <i className="bi bi-list"></i>
