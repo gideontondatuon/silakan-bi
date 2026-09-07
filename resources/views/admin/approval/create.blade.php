@@ -63,8 +63,48 @@
 
             @php
                 $nowMakassar = now('Asia/Makassar');
-                $defaultStart = $nowMakassar->copy()->addMinutes(30)->format('H:i');
-                $defaultEnd = $nowMakassar->copy()->addMinutes(150)->format('H:i');
+                $minute = (int) $nowMakassar->format('i');
+                if ($minute > 0 && $minute <= 30) {
+                    $roundedStart = $nowMakassar->copy()->minute(30)->second(0);
+                } elseif ($minute > 30) {
+                    $roundedStart = $nowMakassar->copy()->addHour()->minute(0)->second(0);
+                } else {
+                    $roundedStart = $nowMakassar->copy()->minute(0)->second(0);
+                }
+
+                $startH = (int) $roundedStart->format('H');
+                if ($startH < 6) {
+                    $defaultStart = '08:00';
+                    $defaultEnd = '10:00';
+                } elseif ($startH >= 22) {
+                    $defaultStart = '22:00';
+                    $defaultEnd = '23:00';
+                } else {
+                    $defaultStart = $roundedStart->format('H:i');
+                    $defaultEnd = $roundedStart->copy()->addHours(2)->format('H:i');
+                    if ($defaultEnd > '23:30') {
+                        $defaultEnd = '23:30';
+                    }
+                }
+
+                $timeSlots = [];
+                for ($h = 6; $h <= 23; $h++) {
+                    $hStr = str_pad($h, 2, '0', STR_PAD_LEFT);
+                    $timeSlots[] = "{$hStr}:00";
+                    if ($h < 23) {
+                        $timeSlots[] = "{$hStr}:30";
+                    }
+                }
+
+                $endSlots = [];
+                for ($h = 6; $h <= 23; $h++) {
+                    $hStr = str_pad($h, 2, '0', STR_PAD_LEFT);
+                    $endSlots[] = "{$hStr}:30";
+                    if ($h < 23) {
+                        $nextHStr = str_pad($h + 1, 2, '0', STR_PAD_LEFT);
+                        $endSlots[] = "{$nextHStr}:00";
+                    }
+                }
             @endphp
 
             {{-- Row 2: Tanggal, Waktu Mulai, Waktu Selesai --}}
@@ -79,7 +119,17 @@
 
                 <div class="form-group">
                     <label class="required">Waktu Mulai</label>
-                    <input type="time" name="waktu_mulai" id="waktu_mulai" value="{{ old('waktu_mulai', $defaultStart) }}" required>
+                    <select name="waktu_mulai" id="waktu_mulai" required>
+                        <option value="">-- Pilih Jam Mulai --</option>
+                        @foreach($timeSlots as $slot)
+                            <option value="{{ $slot }}" {{ old('waktu_mulai', $defaultStart) == $slot ? 'selected' : '' }}>
+                                {{ $slot }} WITA
+                            </option>
+                        @endforeach
+                    </select>
+                    <small style="color:#64748b;font-size:11.5px;display:block;margin-top:4px;">
+                        <i class="bi bi-clock-history"></i> Pilihan interval per 30 menit (06:00 - 23:00 WITA)
+                    </small>
                     @error('waktu_mulai')
                         <span class="form-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
                     @enderror
@@ -87,7 +137,17 @@
 
                 <div class="form-group">
                     <label class="required">Waktu Selesai</label>
-                    <input type="time" name="waktu_selesai" id="waktu_selesai" value="{{ old('waktu_selesai', $defaultEnd) }}" required>
+                    <select name="waktu_selesai" id="waktu_selesai" required>
+                        <option value="">-- Pilih Jam Selesai --</option>
+                        @foreach($endSlots as $slot)
+                            <option value="{{ $slot }}" {{ old('waktu_selesai', $defaultEnd) == $slot ? 'selected' : '' }}>
+                                {{ $slot }} WITA
+                            </option>
+                        @endforeach
+                    </select>
+                    <small style="color:#64748b;font-size:11.5px;display:block;margin-top:4px;">
+                        <i class="bi bi-clock-history"></i> Pilihan interval per 30 menit (06:30 - 23:30 WITA)
+                    </small>
                     @error('waktu_selesai')
                         <span class="form-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
                     @enderror
@@ -315,21 +375,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
     jumlahTamuInput.addEventListener('input', checkCapacity);
 
-    function checkConflict() {
-        const ruanganId = ruanganSelect.value;
+    function syncTimeSlots() {
         const tanggal = tanggalInput.value;
         const mulai = mulaiInput.value;
         const todayStr = '{{ now("Asia/Makassar")->toDateString() }}';
         const nowHourMin = '{{ now("Asia/Makassar")->format("H:i") }}';
 
-        if (tanggal === todayStr) {
-            mulaiInput.min = nowHourMin;
-        } else {
-            mulaiInput.removeAttribute('min');
-        }
+        // 1. If today, mark past slots as disabled
+        Array.from(mulaiInput.options).forEach(opt => {
+            if (!opt.value) return;
+            const isPast = (tanggal === todayStr && opt.value < nowHourMin);
+            opt.disabled = isPast;
+            if (isPast) {
+                if (!opt.text.includes('(Lewat)')) {
+                    opt.text = opt.value + ' WITA (Lewat)';
+                }
+            } else {
+                opt.text = opt.value + ' WITA';
+            }
+        });
+
+        // 2. Disable selesai options <= selected mulai
+        Array.from(selesaiInput.options).forEach(opt => {
+            if (!opt.value) return;
+            opt.disabled = mulai ? (opt.value <= mulai) : false;
+        });
+    }
+
+    function handleMulaiChange() {
+        syncTimeSlots();
+        const mulai = mulaiInput.value;
         if (mulai) {
-            selesaiInput.min = mulai;
+            if (!selesaiInput.value || selesaiInput.value <= mulai) {
+                const [h, m] = mulai.split(':').map(Number);
+                const nextH = h + 1;
+                const target1Hr = (nextH < 10 ? '0' : '') + nextH + ':' + (m < 10 ? '0' : '') + m;
+
+                let optToPick = Array.from(selesaiInput.options).find(opt => opt.value === target1Hr && !opt.disabled);
+                if (!optToPick) {
+                    optToPick = Array.from(selesaiInput.options).find(opt => opt.value > mulai && !opt.disabled);
+                }
+                if (optToPick) {
+                    selesaiInput.value = optToPick.value;
+                }
+            }
         }
+        checkConflict();
+    }
+
+    function handleTanggalChange() {
+        syncTimeSlots();
+        if (mulaiInput.selectedOptions[0] && mulaiInput.selectedOptions[0].disabled) {
+            mulaiInput.value = '';
+        }
+        checkConflict();
+    }
+
+    function checkConflict() {
+        const ruanganId = ruanganSelect.value;
+        const tanggal = tanggalInput.value;
+        const mulai = mulaiInput.value;
+        const selesai = selesaiInput.value;
+        const todayStr = '{{ now("Asia/Makassar")->toDateString() }}';
+        const nowHourMin = '{{ now("Asia/Makassar")->format("H:i") }}';
 
         if (tanggal && tanggal < todayStr) {
             statusDiv.style.display = 'block';
@@ -429,10 +537,11 @@ document.addEventListener('DOMContentLoaded', function() {
         checkConflict();
     });
 
-    tanggalInput.addEventListener('change', checkConflict);
-    mulaiInput.addEventListener('change', checkConflict);
+    tanggalInput.addEventListener('change', handleTanggalChange);
+    mulaiInput.addEventListener('change', handleMulaiChange);
     selesaiInput.addEventListener('change', checkConflict);
 
+    syncTimeSlots();
     if (ruanganSelect.value) {
         ruanganSelect.dispatchEvent(new Event('change'));
     }

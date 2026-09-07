@@ -52,6 +52,27 @@
             </div>
 
             {{-- Row 2: Tanggal, Waktu Mulai, Waktu Selesai --}}
+            @php
+                $timeSlots = [];
+                for ($h = 6; $h <= 23; $h++) {
+                    $hStr = str_pad($h, 2, '0', STR_PAD_LEFT);
+                    $timeSlots[] = "{$hStr}:00";
+                    if ($h < 23) {
+                        $timeSlots[] = "{$hStr}:30";
+                    }
+                }
+
+                $endSlots = [];
+                for ($h = 6; $h <= 23; $h++) {
+                    $hStr = str_pad($h, 2, '0', STR_PAD_LEFT);
+                    $endSlots[] = "{$hStr}:30";
+                    if ($h < 23) {
+                        $nextHStr = str_pad($h + 1, 2, '0', STR_PAD_LEFT);
+                        $endSlots[] = "{$nextHStr}:00";
+                    }
+                }
+            @endphp
+
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;" class="form-row-3">
                 <div class="form-group">
                     <label class="required">Tanggal Kegiatan</label>
@@ -63,7 +84,17 @@
 
                 <div class="form-group">
                     <label class="required">Waktu Mulai</label>
-                    <input type="time" name="waktu_mulai" value="{{ old('waktu_mulai') }}" required>
+                    <select name="waktu_mulai" id="waktu_mulai" required>
+                        <option value="">-- Pilih Jam Mulai --</option>
+                        @foreach($timeSlots as $slot)
+                            <option value="{{ $slot }}" {{ old('waktu_mulai') == $slot ? 'selected' : '' }}>
+                                {{ $slot }} WITA
+                            </option>
+                        @endforeach
+                    </select>
+                    <small style="color:#64748b;font-size:11.5px;display:block;margin-top:4px;">
+                        <i class="bi bi-clock-history"></i> Pilihan interval per 30 menit (06:00 - 23:00 WITA)
+                    </small>
                     @error('waktu_mulai')
                         <span class="form-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
                     @enderror
@@ -71,7 +102,17 @@
 
                 <div class="form-group">
                     <label class="required">Waktu Selesai</label>
-                    <input type="time" name="waktu_selesai" value="{{ old('waktu_selesai') }}" required>
+                    <select name="waktu_selesai" id="waktu_selesai" required>
+                        <option value="">-- Pilih Jam Selesai --</option>
+                        @foreach($endSlots as $slot)
+                            <option value="{{ $slot }}" {{ old('waktu_selesai') == $slot ? 'selected' : '' }}>
+                                {{ $slot }} WITA
+                            </option>
+                        @endforeach
+                    </select>
+                    <small style="color:#64748b;font-size:11.5px;display:block;margin-top:4px;">
+                        <i class="bi bi-clock-history"></i> Pilihan interval per 30 menit (06:30 - 23:30 WITA)
+                    </small>
                     @error('waktu_selesai')
                         <span class="form-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
                     @enderror
@@ -319,8 +360,8 @@ const ruanganSelect = document.getElementById('ruangan_id');
 const layoutSelect = document.getElementById('layout_ruangan_id');
 const jumlahTamuInput = document.querySelector('input[name="jumlah_tamu"]');
 const tanggalInput = document.querySelector('input[name="tanggal_kegiatan"]');
-const waktuMulaiInput = document.querySelector('input[name="waktu_mulai"]');
-const waktuSelesaiInput = document.querySelector('input[name="waktu_selesai"]');
+const waktuMulaiInput = document.getElementById('waktu_mulai') || document.querySelector('[name="waktu_mulai"]');
+const waktuSelesaiInput = document.getElementById('waktu_selesai') || document.querySelector('[name="waktu_selesai"]');
 
 const availabilityBox = document.getElementById('availability-status');
 const capacityBox = document.getElementById('capacity-status');
@@ -489,20 +530,85 @@ function checkScheduleAvailability() {
         });
 }
 
+function syncTimeSlots() {
+    if (!waktuMulaiInput || !waktuSelesaiInput || !tanggalInput) return;
+    const tanggal = tanggalInput.value;
+    const waktuMulai = waktuMulaiInput.value;
+    const todayStr = '{{ now("Asia/Makassar")->toDateString() }}';
+    const nowHourMin = '{{ now("Asia/Makassar")->format("H:i") }}';
+
+    // 1. Disable past slots if booking today
+    Array.from(waktuMulaiInput.options).forEach(opt => {
+        if (!opt.value) return;
+        const isPast = (tanggal === todayStr && opt.value < nowHourMin);
+        opt.disabled = isPast;
+        if (isPast) {
+            if (!opt.text.includes('(Lewat)')) {
+                opt.text = opt.value + ' WITA (Lewat)';
+            }
+        } else {
+            opt.text = opt.value + ' WITA';
+        }
+    });
+
+    // 2. Disable selesai options that are <= selected waktuMulai
+    Array.from(waktuSelesaiInput.options).forEach(opt => {
+        if (!opt.value) return;
+        opt.disabled = waktuMulai ? (opt.value <= waktuMulai) : false;
+    });
+}
+
+function handleWaktuMulaiChange() {
+    syncTimeSlots();
+    const waktuMulai = waktuMulaiInput.value;
+    if (waktuMulai) {
+        // Auto-select 1 hour later if waktuSelesai is empty or invalid
+        if (!waktuSelesaiInput.value || waktuSelesaiInput.value <= waktuMulai) {
+            const [h, m] = waktuMulai.split(':').map(Number);
+            const targetH = h + 1;
+            const targetStr = (targetH < 10 ? '0' : '') + targetH + ':' + (m < 10 ? '0' : '') + m;
+
+            let optToPick = Array.from(waktuSelesaiInput.options).find(opt => opt.value === targetStr && !opt.disabled);
+            if (!optToPick) {
+                optToPick = Array.from(waktuSelesaiInput.options).find(opt => opt.value > waktuMulai && !opt.disabled);
+            }
+            if (optToPick) {
+                waktuSelesaiInput.value = optToPick.value;
+            }
+        }
+    }
+    checkScheduleAvailability();
+}
+
+function handleTanggalChange() {
+    syncTimeSlots();
+    if (waktuMulaiInput && waktuMulaiInput.selectedOptions[0] && waktuMulaiInput.selectedOptions[0].disabled) {
+        waktuMulaiInput.value = '';
+    }
+    checkScheduleAvailability();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     if (ruanganSelect && ruanganSelect.value) {
         loadLayouts(ruanganSelect.value);
     }
+    syncTimeSlots();
     checkScheduleAvailability();
     checkCapacity();
 });
 
-[ruanganSelect, tanggalInput, waktuMulaiInput, waktuSelesaiInput].forEach(el => {
-    if (el) {
-        el.addEventListener('change', checkScheduleAvailability);
-        el.addEventListener('input', checkScheduleAvailability);
-    }
-});
+if (tanggalInput) {
+    tanggalInput.addEventListener('change', handleTanggalChange);
+}
+if (waktuMulaiInput) {
+    waktuMulaiInput.addEventListener('change', handleWaktuMulaiChange);
+}
+if (waktuSelesaiInput) {
+    waktuSelesaiInput.addEventListener('change', checkScheduleAvailability);
+}
+if (ruanganSelect) {
+    ruanganSelect.addEventListener('change', checkScheduleAvailability);
+}
 
 [layoutSelect, jumlahTamuInput].forEach(el => {
     if (el) {

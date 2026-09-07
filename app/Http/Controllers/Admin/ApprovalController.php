@@ -287,8 +287,27 @@ class ApprovalController extends Controller
             'ruangan_id' => 'required|exists:ruangan,id',
             'layout_ruangan_id' => 'nullable|exists:layout_ruangan,id',
             'tanggal_kegiatan' => 'required|date|after_or_equal:today',
-            'waktu_mulai' => 'required|date_format:H:i',
-            'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
+            'waktu_mulai' => [
+                'required',
+                'date_format:H:i',
+                function ($attribute, $value, $fail) {
+                    $parts = explode(':', $value);
+                    if (!isset($parts[1]) || !in_array($parts[1], ['00', '30'])) {
+                        $fail('Pemilihan waktu mulai harus per interval 30 menit (contoh: 08:00 atau 08:30).');
+                    }
+                },
+            ],
+            'waktu_selesai' => [
+                'required',
+                'date_format:H:i',
+                'after:waktu_mulai',
+                function ($attribute, $value, $fail) {
+                    $parts = explode(':', $value);
+                    if (!isset($parts[1]) || !in_array($parts[1], ['00', '30'])) {
+                        $fail('Pemilihan waktu selesai harus per interval 30 menit (contoh: 09:00 atau 09:30).');
+                    }
+                },
+            ],
             'judul_kegiatan' => 'required|string|max:150',
             'user_id' => 'nullable|exists:users,id',
             'pic_kegiatan' => 'required|string|max:255',
