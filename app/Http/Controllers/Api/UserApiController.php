@@ -32,7 +32,7 @@ class UserApiController extends Controller
         }
 
         $users = $query->latest('id')->paginate($request->get('per_page', 15));
-        $departments = Department::orderBy('nama_department')->get();
+        $departments = Department::orderBy('nama_unit')->get();
 
         return response()->json([
             'status' => 'success',

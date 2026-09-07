@@ -43,8 +43,11 @@ export const UserList: React.FC = () => {
                 setAdmins(res.data.admins || []);
                 setUsers(res.data.users);
             }
-        } catch {
-            setAlertMessage({ type: 'error', text: 'Gagal memuat data pengguna.' });
+        } catch (err: any) {
+            setAlertMessage({
+                type: 'error',
+                text: err.response?.data?.message || 'Gagal memuat data pengguna.',
+            });
         } finally {
             setIsLoading(false);
         }

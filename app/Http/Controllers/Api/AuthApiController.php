@@ -47,8 +47,10 @@ class AuthApiController extends Controller
                     'role' => $roleValue,
                     'department' => $user->department ? [
                         'id' => $user->department->id,
-                        'nama_department' => $user->department->nama_department,
-                        'kode_department' => $user->department->kode_department,
+                        'nama_department' => $user->department->nama_unit ?? '',
+                        'kode_department' => $user->department->kode_unit ?? '',
+                        'nama_unit' => $user->department->nama_unit ?? '',
+                        'kode_unit' => $user->department->kode_unit ?? '',
                     ] : null,
                 ],
                 'token' => $token,
@@ -86,8 +88,10 @@ class AuthApiController extends Controller
                 'role' => $roleValue,
                 'department' => $user->department ? [
                     'id' => $user->department->id,
-                    'nama_department' => $user->department->nama_department,
-                    'kode_department' => $user->department->kode_department,
+                    'nama_department' => $user->department->nama_unit ?? '',
+                    'kode_department' => $user->department->kode_unit ?? '',
+                    'nama_unit' => $user->department->nama_unit ?? '',
+                    'kode_unit' => $user->department->kode_unit ?? '',
                 ] : null,
             ],
         ]);
