@@ -183,4 +183,23 @@ class DashboardApiController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Get live activities data (Kegiatan Berlangsung).
+     */
+    public function kegiatanBerlangsung(): JsonResponse
+    {
+        Pemesanan::markFinishedAgendas();
+
+        $kegiatan = Pemesanan::with(['ruangan', 'layout', 'user'])
+            ->isLive()
+            ->orderBy('waktu_mulai')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $kegiatan,
+        ]);
+    }
 }
+

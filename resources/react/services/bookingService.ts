@@ -61,6 +61,11 @@ export const bookingService = {
         return response.data;
     },
 
+    async getKegiatanBerlangsung(): Promise<ApiResponse<Pemesanan[]>> {
+        const response = await api.get<ApiResponse<Pemesanan[]>>('/kegiatan-berlangsung');
+        return response.data;
+    },
+
     async getPemesananList(params?: { page?: number; per_page?: number; status?: string; q?: string }): Promise<ApiResponse<PaginatedData<Pemesanan>>> {
         const response = await api.get<ApiResponse<PaginatedData<Pemesanan>>>('/pemesanan', { params });
         return response.data;

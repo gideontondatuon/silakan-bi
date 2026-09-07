@@ -69,6 +69,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/kalender', [KalenderApiController::class, 'index']);
     Route::get('/kalender/events', [KalenderApiController::class, 'events']);
 
+    // Live Activities (Kegiatan Berlangsung)
+    Route::get('/kegiatan-berlangsung', [DashboardApiController::class, 'kegiatanBerlangsung']);
+
     // Rooms & Layouts (Read-only for regular users)
     Route::get('/ruangan', [RuanganApiController::class, 'index']);
     Route::get('/ruangan/{ruangan}', [RuanganApiController::class, 'show']);
