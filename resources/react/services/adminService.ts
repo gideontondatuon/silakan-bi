@@ -14,6 +14,7 @@ export interface AdminDashboardData {
     kegiatan_berlangsung: Pemesanan[];
     agenda_mendatang: Pemesanan[];
     waiting_list: Pemesanan[];
+    ruangan_terpopuler?: Array<{ ruangan_id: number; total: number; ruangan?: Ruangan }>;
     aktivitas_terbaru: Pemesanan[];
     charts: {
         monthly: { labels: string[]; data: number[] };

@@ -124,19 +124,26 @@ export const ApprovalList: React.FC = () => {
 
     return (
         <div>
-            {/* Header */}
-            <div className="dashboard-header" style={{ marginBottom: '20px' }}>
+            {/* Header matching Blade */}
+            <div className="dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
                 <div>
                     <h1>
-                        <i className="bi bi-calendar-check" style={{ color: '#005baa', marginRight: '8px' }}></i>
-                        Verifikasi & Approval Pemesanan
+                        <i className="bi bi-calendar-check-fill" style={{ color: '#005baa', marginRight: '8px' }}></i>
+                        Manajemen Pemesanan Ruangan
                     </h1>
-                    <p>Kelola persetujuan, penolakan, dan pemantauan status pemesanan ruangan rapat</p>
+                    <p>Kelola, verifikasi, serta hapus/batalkan pengajuan pemesanan ruangan kantor KPwBI Prov. Sulut.</p>
                 </div>
-                <div>
-                    <Link to="/pemesanan/create" className="btn-primary">
-                        <i className="bi bi-plus-circle-fill"></i> Buat Pemesanan Mandiri
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <Link
+                        to="/pemesanan/create"
+                        className="btn-primary"
+                        style={{ padding: '9px 18px', borderRadius: '10px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,91,170,0.25)' }}
+                    >
+                        <i className="bi bi-calendar-plus-fill"></i> Tambah Rapat
                     </Link>
+                    <span className={`badge ${(data?.counts?.pending || 0) > 0 ? 'badge-warning' : 'badge-success'}`} style={{ fontSize: '13px', padding: '8px 16px' }}>
+                        <i className="bi bi-clock-history"></i> {data?.counts?.pending || 0} Menunggu Approval
+                    </span>
                 </div>
             </div>
 
@@ -148,98 +155,114 @@ export const ApprovalList: React.FC = () => {
                 />
             )}
 
-            {/* Filter Tabs */}
-            <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
+            {/* Filter Tabs matching Blade */}
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: '2px solid #e2e8f0', paddingBottom: '2px', flexWrap: 'wrap' }}>
                 <button
                     type="button"
                     onClick={() => { setTab('pending'); setPage(1); }}
                     style={{
-                        padding: '10px 18px',
-                        border: 'none',
-                        background: 'none',
-                        borderBottom: tab === 'pending' ? '3px solid #005baa' : '3px solid transparent',
-                        color: tab === 'pending' ? '#005baa' : '#64748b',
+                        padding: '10px 20px',
+                        borderRadius: '10px 10px 0 0',
                         fontWeight: 700,
                         fontSize: '13.5px',
-                        cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
+                        transition: 'all .2s',
+                        border: tab === 'pending' ? 'none' : '1px solid #e2e8f0',
+                        borderBottom: 'none',
+                        background: tab === 'pending' ? '#005baa' : '#f8fafc',
+                        color: tab === 'pending' ? '#ffffff' : '#64748b',
+                        boxShadow: tab === 'pending' ? '0 4px 12px rgba(0,91,170,0.25)' : 'none',
+                        cursor: 'pointer',
                     }}
                 >
-                    <i className="bi bi-hourglass-split"></i> Menunggu Persetujuan
-                    {data?.counts?.pending ? (
-                        <span style={{ background: '#f59e0b', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 800 }}>
-                            {data.counts.pending}
-                        </span>
-                    ) : null}
+                    <i className="bi bi-hourglass-split"></i>
+                    Menunggu Approval
+                    <span style={{ background: tab === 'pending' ? 'rgba(255,255,255,0.25)' : '#f59e0b', color: '#fff', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px' }}>
+                        {data?.counts?.pending || 0}
+                    </span>
                 </button>
 
                 <button
                     type="button"
                     onClick={() => { setTab('disetujui'); setPage(1); }}
                     style={{
-                        padding: '10px 18px',
-                        border: 'none',
-                        background: 'none',
-                        borderBottom: tab === 'disetujui' ? '3px solid #005baa' : '3px solid transparent',
-                        color: tab === 'disetujui' ? '#005baa' : '#64748b',
+                        padding: '10px 20px',
+                        borderRadius: '10px 10px 0 0',
                         fontWeight: 700,
                         fontSize: '13.5px',
-                        cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
+                        transition: 'all .2s',
+                        border: tab === 'disetujui' ? 'none' : '1px solid #e2e8f0',
+                        borderBottom: 'none',
+                        background: tab === 'disetujui' ? '#005baa' : '#f8fafc',
+                        color: tab === 'disetujui' ? '#ffffff' : '#64748b',
+                        boxShadow: tab === 'disetujui' ? '0 4px 12px rgba(0,91,170,0.25)' : 'none',
+                        cursor: 'pointer',
                     }}
                 >
-                    <i className="bi bi-check-circle"></i> Disetujui
-                    {data?.counts?.disetujui ? (
-                        <span style={{ background: '#10b981', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 800 }}>
-                            {data.counts.disetujui}
-                        </span>
-                    ) : null}
+                    <i className="bi bi-check-circle-fill"></i>
+                    Disetujui / Aktif
+                    <span style={{ background: tab === 'disetujui' ? 'rgba(255,255,255,0.25)' : '#059669', color: '#fff', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px' }}>
+                        {data?.counts?.disetujui || 0}
+                    </span>
                 </button>
 
                 <button
                     type="button"
                     onClick={() => { setTab('selesai'); setPage(1); }}
                     style={{
-                        padding: '10px 18px',
-                        border: 'none',
-                        background: 'none',
-                        borderBottom: tab === 'selesai' ? '3px solid #005baa' : '3px solid transparent',
-                        color: tab === 'selesai' ? '#005baa' : '#64748b',
+                        padding: '10px 20px',
+                        borderRadius: '10px 10px 0 0',
                         fontWeight: 700,
                         fontSize: '13.5px',
-                        cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '6px',
+                        gap: '8px',
+                        transition: 'all .2s',
+                        border: tab === 'selesai' ? 'none' : '1px solid #e2e8f0',
+                        borderBottom: 'none',
+                        background: tab === 'selesai' ? '#005baa' : '#f8fafc',
+                        color: tab === 'selesai' ? '#ffffff' : '#64748b',
+                        boxShadow: tab === 'selesai' ? '0 4px 12px rgba(0,91,170,0.25)' : 'none',
+                        cursor: 'pointer',
                     }}
                 >
-                    <i className="bi bi-check2-all"></i> Selesai
-                    {data?.counts?.selesai ? (
-                        <span style={{ background: '#0ea5e9', color: '#fff', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: 800 }}>
-                            {data.counts.selesai}
-                        </span>
-                    ) : null}
+                    <i className="bi bi-check2-all"></i>
+                    Selesai
+                    <span style={{ background: tab === 'selesai' ? 'rgba(255,255,255,0.25)' : '#475569', color: '#fff', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px' }}>
+                        {data?.counts?.selesai || 0}
+                    </span>
                 </button>
 
                 <button
                     type="button"
                     onClick={() => { setTab('semua'); setPage(1); }}
                     style={{
-                        padding: '10px 18px',
-                        border: 'none',
-                        background: 'none',
-                        borderBottom: tab === 'semua' ? '3px solid #005baa' : '3px solid transparent',
-                        color: tab === 'semua' ? '#005baa' : '#64748b',
+                        padding: '10px 20px',
+                        borderRadius: '10px 10px 0 0',
                         fontWeight: 700,
                         fontSize: '13.5px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'all .2s',
+                        border: tab === 'semua' ? 'none' : '1px solid #e2e8f0',
+                        borderBottom: 'none',
+                        background: tab === 'semua' ? '#005baa' : '#f8fafc',
+                        color: tab === 'semua' ? '#ffffff' : '#64748b',
+                        boxShadow: tab === 'semua' ? '0 4px 12px rgba(0,91,170,0.25)' : 'none',
                         cursor: 'pointer',
                     }}
                 >
-                    Semua Pengajuan
+                    <i className="bi bi-collection-fill"></i>
+                    Semua Pemesanan
+                    <span style={{ background: tab === 'semua' ? 'rgba(255,255,255,0.25)' : '#64748b', color: '#fff', padding: '2px 8px', borderRadius: '9999px', fontSize: '11px' }}>
+                        {data?.items?.total || 0}
+                    </span>
                 </button>
             </div>
 

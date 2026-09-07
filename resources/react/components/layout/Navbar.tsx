@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -10,6 +10,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     const { user, role, logout } = useAuth();
     const { unreadCount, notifications } = useNotifications();
+    const location = useLocation();
 
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -24,21 +25,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     useEffect(() => {
         const updateClock = () => {
             const now = new Date();
-            // Format time WITA
-            const timeStr = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false,
-            }) + ' WITA';
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}:${seconds} WITA`;
 
-            // Format date
-            const dateStr = now.toLocaleDateString('id-ID', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-            });
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+            const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 
             setCurrentTime(timeStr);
             setCurrentDate(dateStr);
@@ -48,6 +42,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
         const timer = setInterval(updateClock, 1000);
         return () => clearInterval(timer);
     }, []);
+
+    // Dynamic Title & Breadcrumb matching Blade
+    const getPageTitle = (pathname: string) => {
+        if (pathname.includes('/admin/approval')) return 'Pemesanan Ruangan';
+        if (pathname.includes('/kegiatan-berlangsung')) return 'Kegiatan Berlangsung';
+        if (pathname.includes('/kalender')) return 'Kalender Ruangan';
+        if (pathname.includes('/notifikasi') || pathname.includes('/notifications')) return 'Notifikasi';
+        if (pathname.includes('/admin/ruangan')) return 'Data Ruangan';
+        if (pathname.includes('/admin/layout')) return 'Data Layout';
+        if (pathname.includes('/admin/hari-libur')) return 'Hari Libur';
+        if (pathname.includes('/admin/users')) return 'Data User';
+        if (pathname.includes('/admin/laporan')) return 'Laporan & Rekap';
+        if (pathname.includes('/admin/audit-log')) return 'Audit Log';
+        if (pathname.includes('/profile')) return 'Profil Saya';
+        if (pathname.includes('/pemesanan/create')) return 'Buat Pemesanan';
+        if (pathname.includes('/pemesanan')) return 'Pemesanan Ruangan';
+        return 'Dashboard';
+    };
+
+    const currentTitle = getPageTitle(location.pathname);
 
     // Click outside to close dropdowns
     useEffect(() => {
@@ -86,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
 
                 {/* Mobile Brand */}
                 <Link to={role === 'admin' ? '/admin/dashboard' : '/dashboard'} className="mobile-brand">
-                    <img src="/images/logo-bi2.png" alt="Bank Indonesia" className="mobile-brand-logo" />
+                    <img src="/images/logo-bi4.png" alt="Bank Indonesia Logo" className="mobile-brand-logo" />
                     <div className="mobile-brand-text">
                         <span className="mobile-brand-title">SILAKAN</span>
                         <span className="mobile-brand-sub">KPwBI Prov. Sulut</span>
@@ -94,9 +108,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
                 </Link>
 
                 <div className="navbar-page-info" id="navbar-page-info">
-                    <span className="navbar-page-title">SILAKAN</span>
-                    <div className="navbar-breadcrumb">
-                        <span>Kantor Perwakilan Bank Indonesia Sulawesi Utara</span>
+                    <span className="navbar-page-title" id="navbar-page-title">{currentTitle}</span>
+                    <div className="navbar-breadcrumb" id="navbar-breadcrumb">
+                        <span>SILAKAN</span>
+                        <span>{currentTitle}</span>
                     </div>
                 </div>
             </div>

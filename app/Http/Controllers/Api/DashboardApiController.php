@@ -164,6 +164,7 @@ class DashboardApiController extends Controller
                 'kegiatan_berlangsung' => $kegiatanBerlangsung,
                 'agenda_mendatang' => $agendaMendatang,
                 'waiting_list' => $waitingList,
+                'ruangan_terpopuler' => $ruanganTerpopuler,
                 'aktivitas_terbaru' => $aktivitasTerbaru,
                 'charts' => [
                     'monthly' => [

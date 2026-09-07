@@ -233,15 +233,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                         </Link>
                     </>
                 )}
-
-                {/* TV Display Lobby Link */}
-                <div className="menu-section" style={{ marginTop: '16px' }}>
-                    LAYAR PUBLIK
-                </div>
-                <Link to="/kiosk" target="_blank" onClick={onCloseMobile}>
-                    <i className="bi bi-tv"></i>
-                    <span>TV Lobby Kiosk</span>
-                </Link>
             </nav>
 
             {/* Sidebar Footer */}

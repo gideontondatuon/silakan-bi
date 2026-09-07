@@ -75,6 +75,7 @@ export const AppRoutes: React.FC = () => {
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin/approval" element={<ApprovalList />} />
                     <Route path="/admin/approval/:id" element={<ApprovalDetail />} />
+                    <Route path="/admin/kegiatan-berlangsung" element={<KegiatanBerlangsungPage />} />
                     <Route path="/admin/ruangan" element={<RuanganList />} />
                     <Route path="/admin/layout" element={<LayoutList />} />
                     <Route path="/admin/hari-libur" element={<HariLiburList />} />
