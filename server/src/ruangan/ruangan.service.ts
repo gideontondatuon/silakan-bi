@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 function normalizeRuanganStatus(status?: string): 'aktif' | 'nonaktif' | 'perawatan' {
   if (!status) return 'aktif';
@@ -11,7 +12,10 @@ function normalizeRuanganStatus(status?: string): 'aktif' | 'nonaktif' | 'perawa
 
 @Injectable()
 export class RuanganService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditLog: AuditLogService,
+  ) {}
 
   /**
    * Public list for users/booking creation
@@ -146,6 +150,13 @@ export class RuanganService {
       }
     }
 
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'CREATE_RUANGAN',
+      modul: 'Ruangan',
+      keterangan: `Menambahkan ruangan baru: ${room.nama_ruangan} (Kapasitas: ${room.kapasitas} orang)`,
+    });
+
     return {
       status: 'success',
       message: 'Ruangan berhasil ditambahkan.',
@@ -173,6 +184,13 @@ export class RuanganService {
       }
     }
 
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'UPDATE_RUANGAN',
+      modul: 'Ruangan',
+      keterangan: `Memperbarui ruangan: ${room.nama_ruangan} (ID: ${room.id})`,
+    });
+
     return {
       status: 'success',
       message: 'Ruangan berhasil diperbarui.',
@@ -181,7 +199,16 @@ export class RuanganService {
   }
 
   async remove(id: number) {
+    const room = await this.prisma.ruangan.findUnique({ where: { id: BigInt(id) } });
     await this.prisma.ruangan.delete({ where: { id: BigInt(id) } });
+
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'DELETE_RUANGAN',
+      modul: 'Ruangan',
+      keterangan: `Menghapus ruangan: ${room?.nama_ruangan || id}`,
+    });
+
     return { status: 'success', message: 'Ruangan berhasil dihapus.' };
   }
 

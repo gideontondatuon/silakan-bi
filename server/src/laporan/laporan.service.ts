@@ -193,8 +193,9 @@ export class LaporanService {
       let statusFg = 'FF374151';
       if (p.status === 'Disetujui') { statusBg = 'FFdcfce7'; statusFg = 'FF166534'; }
       else if (p.status === 'Ditolak') { statusBg = 'FFfee2e2'; statusFg = 'FF991b1b'; }
-      else if (p.status === 'Menunggu') { statusBg = 'FFfef9c3'; statusFg = 'FF854d0e'; }
+      else if (p.status === 'Pending' || p.status === 'Menunggu') { statusBg = 'FFfef9c3'; statusFg = 'FF854d0e'; }
       else if (p.status === 'Selesai') { statusBg = 'FFe0f2fe'; statusFg = 'FF075985'; }
+      else if (p.status === 'Cancel') { statusBg = 'FFf1f5f9'; statusFg = 'FF475569'; }
 
       row.eachCell((cell, colNumber) => {
         const bg = colNumber === 11 ? statusBg : rowBg;

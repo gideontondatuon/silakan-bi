@@ -3,7 +3,9 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePemesananDto } from './dto/create-pemesanan.dto';
 import dayjs from 'dayjs';
@@ -42,14 +44,33 @@ export function formatTimeStr(val: any): string {
 
 import { NotificationService } from '../notification/notification.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
 export class PemesananService {
+  private readonly logger = new Logger(PemesananService.name);
+
   constructor(
     private prisma: PrismaService,
     private notificationService: NotificationService,
     private whatsapp: WhatsappService,
+    private auditLog: AuditLogService,
   ) {}
+
+  /**
+   * Cron job running every 5 minutes to automatically transition finished meetings to 'Selesai'
+   */
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async handleCronMarkFinishedAgendas() {
+    try {
+      const count = await this.markFinishedAgendas();
+      if (count > 0) {
+        this.logger.log(`Cron: Successfully auto-marked ${count} meetings as Selesai.`);
+      }
+    } catch (err) {
+      this.logger.error('Cron markFinishedAgendas failed:', err);
+    }
+  }
 
   formatTimeStr(val: any): string {
     return formatTimeStr(val);
@@ -99,20 +120,77 @@ export class PemesananService {
   }
 
   /**
-   * Generate unique kode pemesanan — e.g. SIL-20260914-ABCDE
+   * Generate unique kode pemesanan with daily sequence counter and dynamic zero-padding.
+   * Total length: exactly 20 characters!
+   * Format: SIL-YYYYMMDD-[SEQ_PAD][KODE_UNIT]
+   *
+   * Example:
+   *   Unit Kehumasan (UK, 2 huruf) -> SIL-20260915-00001UK (Length: 20)
+   *   Unit FDSEK (FDSEK, 5 huruf)  -> SIL-20260915-01FDSEK  (Length: 20)
+   *   Unit PUR (PUR, 3 huruf)      -> SIL-20260915-0001PUR  (Length: 20)
+   *   Unit FPKP (FPKP, 4 huruf)    -> SIL-20260915-001FPKP  (Length: 20)
+   *   Unit PIPEBI (PIPEBI, 6 huruf)-> SIL-20260915-1PIPEBI  (Length: 20)
    */
-  async generateKodePemesanan(): Promise<string> {
+  async generateKodePemesanan(rawUnitCode?: string): Promise<string> {
     const dateStr = dayjs().tz(WITA).format('YYYYMMDD');
+
+    // Clean unit code: uppercase, alphanumeric only, max 6 chars (so at least 1 digit for counter)
+    let cleanUnit = (rawUnitCode || 'BI')
+      .toString()
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toUpperCase();
+
+    if (!cleanUnit) {
+      cleanUnit = 'BI';
+    } else if (cleanUnit.length > 6) {
+      cleanUnit = cleanUnit.substring(0, 6);
+    }
+
+    // Target tail length is 7 characters (e.g. 00001UK, 01FDSEK)
+    const targetTailLength = 7;
+    const padLength = Math.max(1, targetTailLength - cleanUnit.length);
+
+    // Find existing bookings on this date for this unit to determine next sequence number
+    const prefix = `SIL-${dateStr}-`;
+    const existing = await this.prisma.pemesanan.findMany({
+      where: {
+        kode_pemesanan: {
+          startsWith: prefix,
+          endsWith: cleanUnit,
+        },
+      },
+      select: {
+        kode_pemesanan: true,
+      },
+    });
+
+    let maxSeq = 0;
+    for (const item of existing) {
+      const tail = item.kode_pemesanan.substring(prefix.length);
+      if (tail.endsWith(cleanUnit)) {
+        const numPart = tail.substring(0, tail.length - cleanUnit.length);
+        const parsed = parseInt(numPart, 10);
+        if (!isNaN(parsed) && parsed > maxSeq) {
+          maxSeq = parsed;
+        }
+      }
+    }
+
+    let seq = maxSeq + 1;
     let kode: string;
     let exists = true;
 
     do {
-      const random = Math.random().toString(36).substring(2, 7).toUpperCase();
-      kode = `SIL-${dateStr}-${random}`;
+      const numStr = String(seq).padStart(padLength, '0');
+      kode = `${prefix}${numStr}${cleanUnit}`;
       const found = await this.prisma.pemesanan.findFirst({
         where: { kode_pemesanan: kode },
       });
-      exists = !!found;
+      if (found) {
+        seq++;
+      } else {
+        exists = false;
+      }
     } while (exists);
 
     return kode;
@@ -285,13 +363,14 @@ export class PemesananService {
       );
     }
 
-    const kode = await this.generateKodePemesanan();
     const isAdmin = user.role === 'admin';
     const initialStatus = isAdmin ? STATUS.DISETUJUI : STATUS.PENDING;
     const now = new Date();
 
-    // If admin is creating booking on behalf of a specific unit
+    // Determine target user and unit code
     let targetUserId = user.id;
+    let unitCode = (user.kode_unit || (user as any).departments?.kode_unit || 'BI').trim().toUpperCase();
+
     if (isAdmin) {
       if (dto.user_id) {
         const found = await this.prisma.users.findUnique({
@@ -299,6 +378,9 @@ export class PemesananService {
         });
         if (found) {
           targetUserId = found.id;
+          if (found.kode_unit) {
+            unitCode = found.kode_unit.trim().toUpperCase();
+          }
         }
       } else if (dto.kode_unit) {
         const found = await this.prisma.users.findFirst({
@@ -306,9 +388,14 @@ export class PemesananService {
         });
         if (found) {
           targetUserId = found.id;
+          unitCode = found.kode_unit.trim().toUpperCase();
+        } else {
+          unitCode = dto.kode_unit.trim().toUpperCase();
         }
       }
     }
+
+    const kode = await this.generateKodePemesanan(unitCode);
 
     const pemesanan = await this.prisma.pemesanan.create({
       data: {
@@ -343,13 +430,13 @@ export class PemesananService {
           pemesanan_id: pemesanan.id,
           status_lama: STATUS.PENDING as any,
           status_baru: initialStatus as any,
-          changed_by: user.id,
+          changed_by: user.id ? BigInt(user.id) : null,
           changed_at: now,
           created_at: now,
           updated_at: now,
         },
       });
-    } catch (e) {
+    } catch {
       // Ignored
     }
 
@@ -371,15 +458,20 @@ export class PemesananService {
         console.error('Failed to create admin notification:', err);
       }
 
-      // 2. WhatsApp Notification for admin
-      try {
-        await this.whatsapp.notifyAdmin(
+      // 2. WhatsApp Notification for admin (async non-blocking)
+      this.whatsapp
+        .notifyAdmin(
           `🔔 *PENGAJUAN PEMESANAN BARU*\n\nKode: *${pemesanan.kode_pemesanan}*\nUnit: *${unitName}*\nKegiatan: *${pemesanan.judul_kegiatan}*\nRuangan: *${ruangan.nama_ruangan}*\nTanggal: *${dto.tanggal_kegiatan}*\nJam: *${dto.waktu_mulai} - ${dto.waktu_selesai} WITA*\nPIC: *${pemesanan.pic_kegiatan}*\n\nSilakan verifikasi melalui web SILAKAN.`,
-        );
-      } catch (err) {
-        console.error('Failed to send admin WA notification:', err);
-      }
+        )
+        .catch((err) => console.error('Failed to send admin WA notification:', err));
     }
+
+    await this.auditLog.log({
+      userId: user.id ? BigInt(user.id) : null,
+      aksi: 'CREATE_PEMESANAN',
+      modul: 'Pemesanan',
+      keterangan: `Membuat pengajuan pemesanan baru: ${pemesanan.kode_pemesanan} ("${pemesanan.judul_kegiatan}")`,
+    });
 
     return {
       status: 'success',
@@ -406,7 +498,7 @@ export class PemesananService {
 
     if (!pemesanan) throw new NotFoundException('Pemesanan tidak ditemukan.');
 
-    if (user.role !== 'admin' && pemesanan.user_id !== user.id) {
+    if (user.role !== 'admin' && Number(pemesanan.user_id) !== Number(user.id)) {
       throw new ForbiddenException('Akses ditolak.');
     }
 
@@ -420,7 +512,7 @@ export class PemesananService {
     const pemesanan = await this.prisma.pemesanan.findUnique({ where: { id } });
     if (!pemesanan) throw new NotFoundException('Pemesanan tidak ditemukan.');
 
-    if (pemesanan.user_id !== user.id) {
+    if (user.role !== 'admin' && Number(pemesanan.user_id) !== Number(user.id)) {
       throw new ForbiddenException('Akses ditolak.');
     }
 
@@ -428,13 +520,35 @@ export class PemesananService {
       throw new BadRequestException('Pemesanan tidak dapat dibatalkan pada status ini.');
     }
 
+    const now = new Date();
     const updated = await this.prisma.pemesanan.update({
       where: { id },
       data: {
         status: STATUS.DIBATALKAN as any,
-        cancelled_by: user.id,
-        cancelled_at: new Date(),
+        cancelled_by: user.id ? BigInt(user.id) : null,
+        cancelled_at: now,
       },
+    });
+
+    await this.prisma.pemesanan_status_history
+      .create({
+        data: {
+          pemesanan_id: pemesanan.id,
+          status_lama: pemesanan.status as any,
+          status_baru: STATUS.DIBATALKAN as any,
+          changed_by: user.id ? BigInt(user.id) : null,
+          changed_at: now,
+          created_at: now,
+          updated_at: now,
+        },
+      })
+      .catch(() => null);
+
+    await this.auditLog.log({
+      userId: user.id ? BigInt(user.id) : null,
+      aksi: 'CANCEL_PEMESANAN',
+      modul: 'Pemesanan',
+      keterangan: `Membatalkan pemesanan: ${pemesanan.kode_pemesanan} ("${pemesanan.judul_kegiatan}")`,
     });
 
     return {
@@ -448,10 +562,13 @@ export class PemesananService {
    * Finish booking early — equivalent to PemesananApiController::selesaiAwal()
    */
   async selesaiAwal(id: number, user: any) {
-    const pemesanan = await this.prisma.pemesanan.findUnique({ where: { id } });
+    const pemesanan = await this.prisma.pemesanan.findUnique({
+      where: { id },
+      include: { ruangan: true },
+    });
     if (!pemesanan) throw new NotFoundException('Pemesanan tidak ditemukan.');
 
-    if (user.role !== 'admin' && pemesanan.user_id !== user.id) {
+    if (user.role !== 'admin' && Number(pemesanan.user_id) !== Number(user.id)) {
       throw new ForbiddenException('Akses ditolak.');
     }
 
@@ -465,7 +582,7 @@ export class PemesananService {
     const today = now.format('YYYY-MM-DD');
     const eventDate = dayjs(pemesanan.tanggal_kegiatan).format('YYYY-MM-DD');
 
-    if (eventDate !== today) {
+    if (user.role !== 'admin' && eventDate !== today) {
       throw new BadRequestException(
         'Hanya kegiatan yang berlangsung hari ini yang dapat diselesaikan lebih awal.',
       );
@@ -478,9 +595,29 @@ export class PemesananService {
       data: { status: STATUS.SELESAI as any, waktu_selesai: parseTimeToDate(currentTime) },
     });
 
+    const historyNow = new Date();
+    await this.prisma.pemesanan_status_history.create({
+      data: {
+        pemesanan_id: pemesanan.id,
+        status_lama: pemesanan.status as any,
+        status_baru: STATUS.SELESAI as any,
+        changed_by: user.id ? BigInt(user.id) : null,
+        changed_at: historyNow,
+        created_at: historyNow,
+        updated_at: historyNow,
+      },
+    }).catch(() => null);
+
+    await this.auditLog.log({
+      userId: user.id ? BigInt(user.id) : null,
+      aksi: 'SELESAI_AWAL',
+      modul: 'Pemesanan',
+      keterangan: `Menyelesaikan rapat lebih awal: ${pemesanan.kode_pemesanan} pada pukul ${currentTime} WITA`,
+    });
+
     return {
       status: 'success',
-      message: `Kegiatan berhasil diselesaikan lebih awal pada ${currentTime} WITA.`,
+      message: `Kegiatan di ${pemesanan.ruangan?.nama_ruangan || 'ruangan'} berhasil diselesaikan lebih awal pada ${currentTime} WITA.`,
       data: this.formatPemesanan(updated),
     };
   }

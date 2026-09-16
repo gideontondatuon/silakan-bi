@@ -1,5 +1,7 @@
 /.phpunit.cache
+node_modules/
 /node_modules
+server/node_modules/
 /public/build
 /public/hot
 /public/storage
@@ -22,4 +24,17 @@ yarn-error.log
 /.vscode
 /.zed
 *.sql
+
+# Build outputs & caches
+dist/
+/dist/
+server/dist/
+/server/dist/
+*.tsbuildinfo
+.vite/
+server/node_modules/.vite
+
+# User uploaded storage
+storage/app/public/disposisi/*
+!storage/app/public/disposisi/.gitkeep
 

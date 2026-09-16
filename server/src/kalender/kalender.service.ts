@@ -22,7 +22,7 @@ export class KalenderService {
     return String(val).substring(0, 5);
   }
 
-  async index(userId: number, query: any) {
+  async index(_userId: number, _query: any) {
     const ruanganRaw = await this.prisma.ruangan.findMany({
       where: { status: 'aktif' },
       orderBy: { nama_ruangan: 'asc' },
@@ -37,7 +37,8 @@ export class KalenderService {
     }));
 
     const now = dayjs().tz(WITA);
-    const todayStart = now.startOf('day').toDate();
+    const todayDateStr = now.format('YYYY-MM-DD');
+    const todayStart = new Date(`${todayDateStr}T00:00:00.000Z`);
 
     const total_ruangan = ruangan.length;
 
@@ -94,7 +95,7 @@ export class KalenderService {
     };
   }
 
-  async events(userId: number, query: any) {
+  async events(_userId: number, query: any) {
     const ruanganId = query.ruangan_id ? BigInt(query.ruangan_id) : undefined;
 
     const pemesanan = await this.prisma.pemesanan.findMany({

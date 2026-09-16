@@ -439,7 +439,7 @@ export const UserList: React.FC = () => {
                                         Daftar Akun Unit Kerja (Pengguna Biasa)
                                     </h2>
                                     <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
-                                        Daftar akun pemohon ruangan per unit kerja. Admin dapat melihat password akun unit kerja.
+                                        Daftar akun pemohon ruangan per unit kerja. Kata sandi akun terlindungi dengan enkripsi standar industri.
                                     </p>
                                 </div>
                             </div>
@@ -470,7 +470,7 @@ export const UserList: React.FC = () => {
                                         <th>Nama Unit Kerja</th>
                                         <th>Kode Unit</th>
                                         <th>Role</th>
-                                        <th>Password Akun</th>
+                                        <th>Status Keamanan</th>
                                         <th style={{ textAlign: 'center', width: '150px' }}>Aksi</th>
                                     </tr>
                                 </thead>
@@ -479,11 +479,6 @@ export const UserList: React.FC = () => {
                                         users.data.map((u, index) => {
                                             const inits = getUserInitials(u);
                                             const avStyle = getAvatarFontSize(inits);
-                                            const roleVal = typeof u.role === 'object' && u.role ? (u.role as any).value : u.role;
-                                            const defaultPass = u.username === 'admin' || roleVal === 'admin' ? 'password' : 'kpwbisulut';
-                                            const displayPassword = u.password_plain || defaultPass;
-                                            const isRevealed = !!revealedPasswords[u.id];
-                                            const isCopied = copiedUserId === u.id;
                                             const rowNum = (users.from || 1) + index;
 
                                             return (
@@ -537,49 +532,24 @@ export const UserList: React.FC = () => {
                                                             <i className="bi bi-person"></i> User
                                                         </span>
                                                     </td>
-                                                    {/* Password Viewer Column */}
+                                                    {/* Status Keamanan */}
                                                     <td>
-                                                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#f8fafc', border: '1px solid #cbd5e1', padding: '4px 10px', borderRadius: '8px' }}>
-                                                            <span style={{ fontFamily: 'Consolas, monospace', fontWeight: 700, letterSpacing: '1px', fontSize: '13px', color: '#1e293b' }}>
-                                                                {isRevealed ? displayPassword : '••••••••'}
-                                                            </span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => togglePassVisibility(u.id)}
-                                                                title="Lihat / Sembunyikan Password"
-                                                                style={{
-                                                                    background: 'none',
-                                                                    border: 'none',
-                                                                    cursor: 'pointer',
-                                                                    color: isRevealed ? '#dc2626' : '#005baa',
-                                                                    padding: '2px 4px',
-                                                                    borderRadius: '4px',
-                                                                    display: 'inline-flex',
-                                                                    alignItems: 'center',
-                                                                    fontSize: '14px',
-                                                                }}
-                                                            >
-                                                                <i className={`bi ${isRevealed ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => copyPassword(displayPassword, u.id)}
-                                                                title={isCopied ? 'Tersalin!' : 'Salin Password'}
-                                                                style={{
-                                                                    background: 'none',
-                                                                    border: 'none',
-                                                                    cursor: 'pointer',
-                                                                    color: isCopied ? '#059669' : '#64748b',
-                                                                    padding: '2px 4px',
-                                                                    borderRadius: '4px',
-                                                                    display: 'inline-flex',
-                                                                    alignItems: 'center',
-                                                                    fontSize: '13px',
-                                                                }}
-                                                            >
-                                                                <i className={`bi ${isCopied ? 'bi-check2' : 'bi-clipboard'}`}></i>
-                                                            </button>
-                                                        </div>
+                                                        <span
+                                                            style={{
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                gap: '6px',
+                                                                background: '#f0fdf4',
+                                                                color: '#166534',
+                                                                border: '1px solid #bbf7d0',
+                                                                padding: '4px 10px',
+                                                                borderRadius: '8px',
+                                                                fontSize: '12px',
+                                                                fontWeight: 600,
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-shield-lock-fill" style={{ color: '#16a34a' }}></i> Terenkripsi Bcrypt
+                                                        </span>
                                                     </td>
                                                     <td style={{ textAlign: 'center' }}>
                                                         <div className="action-group" style={{ justifyContent: 'center' }}>

@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -24,7 +25,9 @@ import * as fs from 'fs';
 
 export const disposisiStorage = diskStorage({
   destination: (_req, _file, cb) => {
-    const dest = join(process.cwd(), '..', 'storage', 'app', 'public', 'disposisi');
+    const dest = fs.existsSync(join(process.cwd(), 'storage', 'app', 'public', 'disposisi'))
+      ? join(process.cwd(), 'storage', 'app', 'public', 'disposisi')
+      : join(process.cwd(), '..', 'storage', 'app', 'public', 'disposisi');
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
     }
@@ -35,6 +38,36 @@ export const disposisiStorage = diskStorage({
     cb(null, `disposisi-${uniqueSuffix}${extname(file.originalname)}`);
   },
 });
+
+export const disposisiFileFilter = (
+  _req: any,
+  file: Express.Multer.File,
+  cb: (error: Error | null, acceptFile: boolean) => void,
+) => {
+  const allowedMimeTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
+  if (!allowedMimeTypes.includes(file.mimetype)) {
+    return cb(
+      new BadRequestException(
+        'Format berkas disposisi tidak didukung. Harap unggah berkas PDF, JPG, atau PNG.',
+      ),
+      false,
+    );
+  }
+  cb(null, true);
+};
+
+export const disposisiUploadOptions = {
+  storage: disposisiStorage,
+  fileFilter: disposisiFileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // Maksimal 10MB
+  },
+};
 
 @Controller('pemesanan')
 @UseGuards(JwtAuthGuard)
@@ -67,7 +100,7 @@ export class PemesananController {
 
   /** POST /api/pemesanan */
   @Post()
-  @UseInterceptors(FileInterceptor('file_disposisi', { storage: disposisiStorage }))
+  @UseInterceptors(FileInterceptor('file_disposisi', disposisiUploadOptions))
   store(
     @Body() dto: CreatePemesananDto,
     @Req() req: any,

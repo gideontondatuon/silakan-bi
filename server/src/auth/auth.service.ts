@@ -8,12 +8,14 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { UpdateProfileDto, UpdatePasswordDto } from './dto/update-profile.dto';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private auditLog: AuditLogService,
   ) {}
 
   /**
@@ -51,6 +53,13 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     const roleValue = user.role ?? 'user';
+
+    await this.auditLog.log({
+      userId: user.id,
+      aksi: 'LOGIN',
+      modul: 'Auth',
+      keterangan: `Pengguna ${user.username} (${user.nama_unit}) berhasil masuk ke sistem.`,
+    });
 
     return {
       status: 'success',
@@ -95,6 +104,13 @@ export class AuthService {
       include: { departments: true },
     });
 
+    await this.auditLog.log({
+      userId: BigInt(userId),
+      aksi: 'UPDATE_PROFILE',
+      modul: 'Profile',
+      keterangan: `Pengguna memperbarui informasi profil akun.`,
+    });
+
     return {
       status: 'success',
       message: 'Profil berhasil diperbarui.',
@@ -122,6 +138,13 @@ export class AuthService {
     await this.prisma.users.update({
       where: { id: userId },
       data: { password: hashed },
+    });
+
+    await this.auditLog.log({
+      userId: BigInt(userId),
+      aksi: 'UPDATE_PASSWORD',
+      modul: 'Profile',
+      keterangan: `Pengguna memperbarui kata sandi akun.`,
     });
 
     return {

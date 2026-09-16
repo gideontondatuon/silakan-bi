@@ -110,9 +110,42 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // Initial sync
         performSync();
 
-        // 5-second interval sync for fast, responsive in-app notifications
-        const interval = setInterval(performSync, 5000);
-        return () => clearInterval(interval);
+        // 15-second interval sync with tab visibility awareness to optimize performance and server resources
+        let interval: NodeJS.Timeout | null = null;
+
+        const startInterval = () => {
+            if (!interval) {
+                interval = setInterval(() => {
+                    if (!document.hidden) {
+                        performSync();
+                    }
+                }, 15000);
+            }
+        };
+
+        const stopInterval = () => {
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                stopInterval();
+            } else {
+                performSync();
+                startInterval();
+            }
+        };
+
+        startInterval();
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            stopInterval();
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [isAuthenticated, role]);
 
     return (

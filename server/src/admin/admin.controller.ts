@@ -4,8 +4,9 @@ import {
   UseInterceptors, UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { disposisiStorage } from '../pemesanan/pemesanan.controller';
+import { disposisiUploadOptions } from '../pemesanan/pemesanan.controller';
 import { AdminService } from './admin.service';
+import { PemesananService } from '../pemesanan/pemesanan.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -14,13 +15,16 @@ import { Roles } from '../auth/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
 export class AdminController {
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private pemesananService: PemesananService,
+  ) {}
 
   // ─── Approval ──────────────────────────────────────────────────────────────
   @Get('admin/approval') approvalIndex(@Query() q: any) { return this.adminService.approvalIndex(q); }
   @Post('admin/approval')
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('file_disposisi', { storage: disposisiStorage }))
+  @UseInterceptors(FileInterceptor('file_disposisi', disposisiUploadOptions))
   approvalStore(
     @Body() body: any,
     @Req() req: any,
@@ -33,8 +37,7 @@ export class AdminController {
   @Post('admin/approval/:id/approve') @HttpCode(HttpStatus.OK) approve(@Param('id', ParseIntPipe) id: number, @Body() body: any, @Req() req: any) { return this.adminService.approve(id, req.user, body.catatan_admin); }
   @Post('admin/approval/:id/reject') @HttpCode(HttpStatus.OK) reject(@Param('id', ParseIntPipe) id: number, @Body() body: any, @Req() req: any) { return this.adminService.reject(id, req.user, body.alasan_penolakan); }
   @Post('admin/approval/:id/selesai-awal') @HttpCode(HttpStatus.OK) approvalSelesaiAwal(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    // Delegate to pemesanan service (already handles admin role)
-    return { status: 'info', message: 'Use /api/pemesanan/:id/selesai-awal endpoint.' };
+    return this.pemesananService.selesaiAwal(id, req.user);
   }
   @Delete('admin/approval/:id') @HttpCode(HttpStatus.OK) approvalDestroy(@Param('id', ParseIntPipe) id: number) { return this.adminService.approvalDestroy(id); }
 

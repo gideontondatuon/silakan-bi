@@ -58,8 +58,6 @@ export const UserEdit: React.FC = () => {
 
     const roleVal = user ? (typeof user.role === 'object' && user.role ? (user.role as any).value : user.role) : 'user';
     const isAdminAccount = roleVal === 'admin';
-    const defaultPass = user?.username === 'admin' || isAdminAccount ? 'password' : 'kpwbisulut';
-    const currentPlain = (user as any)?.password_plain || defaultPass;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -205,50 +203,24 @@ export const UserEdit: React.FC = () => {
                         <div className="form-row">
                             <div className="form-group">
                                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <i className="bi bi-key-fill" style={{ color: '#005baa' }}></i> Password Akun Saat Ini
+                                    <i className="bi bi-shield-lock-fill" style={{ color: '#005baa' }}></i> Status Keamanan Sandi Saat Ini
                                 </label>
                                 <div
                                     style={{
-                                        display: 'flex',
+                                        display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '10px',
-                                        background: '#f8fafc',
-                                        border: '1px solid #cbd5e1',
+                                        background: '#f0fdf4',
+                                        border: '1px solid #bbf7d0',
                                         borderRadius: '10px',
                                         padding: '10px 14px',
-                                        maxWidth: '400px',
+                                        color: '#166534',
+                                        fontSize: '13px',
+                                        fontWeight: 600,
                                     }}
                                 >
-                                    <span
-                                        style={{
-                                            fontFamily: 'Consolas, monospace',
-                                            fontWeight: 700,
-                                            letterSpacing: '1px',
-                                            fontSize: '14px',
-                                            color: '#1e293b',
-                                        }}
-                                    >
-                                        {showCurrentPass ? currentPlain : '••••••••'}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCurrentPass(!showCurrentPass)}
-                                        style={{
-                                            background: 'none',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            color: '#005baa',
-                                            marginLeft: 'auto',
-                                            fontSize: '13px',
-                                            fontWeight: 600,
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '5px',
-                                        }}
-                                    >
-                                        <i className={`bi ${showCurrentPass ? 'bi-eye-slash' : 'bi-eye'}`}></i>{' '}
-                                        <span>{showCurrentPass ? 'Sembunyikan' : 'Lihat'}</span>
-                                    </button>
+                                    <i className="bi bi-check-circle-fill" style={{ color: '#16a34a' }}></i>
+                                    <span>Tersimpan dengan hash aman (Bcrypt) &bull; Sandi tidak terekspos</span>
                                 </div>
                             </div>
                         </div>

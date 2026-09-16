@@ -9,7 +9,14 @@ import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc); dayjs.extend(timezone);
 const WITA = 'Asia/Makassar';
 
+function sanitizeUser(user: any) {
+  if (!user) return user;
+  const { password: _p, password_plain: _pp, ...rest } = user;
+  return rest;
+}
+
 import { NotificationService } from '../notification/notification.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
 export class AdminService {
@@ -18,6 +25,7 @@ export class AdminService {
     private pemesananService: PemesananService,
     private whatsapp: WhatsappService,
     private notificationService: NotificationService,
+    private auditLog: AuditLogService,
   ) {}
 
   // ─── APPROVAL ──────────────────────────────────────────────────────────────
@@ -74,22 +82,77 @@ export class AdminService {
   }
 
   async approve(id: number, adminUser: any, catatanAdmin?: string) {
-    const pemesanan = await this.prisma.pemesanan.findUnique({ where: { id }, include: { users: true, ruangan: true } });
+    const pemesanan = await this.prisma.pemesanan.findUnique({
+      where: { id },
+      include: { users: true, ruangan: true },
+    });
     if (!pemesanan) throw new NotFoundException('Pemesanan tidak ditemukan.');
-    if (pemesanan.status !== 'Pending') throw new BadRequestException('Hanya pemesanan berstatus pending yang dapat disetujui.');
+    if (pemesanan.status !== 'Pending') {
+      throw new BadRequestException('Hanya pemesanan berstatus pending yang dapat disetujui.');
+    }
 
+    // 1. Validasi bentrok jadwal sebelum disetujui (mencegah double booking)
+    const tanggalStr = dayjs(pemesanan.tanggal_kegiatan).tz(WITA).format('YYYY-MM-DD');
+    const startStr = this.pemesananService.formatTimeStr(pemesanan.waktu_mulai).slice(0, 5);
+    const endStr = this.pemesananService.formatTimeStr(pemesanan.waktu_selesai).slice(0, 5);
+
+    const conflicts = await this.pemesananService.checkConflict({
+      ruangan_id: Number(pemesanan.ruangan_id),
+      tanggal_kegiatan: tanggalStr,
+      waktu_mulai: startStr,
+      waktu_selesai: endStr,
+      exclude_id: Number(pemesanan.id),
+      include_pending: false,
+    });
+
+    if (conflicts.length > 0) {
+      const conflictDetails = conflicts
+        .map(
+          (c) =>
+            `"${c.judul_kegiatan}" (${this.pemesananService.formatTimeStr(c.waktu_mulai).slice(0, 5)} - ${this.pemesananService.formatTimeStr(c.waktu_selesai).slice(0, 5)} WITA)`,
+        )
+        .join(', ');
+      throw new BadRequestException(
+        `Tidak dapat menyetujui: Jadwal ruangan bentrok dengan kegiatan yang sudah disetujui (${conflictDetails}).`,
+      );
+    }
+
+    const now = new Date();
     const updated = await this.prisma.pemesanan.update({
       where: { id },
-      data: { status: 'Disetujui' as any, approved_by: adminUser.id, approved_at: new Date(), catatan_admin: catatanAdmin ?? null },
+      data: {
+        status: 'Disetujui' as any,
+        approved_by: adminUser.id ? BigInt(adminUser.id) : null,
+        approved_at: now,
+        catatan_admin: catatanAdmin ?? null,
+      },
       include: { ruangan: true, layout_ruangan: true, users: true },
     });
 
-    // Send WA notification
+    // Catat ke linimasa pemesanan_status_history
+    await this.prisma.pemesanan_status_history
+      .create({
+        data: {
+          pemesanan_id: pemesanan.id,
+          status_lama: pemesanan.status as any,
+          status_baru: 'Disetujui' as any,
+          changed_by: adminUser.id ? BigInt(adminUser.id) : null,
+          changed_at: now,
+          created_at: now,
+          updated_at: now,
+        },
+      })
+      .catch(() => null);
+
+    // Send WA notification (fire-and-forget non-blocking)
     const userPhone = (pemesanan as any).users?.no_wa;
     if (userPhone) {
-      await this.whatsapp.send(userPhone,
-        `✅ Pemesanan Anda *${pemesanan.kode_pemesanan}* untuk kegiatan "*${pemesanan.judul_kegiatan}*" di *${(pemesanan as any).ruangan?.nama_ruangan}* telah *DISETUJUI*.\n\nSilakan hadir sesuai jadwal.`
-      );
+      this.whatsapp
+        .send(
+          userPhone,
+          `✅ Pemesanan Anda *${pemesanan.kode_pemesanan}* untuk kegiatan "*${pemesanan.judul_kegiatan}*" di *${(pemesanan as any).ruangan?.nama_ruangan}* telah *DISETUJUI*.\n\nSilakan hadir sesuai jadwal.`,
+        )
+        .catch((err) => console.error('Failed to send WA approval notification:', err));
     }
 
     // Send in-app notification to user
@@ -106,25 +169,63 @@ export class AdminService {
       console.error('Failed to send in-app notification:', e);
     }
 
-    return { status: 'success', message: `Pemesanan ${pemesanan.kode_pemesanan} berhasil disetujui.`, data: this.pemesananService.formatPemesanan(updated) };
+    await this.auditLog.log({
+      userId: adminUser?.id ? BigInt(adminUser.id) : null,
+      aksi: 'APPROVE_PEMESANAN',
+      modul: 'Approval',
+      keterangan: `Menyetujui pemesanan ${pemesanan.kode_pemesanan} ("${pemesanan.judul_kegiatan}")`,
+    });
+
+    return {
+      status: 'success',
+      message: `Pemesanan ${pemesanan.kode_pemesanan} berhasil disetujui.`,
+      data: this.pemesananService.formatPemesanan(updated),
+    };
   }
 
   async reject(id: number, adminUser: any, alasan: string) {
     if (!alasan) throw new BadRequestException('Alasan penolakan wajib diisi.');
-    const pemesanan = await this.prisma.pemesanan.findUnique({ where: { id }, include: { users: true, ruangan: true } });
+    const pemesanan = await this.prisma.pemesanan.findUnique({
+      where: { id },
+      include: { users: true, ruangan: true },
+    });
     if (!pemesanan) throw new NotFoundException('Pemesanan tidak ditemukan.');
 
+    const now = new Date();
     const updated = await this.prisma.pemesanan.update({
       where: { id },
-      data: { status: 'Ditolak' as any, rejected_by: adminUser.id, rejected_at: new Date(), alasan_penolakan: alasan },
+      data: {
+        status: 'Ditolak' as any,
+        rejected_by: adminUser.id ? BigInt(adminUser.id) : null,
+        rejected_at: now,
+        alasan_penolakan: alasan,
+      },
       include: { ruangan: true, layout_ruangan: true, users: true },
     });
 
+    // Catat ke linimasa pemesanan_status_history
+    await this.prisma.pemesanan_status_history
+      .create({
+        data: {
+          pemesanan_id: pemesanan.id,
+          status_lama: pemesanan.status as any,
+          status_baru: 'Ditolak' as any,
+          changed_by: adminUser.id ? BigInt(adminUser.id) : null,
+          changed_at: now,
+          created_at: now,
+          updated_at: now,
+        },
+      })
+      .catch(() => null);
+
     const userPhone = (pemesanan as any).users?.no_wa;
     if (userPhone) {
-      await this.whatsapp.send(userPhone,
-        `❌ Pemesanan Anda *${pemesanan.kode_pemesanan}* untuk kegiatan "*${pemesanan.judul_kegiatan}*" telah *DITOLAK*.\n\nAlasan: ${alasan}`
-      );
+      this.whatsapp
+        .send(
+          userPhone,
+          `❌ Pemesanan Anda *${pemesanan.kode_pemesanan}* untuk kegiatan "*${pemesanan.judul_kegiatan}*" telah *DITOLAK*.\n\nAlasan: ${alasan}`,
+        )
+        .catch((err) => console.error('Failed to send WA rejection notification:', err));
     }
 
     // Send in-app notification to user
@@ -141,13 +242,32 @@ export class AdminService {
       console.error('Failed to send in-app notification:', e);
     }
 
-    return { status: 'success', message: `Pemesanan ${pemesanan.kode_pemesanan} berhasil ditolak.`, data: this.pemesananService.formatPemesanan(updated) };
+    await this.auditLog.log({
+      userId: adminUser?.id ? BigInt(adminUser.id) : null,
+      aksi: 'REJECT_PEMESANAN',
+      modul: 'Approval',
+      keterangan: `Menolak pemesanan ${pemesanan.kode_pemesanan}. Alasan: ${alasan}`,
+    });
+
+    return {
+      status: 'success',
+      message: `Pemesanan ${pemesanan.kode_pemesanan} berhasil ditolak.`,
+      data: this.pemesananService.formatPemesanan(updated),
+    };
   }
 
   async approvalDestroy(id: number) {
     const pemesanan = await this.prisma.pemesanan.findUnique({ where: { id } });
     if (!pemesanan) throw new NotFoundException('Pemesanan tidak ditemukan.');
     await this.prisma.pemesanan.delete({ where: { id } });
+
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'DELETE_PEMESANAN',
+      modul: 'Approval',
+      keterangan: `Menghapus pemesanan ${pemesanan.kode_pemesanan} dari sistem.`,
+    });
+
     return { status: 'success', message: `Pemesanan ${pemesanan.kode_pemesanan} berhasil dihapus dari sistem.` };
   }
 
@@ -200,15 +320,19 @@ export class AdminService {
       }),
     ]);
 
-    const formattedAdmins = admins.map((a) => ({
-      ...a,
-      department: a.departments,
-    }));
+    const formattedAdmins = admins.map((a) =>
+      sanitizeUser({
+        ...a,
+        department: a.departments,
+      }),
+    );
 
-    const formattedUsers = userItems.map((u) => ({
-      ...u,
-      department: u.departments,
-    }));
+    const formattedUsers = userItems.map((u) =>
+      sanitizeUser({
+        ...u,
+        department: u.departments,
+      }),
+    );
 
     const from = total > 0 ? (page - 1) * perPage + 1 : 0;
     const to = Math.min(page * perPage, total);
@@ -240,10 +364,10 @@ export class AdminService {
     if (!user) throw new NotFoundException('User tidak ditemukan.');
     return {
       status: 'success',
-      data: {
+      data: sanitizeUser({
         ...user,
         department: user.departments,
-      },
+      }),
     };
   }
 
@@ -256,14 +380,22 @@ export class AdminService {
         email: body.email || null,
         no_wa: body.no_wa || null,
         password: hashed,
-        password_plain: body.password || null,
+        password_plain: null, // Keamanan: Jangan simpan password teks polos
         role: body.role || 'user',
         nama_unit: body.nama_unit || body.name || '',
         kode_unit: body.kode_unit || '',
         department_id: body.department_id ? BigInt(body.department_id) : null,
       },
     });
-    return { status: 'success', message: 'User berhasil dibuat.', data: user };
+
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'CREATE_USER',
+      modul: 'User Management',
+      keterangan: `Membuat pengguna baru: ${user.username} (${user.nama_unit})`,
+    });
+
+    return { status: 'success', message: 'User berhasil dibuat.', data: sanitizeUser(user) };
   }
 
   async userUpdate(id: number, body: any) {
@@ -280,17 +412,33 @@ export class AdminService {
     }
     if (body.password) {
       data.password = await bcrypt.hash(body.password, 12);
-      data.password_plain = body.password;
+      // Keamanan: Jangan simpan password teks polos
     }
     const user = await this.prisma.users.update({
       where: { id: BigInt(id) },
       data,
     });
-    return { status: 'success', message: 'User berhasil diperbarui.', data: user };
+
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'UPDATE_USER',
+      modul: 'User Management',
+      keterangan: `Memperbarui data pengguna: ${user.username} (ID: ${user.id})`,
+    });
+
+    return { status: 'success', message: 'User berhasil diperbarui.', data: sanitizeUser(user) };
   }
 
   async userDestroy(id: number) {
     await this.prisma.users.delete({ where: { id: BigInt(id) } });
+
+    await this.auditLog.log({
+      userId: null,
+      aksi: 'DELETE_USER',
+      modul: 'User Management',
+      keterangan: `Menghapus user ID: ${id}`,
+    });
+
     return { status: 'success', message: 'User berhasil dihapus.' };
   }
 
