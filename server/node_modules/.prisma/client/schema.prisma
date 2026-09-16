@@ -1,0 +1,322 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  name                     String?                    @db.VarChar(255)
+  username                 String?                    @unique(map: "users_username_unique") @db.VarChar(255)
+  email                    String?                    @unique(map: "users_email_unique") @db.VarChar(255)
+  no_wa                    String?                    @db.VarChar(20)
+  password                 String                     @db.VarChar(255)
+  password_plain           String?                    @db.VarChar(255)
+  role                     users_role                 @default(user)
+  nama_unit                String                     @db.VarChar(255)
+  kode_unit                String                     @db.VarChar(255)
+  department_id            BigInt?                    @db.UnsignedBigInt
+  remember_token           String?                    @db.VarChar(100)
+  created_at               DateTime?                  @db.Timestamp(0)
+  updated_at               DateTime?                  @updatedAt @db.Timestamp(0)
+  audit_log                audit_log[]
+  approved_pemesanan       pemesanan[]                @relation("ApprovedBy")
+  cancelled_pemesanan      pemesanan[]                @relation("CancelledBy")
+  rejected_pemesanan       pemesanan[]                @relation("RejectedBy")
+  pemesanan                pemesanan[]                @relation("UserPemesanan")
+  pemesanan_status_history pemesanan_status_history[]
+  departments              departments?               @relation(fields: [department_id], references: [id], onUpdate: Restrict, map: "users_department_id_foreign")
+
+  @@index([department_id], map: "users_department_id_foreign")
+}
+
+model departments {
+  id         BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  nama_unit  String             @db.VarChar(255)
+  kode_unit  String             @unique(map: "departments_kode_unit_unique") @db.VarChar(255)
+  status     departments_status @default(aktif)
+  created_at DateTime?          @db.Timestamp(0)
+  updated_at DateTime?          @updatedAt @db.Timestamp(0)
+  users      users[]
+}
+
+model ruangan {
+  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  nama_ruangan   String           @db.VarChar(255)
+  kapasitas      Int
+  status         ruangan_status   @default(aktif)
+  lokasi         String           @db.VarChar(255)
+  created_at     DateTime?        @db.Timestamp(0)
+  updated_at     DateTime?        @updatedAt @db.Timestamp(0)
+  layout_ruangan layout_ruangan[]
+  pemesanan      pemesanan[]
+  ruangan_layout ruangan_layout[]
+}
+
+model layout_ruangan {
+  id               BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  ruangan_id       BigInt?          @db.UnsignedBigInt
+  nama_layout      String           @db.VarChar(255)
+  kapasitas_layout Int?
+  created_at       DateTime?        @db.Timestamp(0)
+  updated_at       DateTime?        @updatedAt @db.Timestamp(0)
+  ruangan          ruangan?         @relation(fields: [ruangan_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "layout_ruangan_ruangan_id_foreign")
+  pemesanan        pemesanan[]
+  ruangan_layout   ruangan_layout[]
+
+  @@index([ruangan_id], map: "layout_ruangan_ruangan_id_foreign")
+}
+
+model pemesanan {
+  id                       BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  kode_pemesanan           String                      @unique(map: "pemesanan_kode_pemesanan_unique") @db.VarChar(255)
+  user_id                  BigInt                      @db.UnsignedBigInt
+  ruangan_id               BigInt                      @db.UnsignedBigInt
+  layout_ruangan_id        BigInt?                     @db.UnsignedBigInt
+  tanggal_kegiatan         DateTime                    @db.Date
+  waktu_mulai              DateTime                    @db.Time(0)
+  waktu_selesai            DateTime                    @db.Time(0)
+  judul_kegiatan           String                      @db.VarChar(150)
+  jenis_kegiatan           String                      @default("Internal") @db.VarChar(20)
+  pic_kegiatan             String                      @db.VarChar(255)
+  jenis_pic                pemesanan_jenis_pic
+  no_wa_pic                String?                     @db.VarChar(20)
+  jumlah_tamu              Int
+  keterangan_layout        String?                     @db.Text
+  catatan_user             String?                     @db.Text
+  file_disposisi           String?                     @db.VarChar(255)
+  status                   pemesanan_status            @default(Pending)
+  reschedule_status        pemesanan_reschedule_status @default(None)
+  reschedule_tanggal       DateTime?                   @db.Date
+  reschedule_waktu_mulai   DateTime?                   @db.Time(0)
+  reschedule_waktu_selesai DateTime?                   @db.Time(0)
+  reschedule_alasan        String?                     @db.Text
+  approved_by              BigInt?                     @db.UnsignedBigInt
+  approved_at              DateTime?                   @db.Timestamp(0)
+  rejected_by              BigInt?                     @db.UnsignedBigInt
+  rejected_at              DateTime?                   @db.Timestamp(0)
+  alasan_penolakan         String?                     @db.Text
+  cancelled_by             BigInt?                     @db.UnsignedBigInt
+  cancelled_at             DateTime?                   @db.Timestamp(0)
+  alasan_pembatalan        String?                     @db.Text
+  catatan_admin            String?                     @db.Text
+  created_at               DateTime?                   @db.Timestamp(0)
+  updated_at               DateTime?                   @updatedAt @db.Timestamp(0)
+  approver                 users?                      @relation("ApprovedBy", fields: [approved_by], references: [id], onUpdate: Restrict, map: "pemesanan_approved_by_foreign")
+  canceller                users?                      @relation("CancelledBy", fields: [cancelled_by], references: [id], onUpdate: Restrict, map: "pemesanan_cancelled_by_foreign")
+  layout_ruangan           layout_ruangan?             @relation(fields: [layout_ruangan_id], references: [id], onUpdate: Restrict, map: "pemesanan_layout_ruangan_id_foreign")
+  rejecter                 users?                      @relation("RejectedBy", fields: [rejected_by], references: [id], onUpdate: Restrict, map: "pemesanan_rejected_by_foreign")
+  ruangan                  ruangan                     @relation(fields: [ruangan_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "pemesanan_ruangan_id_foreign")
+  users                    users                       @relation("UserPemesanan", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "pemesanan_user_id_foreign")
+  pemesanan_status_history pemesanan_status_history[]
+
+  @@index([tanggal_kegiatan, status], map: "idx_pemesanan_tgl_status")
+  @@index([user_id, status], map: "idx_pemesanan_user_status")
+  @@index([approved_by], map: "pemesanan_approved_by_foreign")
+  @@index([cancelled_by], map: "pemesanan_cancelled_by_foreign")
+  @@index([layout_ruangan_id], map: "pemesanan_layout_ruangan_id_foreign")
+  @@index([rejected_by], map: "pemesanan_rejected_by_foreign")
+  @@index([ruangan_id, tanggal_kegiatan, status], map: "pemesanan_ruangan_id_tanggal_kegiatan_status_index")
+}
+
+model pemesanan_status_history {
+  id           BigInt                               @id @default(autoincrement()) @db.UnsignedBigInt
+  pemesanan_id BigInt                               @db.UnsignedBigInt
+  status_lama  pemesanan_status_history_status_lama
+  status_baru  pemesanan_status_history_status_baru
+  changed_by   BigInt?                              @db.UnsignedBigInt
+  changed_at   DateTime                             @default(now()) @db.Timestamp(0)
+  created_at   DateTime?                            @db.Timestamp(0)
+  updated_at   DateTime?                            @db.Timestamp(0)
+  users        users?                               @relation(fields: [changed_by], references: [id], onUpdate: Restrict, map: "pemesanan_status_history_changed_by_foreign")
+  pemesanan    pemesanan                            @relation(fields: [pemesanan_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "pemesanan_status_history_pemesanan_id_foreign")
+
+  @@index([changed_by], map: "pemesanan_status_history_changed_by_foreign")
+  @@index([pemesanan_id], map: "pemesanan_status_history_pemesanan_id_foreign")
+}
+
+model audit_log {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt?   @db.UnsignedBigInt
+  aksi       String    @db.VarChar(255)
+  modul      String    @db.VarChar(255)
+  keterangan String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      users?    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "audit_log_user_id_foreign")
+
+  @@index([user_id], map: "audit_log_user_id_foreign")
+}
+
+model notifications {
+  id              String    @id @db.Char(36)
+  type            String    @db.VarChar(255)
+  notifiable_type String    @db.VarChar(255)
+  notifiable_id   BigInt    @db.UnsignedBigInt
+  data            String    @db.Text
+  read_at         DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @updatedAt @db.Timestamp(0)
+
+  @@index([notifiable_type, notifiable_id], map: "notifications_notifiable_type_notifiable_id_index")
+}
+
+model hari_libur {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tanggal     DateTime  @unique(map: "hari_libur_tanggal_unique") @db.Date
+  keterangan  String    @db.VarChar(255)
+  kategori    String    @default("libur_nasional") @db.VarChar(30)
+  is_nasional Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @updatedAt @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.Text
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @updatedAt @db.Timestamp(0)
+
+  @@index([expires_at], map: "personal_access_tokens_expires_at_index")
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model cache {
+  key        String @id @db.VarChar(255)
+  value      String @db.MediumText
+  expiration Int
+}
+
+model cache_locks {
+  key        String @id @db.VarChar(255)
+  owner      String @db.VarChar(255)
+  expiration Int
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model job_batches {
+  id             String  @id @db.VarChar(255)
+  name           String  @db.VarChar(255)
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String  @db.LongText
+  options        String? @db.MediumText
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedTinyInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model ruangan_layout {
+  id                BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  ruangan_id        BigInt         @db.UnsignedBigInt
+  layout_ruangan_id BigInt         @db.UnsignedBigInt
+  kapasitas_layout  Int?
+  created_at        DateTime?      @db.Timestamp(0)
+  updated_at        DateTime?      @db.Timestamp(0)
+  layout_ruangan    layout_ruangan @relation(fields: [layout_ruangan_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ruangan_layout_layout_ruangan_id_foreign")
+  ruangan           ruangan        @relation(fields: [ruangan_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "ruangan_layout_ruangan_id_foreign")
+
+  @@index([layout_ruangan_id], map: "ruangan_layout_layout_ruangan_id_foreign")
+  @@index([ruangan_id], map: "ruangan_layout_ruangan_id_foreign")
+}
+
+model sessions {
+  id            String  @id @db.VarChar(255)
+  user_id       BigInt? @db.UnsignedBigInt
+  ip_address    String? @db.VarChar(45)
+  user_agent    String? @db.Text
+  payload       String  @db.Text
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
+}
+
+enum pemesanan_status_history_status_lama {
+  Pending
+  Disetujui
+  Ditolak
+  Cancel
+  Selesai
+}
+
+enum departments_status {
+  aktif
+  nonaktif
+}
+
+enum pemesanan_status_history_status_baru {
+  Pending
+  Disetujui
+  Ditolak
+  Cancel
+  Selesai
+}
+
+enum ruangan_status {
+  aktif
+  nonaktif
+  perawatan
+}
+
+enum users_role {
+  admin
+  user
+}
+
+enum pemesanan_jenis_pic {
+  Organik
+  Non_Organik @map("Non Organik")
+}
+
+enum pemesanan_status {
+  Pending
+  Disetujui
+  Ditolak
+  Cancel
+  Selesai
+}
+
+enum pemesanan_reschedule_status {
+  None
+  Pending
+  Disetujui
+  Ditolak
+}

@@ -4,13 +4,16 @@ import { useAuth } from '../../context/AuthContext';
 import { adminService, AdminDashboardData } from '../../services/adminService';
 import { StatCard } from '../../components/common/StatCard';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { Skeleton, StatCardSkeleton } from '../../components/common/Skeleton';
 import { Modal } from '../../components/common/Modal';
 import { Pemesanan } from '../../types';
+import { AlertBanner } from '../../components/feedback/AlertBanner';
 
 export const AdminDashboard: React.FC = () => {
     const { user } = useAuth();
     const [data, setData] = useState<AdminDashboardData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [alertMessage, setAlertMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     // Modals
     const [deleteTarget, setDeleteTarget] = useState<Pemesanan | null>(null);
@@ -80,11 +83,13 @@ export const AdminDashboard: React.FC = () => {
         if (!deleteTarget) return;
         setActionLoading(true);
         try {
-            await adminService.deleteBooking(deleteTarget.id);
+            const res = await adminService.deleteBooking(deleteTarget.id);
+            setAlertMessage({ type: 'success', text: res.message || 'Pemesanan berhasil dihapus dari sistem.' });
             setDeleteTarget(null);
             loadData();
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to delete booking:', e);
+            setAlertMessage({ type: 'error', text: e.response?.data?.message || 'Gagal menghapus pemesanan.' });
         } finally {
             setActionLoading(false);
         }
@@ -94,18 +99,45 @@ export const AdminDashboard: React.FC = () => {
         if (!selesaiTarget) return;
         setActionLoading(true);
         try {
-            await adminService.selesaiAwal(selesaiTarget.id);
+            const res = await adminService.selesaiAwal(selesaiTarget.id);
+            setAlertMessage({ type: 'success', text: res.message || 'Kegiatan rapat berhasil diselesaikan lebih awal.' });
             setSelesaiTarget(null);
             loadData();
-        } catch (e) {
+        } catch (e: any) {
             console.error('Failed to finish early:', e);
+            setAlertMessage({ type: 'error', text: e.response?.data?.message || 'Gagal menyelesaikan rapat.' });
         } finally {
             setActionLoading(false);
         }
     };
 
     if (isLoading && !data) {
-        return <LoadingSpinner message="Memuat Dashboard Admin..." />;
+        return (
+            <div>
+                <div className="dashboard-header">
+                    <div>
+                        <Skeleton width={260} height={32} style={{ marginBottom: '8px' }} />
+                        <Skeleton width={340} height={18} />
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <Skeleton width={150} height={42} borderRadius={10} />
+                        <Skeleton width={160} height={42} borderRadius={10} />
+                    </div>
+                </div>
+                <div className="stat-grid" style={{ marginTop: '20px' }}>
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                </div>
+                <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                    <Skeleton height={280} borderRadius={14} />
+                    <Skeleton height={280} borderRadius={14} />
+                </div>
+            </div>
+        );
     }
 
     // Format Indonesian Dates matching Blade:
@@ -154,6 +186,53 @@ export const AdminDashboard: React.FC = () => {
                     </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '4px 10px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px', marginRight: '2px' }}>
+                            <i className="bi bi-tv-fill" style={{ color: '#005baa' }}></i> Display TV:
+                        </span>
+                        <a
+                            href="/display/internal"
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                                fontSize: '11px',
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                background: '#005baa',
+                                color: '#ffffff',
+                                textDecoration: 'none',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.2s ease',
+                            }}
+                            title="Buka Tampilan Kiosk TV Rapat Internal (/display/internal)"
+                        >
+                            <i className="bi bi-building"></i> Internal ↗
+                        </a>
+                        <a
+                            href="/display/eksternal"
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                                fontSize: '11px',
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                background: '#d97706',
+                                color: '#ffffff',
+                                textDecoration: 'none',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.2s ease',
+                            }}
+                            title="Buka Tampilan Kiosk TV Rapat Eksternal (/display/eksternal)"
+                        >
+                            <i className="bi bi-people-fill"></i> Eksternal ↗
+                        </a>
+                    </div>
                     <Link
                         to="/pemesanan/create"
                         className="btn-primary"
@@ -175,12 +254,23 @@ export const AdminDashboard: React.FC = () => {
                 </div>
             </div>
 
+            {/* Alert Notification */}
+            {alertMessage && (
+                <div style={{ marginBottom: '16px' }}>
+                    <AlertBanner
+                        type={alertMessage.type}
+                        message={alertMessage.text}
+                        onClose={() => setAlertMessage(null)}
+                    />
+                </div>
+            )}
+
             {/* LIVE Banner (Exact Blade Line 22-71) */}
             {data?.kegiatan_berlangsung && data.kegiatan_berlangsung.length > 0 && (
                 <div className="live-banner">
                     <div className="live-banner-header">
                         <div className="live-banner-title">
-                            <span className="live-indicator-dot"></span>
+                            <span className="live-indicator-radar" style={{ marginRight: '6px' }}></span>
                             Kegiatan Sedang Berlangsung — Live Saat Ini
                         </div>
                         <span className="live-count">
@@ -195,12 +285,12 @@ export const AdminDashboard: React.FC = () => {
                                         <i className="bi bi-building"></i> {live.ruangan?.nama_ruangan}
                                     </strong>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                                        <span className="live-card-time">
+                                        <span className="live-card-time tabular-nums">
                                             <i className="bi bi-clock-history"></i> {live.waktu_mulai} – {live.waktu_selesai} WITA
                                         </span>
                                         <span className="live-countdown-badge">
                                             <i className="bi bi-hourglass-split" style={{ animation: 'spinHourglass 2.5s infinite linear', color: '#fef08a' }}></i>
-                                            <span className="countdown-value">{countdowns[live.id] || 'Hitung sisa...'}</span>
+                                            <span className="countdown-value tabular-nums">{countdowns[live.id] || 'Hitung sisa...'}</span>
                                         </span>
                                     </div>
                                 </div>
@@ -321,8 +411,8 @@ export const AdminDashboard: React.FC = () => {
                                             </small>
                                         </td>
                                         <td>
-                                            <strong>{item.user?.name}</strong><br />
-                                            <small style={{ color: '#64748b' }}>{item.user?.nama_unit ?? '-'}</small>
+                                            <strong>{item.user?.name || item.users?.name || item.pic_kegiatan || '-'}</strong><br />
+                                            <small style={{ color: '#64748b' }}>{item.user?.nama_unit || item.users?.nama_unit || '-'}</small>
                                         </td>
                                         <td>
                                             <span className="badge badge-success">
@@ -395,7 +485,7 @@ export const AdminDashboard: React.FC = () => {
                                                 <span className="badge badge-secondary">{item.kode_pemesanan}</span>
                                             </td>
                                             <td>{item.judul_kegiatan}</td>
-                                            <td>{item.user?.name}</td>
+                                            <td>{item.user?.name || item.users?.name || item.pic_kegiatan || '-'}</td>
                                             <td>{item.ruangan?.nama_ruangan}</td>
                                         </tr>
                                     ))
@@ -517,7 +607,7 @@ export const AdminDashboard: React.FC = () => {
                             <div key={item.id} className="activity-item">
                                 <div className="activity-dot"></div>
                                 <div>
-                                    <strong>{item.user?.name}</strong>
+                                    <strong>{item.user?.name || item.users?.name || item.pic_kegiatan || 'User'}</strong>
                                     membuat pemesanan ruangan<br />
                                     <small><i className="bi bi-hash"></i> {item.kode_pemesanan}</small>
                                 </div>

@@ -25,7 +25,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     return config;
 });
 
-// Response interceptor: handle 401 unauthenticated
+// Response interceptor: handle 401 unauthenticated and 419 token mismatch
 api.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
@@ -36,6 +36,13 @@ api.interceptors.response.use(
                 localStorage.removeItem('silakan_token');
                 localStorage.removeItem('silakan_user');
                 window.location.href = '/login';
+            }
+        } else if (error.response?.status === 419) {
+            // CSRF mismatch / session expired: reload to get fresh session & CSRF
+            console.warn('Session expired or CSRF token mismatch, refreshing session...');
+            const currentPath = window.location.pathname;
+            if (currentPath !== '/login') {
+                window.location.reload();
             }
         }
         return Promise.reject(error);

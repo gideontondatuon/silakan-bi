@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { notificationService } from '../../services/notificationService';
 import { useNotifications } from '../../context/NotificationContext';
 import { NotificationItem, PaginatedData } from '../../types';
 import { Modal } from '../../components/common/Modal';
 
 export const NotificationListPage: React.FC = () => {
+    const navigate = useNavigate();
     const { refreshNotifications } = useNotifications();
     const [data, setData] = useState<PaginatedData<NotificationItem> | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -43,6 +45,15 @@ export const NotificationListPage: React.FC = () => {
     };
 
     const handleItemClick = async (notif: NotificationItem) => {
+        let notifData: any = notif.data;
+        if (typeof notifData === 'string') {
+            try {
+                notifData = JSON.parse(notifData);
+            } catch {
+                notifData = {};
+            }
+        }
+
         if (!notif.read_at) {
             try {
                 await notificationService.markAsRead(notif.id);
@@ -57,6 +68,18 @@ export const NotificationListPage: React.FC = () => {
             } catch (err) {
                 console.error('Failed to mark notification read:', err);
             }
+        }
+
+        const userStr = localStorage.getItem('user');
+        const currentUser = userStr ? JSON.parse(userStr) : null;
+        if (notifData?.pemesanan_id) {
+            if (currentUser?.role === 'admin') {
+                navigate(`/admin/approval/${notifData.pemesanan_id}`);
+            } else {
+                navigate(`/pemesanan/${notifData.pemesanan_id}`);
+            }
+        } else if (notifData?.url) {
+            navigate(notifData.url);
         }
     };
 
@@ -134,9 +157,17 @@ export const NotificationListPage: React.FC = () => {
                     <div className="notification-list" style={{ padding: '20px' }}>
                         {data && data.data.length > 0 ? (
                             data.data.map((notification) => {
-                                const judul = notification.data?.judul || 'Notifikasi';
-                                const pesan = notification.data?.pesan || '';
-                                const waktu = notification.data?.waktu || '';
+                                let notifData: any = notification.data;
+                                if (typeof notifData === 'string') {
+                                    try {
+                                        notifData = JSON.parse(notifData);
+                                    } catch {
+                                        notifData = {};
+                                    }
+                                }
+                                const judul = notifData?.judul || 'Notifikasi';
+                                const pesan = notifData?.pesan || '';
+                                const waktu = notifData?.waktu || '';
                                 const isUnread = !notification.read_at;
 
                                 let iconClass = 'bi bi-bell-fill';

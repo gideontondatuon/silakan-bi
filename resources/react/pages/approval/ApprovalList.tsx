@@ -478,9 +478,23 @@ export const ApprovalList: React.FC = () => {
                                             <strong style={{ color: '#0f172a', fontSize: '13.5px', display: 'block' }}>
                                                 {item.judul_kegiatan}
                                             </strong>
-                                            <small style={{ color: '#64748b' }}>
-                                                <i className="bi bi-person"></i> PIC: {item.pic_kegiatan} ({item.jenis_pic ?? '-'})
-                                            </small>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                                                <small style={{ color: '#64748b' }}>
+                                                    <i className="bi bi-person"></i> PIC: {item.pic_kegiatan} ({item.jenis_pic ?? '-'})
+                                                </small>
+                                                <span
+                                                    style={{
+                                                        fontSize: '10px',
+                                                        fontWeight: 700,
+                                                        padding: '1px 6px',
+                                                        borderRadius: '4px',
+                                                        background: item.jenis_kegiatan === 'Eksternal' ? '#fef3c7' : '#e0f2fe',
+                                                        color: item.jenis_kegiatan === 'Eksternal' ? '#92400e' : '#0369a1',
+                                                    }}
+                                                >
+                                                    {item.jenis_kegiatan === 'Eksternal' ? 'Eksternal' : 'Internal'}
+                                                </span>
+                                            </div>
                                             {item.file_disposisi && (
                                                 <div style={{ marginTop: '3px' }}>
                                                     <span className="badge badge-info" style={{ fontSize: '10px', padding: '2px 6px' }}>
@@ -502,10 +516,10 @@ export const ApprovalList: React.FC = () => {
                                         </td>
                                         <td style={{ padding: '14px 18px' }}>
                                             <strong style={{ color: '#003b73', display: 'block' }}>
-                                                {item.user?.name ?? 'User (Dihapus)'}
+                                                {item.user?.name || item.users?.name || item.pic_kegiatan || '-'}
                                             </strong>
                                             <small style={{ color: '#64748b' }}>
-                                                {item.user?.nama_unit ?? '-'}
+                                                {item.user?.nama_unit || item.users?.nama_unit || (item as any).nama_unit || '-'}
                                             </small>
                                         </td>
                                         <td style={{ padding: '14px 18px' }}>

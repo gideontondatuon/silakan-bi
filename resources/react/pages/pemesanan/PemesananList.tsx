@@ -174,6 +174,23 @@ export const PemesananList: React.FC = () => {
                                         </td>
                                         <td>
                                             <strong style={{ color: '#003b73' }}>{item.judul_kegiatan}</strong>
+                                            {item.jenis_kegiatan && (
+                                                <div style={{ marginTop: '3px' }}>
+                                                    <span
+                                                        style={{
+                                                            fontSize: '10.5px',
+                                                            fontWeight: 700,
+                                                            padding: '2px 7px',
+                                                            borderRadius: '5px',
+                                                            background: item.jenis_kegiatan === 'Eksternal' ? '#fef3c7' : '#e0f2fe',
+                                                            color: item.jenis_kegiatan === 'Eksternal' ? '#92400e' : '#0369a1',
+                                                        }}
+                                                    >
+                                                        <i className={`bi ${item.jenis_kegiatan === 'Eksternal' ? 'bi-globe2' : 'bi-building'}`} style={{ marginRight: '3px' }}></i>
+                                                        {item.jenis_kegiatan}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </td>
                                         <td>
                                             <strong>{item.ruangan?.nama_ruangan || '-'}</strong>

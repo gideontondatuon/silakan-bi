@@ -39,9 +39,21 @@ export const UserList: React.FC = () => {
         setIsLoading(true);
         try {
             const res = await adminService.getUserList({ page: pageToLoad });
-            if (res.status === 'success') {
-                setAdmins(res.data.admins || []);
-                setUsers(res.data.users);
+            if (res.status === 'success' && res.data) {
+                if (res.data.users) {
+                    setAdmins(res.data.admins || []);
+                    setUsers(res.data.users);
+                } else if ((res.data as any).data) {
+                    const allUsers: User[] = (res.data as any).data || [];
+                    const adminList = allUsers.filter(u => u.role === 'admin');
+                    const regularUsers = allUsers.filter(u => u.role !== 'admin');
+                    setAdmins(adminList);
+                    setUsers({
+                        ...(res.data as any),
+                        data: regularUsers,
+                        total: regularUsers.length,
+                    });
+                }
             }
         } catch (err: any) {
             setAlertMessage({

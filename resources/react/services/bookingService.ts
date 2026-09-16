@@ -85,6 +85,10 @@ export const bookingService = {
         return response.data;
     },
 
+    async createBooking(formData: FormData): Promise<ApiResponse<Pemesanan>> {
+        return this.createPemesanan(formData);
+    },
+
     async cancelPemesanan(id: number | string): Promise<ApiResponse<Pemesanan>> {
         const response = await api.post<ApiResponse<Pemesanan>>(`/pemesanan/${id}/cancel`);
         return response.data;
@@ -107,26 +111,55 @@ export const bookingService = {
     },
 
     async getRuanganList(onlyActive: boolean = true): Promise<ApiResponse<Ruangan[]>> {
-        const response = await api.get<ApiResponse<Ruangan[]>>('/ruangan', {
+        const response = await api.get<any>('/ruangan', {
             params: { only_active: onlyActive ? 1 : 0 },
         });
+        if (response.data && response.data.status === 'success') {
+            return response.data;
+        }
+        if (Array.isArray(response.data)) {
+            return { status: 'success', data: response.data };
+        }
         return response.data;
     },
 
     async getLayoutsByRuangan(ruanganId: number | string): Promise<LayoutRuangan[]> {
-        const response = await api.get<LayoutRuangan[]>(`/ruangan/${ruanganId}/layouts`);
-        return response.data;
+        const response = await api.get<any>(`/ruangan/${ruanganId}/layouts`);
+        const resData = response.data;
+        if (Array.isArray(resData)) return resData;
+        if (resData && Array.isArray(resData.data)) return resData.data;
+        return [];
     },
 
     async getKalenderEvents(ruanganId?: number | string): Promise<any[]> {
-        const response = await api.get<any[]>('/kalender/events', {
+        const response = await api.get<any>('/kalender/events', {
             params: ruanganId ? { ruangan_id: ruanganId } : {},
         });
-        return response.data;
+        const resData = response.data;
+        if (Array.isArray(resData)) return resData;
+        if (resData && Array.isArray(resData.data)) return resData.data;
+        return [];
     },
 
     async getDisplayKioskData(): Promise<any> {
         const response = await api.get('/display-data');
+        return response.data;
+    },
+
+    async getHolidays(): Promise<Array<{ id: number; tanggal: string; keterangan: string; kategori: string }>> {
+        try {
+            const response = await api.get<any>('/hari-libur/dates');
+            const resData = response.data;
+            if (resData && Array.isArray(resData.data)) return resData.data;
+            if (Array.isArray(resData)) return resData;
+            return [];
+        } catch {
+            return [];
+        }
+    },
+
+    async getUnits(): Promise<ApiResponse<Array<{ id: number; nama_unit: string; kode_unit: string; role: string }>>> {
+        const response = await api.get<ApiResponse<any>>('/pemesanan/units');
         return response.data;
     },
 };

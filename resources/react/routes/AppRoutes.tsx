@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppLayout } from '../layouts/AppLayout';
@@ -52,12 +52,64 @@ const RootRedirect: React.FC = () => {
 };
 
 export const AppRoutes: React.FC = () => {
+    const location = useLocation();
+
+    useEffect(() => {
+        const path = location.pathname;
+        let title = 'SILAKAN - Sistem Informasi Layanan Kantor';
+
+        if (path === '/login') {
+            title = 'Login | SILAKAN';
+        } else if (path.startsWith('/display') || path.startsWith('/kiosk')) {
+            if (path.includes('eksternal')) {
+                title = 'Display Jadwal Rapat Eksternal | SILAKAN';
+            } else if (path.includes('internal')) {
+                title = 'Display Jadwal Rapat Internal | SILAKAN';
+            } else {
+                title = 'Display Jadwal Rapat | SILAKAN';
+            }
+        } else if (path === '/dashboard') {
+            title = 'Dashboard | SILAKAN';
+        } else if (path === '/admin/dashboard') {
+            title = 'Admin Dashboard | SILAKAN';
+        } else if (path.startsWith('/admin/approval')) {
+            title = 'Verifikasi Pemesanan | SILAKAN';
+        } else if (path.startsWith('/admin/ruangan')) {
+            title = 'Master Ruangan | SILAKAN';
+        } else if (path.startsWith('/admin/layout')) {
+            title = 'Master Layout Ruangan | SILAKAN';
+        } else if (path.startsWith('/admin/hari-libur')) {
+            title = 'Master Hari Libur | SILAKAN';
+        } else if (path.startsWith('/admin/users')) {
+            title = 'Manajemen Pengguna | SILAKAN';
+        } else if (path.startsWith('/admin/laporan')) {
+            title = 'Laporan Pemesanan | SILAKAN';
+        } else if (path.startsWith('/admin/audit-log')) {
+            title = 'Audit Log Aktivitas | SILAKAN';
+        } else if (path === '/pemesanan/create') {
+            title = 'Form Pemesanan Ruangan | SILAKAN';
+        } else if (path.startsWith('/pemesanan')) {
+            title = 'Daftar Pemesanan | SILAKAN';
+        } else if (path === '/kalender') {
+            title = 'Kalender Ruangan | SILAKAN';
+        } else if (path.includes('kegiatan-berlangsung')) {
+            title = 'Kegiatan Berlangsung | SILAKAN';
+        } else if (path === '/profile') {
+            title = 'Profil Pengguna | SILAKAN';
+        } else if (path === '/notifikasi' || path === '/notifications') {
+            title = 'Notifikasi | SILAKAN';
+        }
+
+        document.title = title;
+    }, [location.pathname]);
     return (
         <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/display" element={<KioskDisplay />} />
+            <Route path="/display/:type" element={<KioskDisplay />} />
             <Route path="/kiosk" element={<KioskDisplay />} />
+            <Route path="/kiosk/:type" element={<KioskDisplay />} />
 
             {/* Root Redirect */}
             <Route path="/" element={<RootRedirect />} />

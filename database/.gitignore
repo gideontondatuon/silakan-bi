@@ -1,5 +1,0 @@
-*.sqlite*
-*.sql
-/backups/*.sql
-!/backups/.gitkeep
-

@@ -60,6 +60,10 @@ export const adminService = {
         return response.data;
     },
 
+    async adminCreateBooking(formData: FormData): Promise<ApiResponse<Pemesanan>> {
+        return this.createBooking(formData);
+    },
+
     async approve(id: number | string, catatanAdmin?: string): Promise<ApiResponse<Pemesanan>> {
         const response = await api.post<ApiResponse<Pemesanan>>(`/admin/approval/${id}/approve`, {
             catatan_admin: catatanAdmin,
@@ -215,6 +219,12 @@ export const adminService = {
     // Audit Log
     async getAuditLogs(params?: { tanggal_mulai?: string; tanggal_selesai?: string; modul?: string; q?: string; page?: number; per_page?: number }): Promise<ApiResponse<PaginatedData<AuditLog>>> {
         const response = await api.get<ApiResponse<PaginatedData<AuditLog>>>('/admin/audit-log', { params });
+        return response.data;
+    },
+
+    // Units
+    async getUnits(): Promise<ApiResponse<Array<{ id: number; nama_unit: string; kode_unit: string; role: string }>>> {
+        const response = await api.get<ApiResponse<any>>('/admin/units');
         return response.data;
     },
 };

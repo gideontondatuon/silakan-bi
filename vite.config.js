@@ -1,22 +1,23 @@
 import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-    plugins: [
-        laravel({
-            input: [
-                'resources/css/app.css',
-                'resources/react/main.tsx',
-            ],
-            refresh: true,
-        }),
-        react(),
-    ],
+    plugins: [react()],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'resources/react'),
         },
     },
+    server: {
+        port: 8000,
+        host: true,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3001',
+                changeOrigin: true,
+            },
+        },
+    },
 });
+

@@ -16,7 +16,7 @@ export const RuanganCreate: React.FC = () => {
         nama_ruangan: '',
         lokasi: '',
         kapasitas: '',
-        status: 'aktif' as 'aktif' | 'nonaktif' | 'perawatan',
+        status: 'aktif' as 'aktif' | 'nonaktif' | 'pemeliharaan',
     });
     const [selectedLayouts, setSelectedLayouts] = useState<number[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -186,7 +186,7 @@ export const RuanganCreate: React.FC = () => {
                                 >
                                     <option value="aktif">Aktif</option>
                                     <option value="nonaktif">Nonaktif</option>
-                                    <option value="perawatan">Perawatan</option>
+                                    <option value="pemeliharaan">Pemeliharaan</option>
                                 </select>
                                 {errors.status && (
                                     <span className="form-error">

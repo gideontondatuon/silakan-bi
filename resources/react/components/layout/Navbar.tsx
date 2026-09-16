@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { notificationService } from '../../services/notificationService';
 
 interface NavbarProps {
     onToggleSidebar: () => void;
@@ -10,7 +11,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarCollapsed }) => {
     const { user, role, logout } = useAuth();
-    const { unreadCount, notifications } = useNotifications();
+    const { unreadCount, notifications, refreshSync } = useNotifications();
     const location = useLocation();
 
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -102,10 +103,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarCollap
 
                 {/* Mobile Brand */}
                 <Link to={role === 'admin' ? '/admin/dashboard' : '/dashboard'} className="mobile-brand">
-                    <img src="/images/logo-bi4.png" alt="Bank Indonesia Logo" className="mobile-brand-logo" />
+                    <img src="/images/SILAKAN.png" alt="SILAKAN" className="mobile-brand-logo" />
                     <div className="mobile-brand-text">
                         <span className="mobile-brand-title">SILAKAN</span>
-                        <span className="mobile-brand-sub">KPwBI Prov. Sulut</span>
+                        <span className="mobile-brand-sub">Kantor Perwakilan Sulut</span>
                     </div>
                 </Link>
 
@@ -121,10 +122,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarCollap
             <div className="navbar-right">
                 {/* Real-time Clock */}
                 <div className="navbar-clock" id="navbar-clock">
-                    <span className="navbar-clock-time" id="navbar-time">
+                    <span className="navbar-clock-time tabular-nums" id="navbar-time">
                         {currentTime}
                     </span>
-                    <span className="navbar-clock-date" id="navbar-date">
+                    <span className="navbar-clock-date tabular-nums" id="navbar-date">
                         {currentDate}
                     </span>
                 </div>
@@ -171,7 +172,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarCollap
                                             key={notif.id}
                                             to={notif.pemesanan_id ? (role === 'admin' ? `/admin/approval/${notif.pemesanan_id}` : `/pemesanan/${notif.pemesanan_id}`) : '/notifications'}
                                             className="notification-item"
-                                            onClick={() => setIsNotifOpen(false)}
+                                            onClick={() => {
+                                                notificationService.markAsRead(notif.id).catch(() => {});
+                                                refreshSync();
+                                                setIsNotifOpen(false);
+                                            }}
                                         >
                                             <div className="notification-icon">
                                                 <i className="bi bi-calendar-event"></i>

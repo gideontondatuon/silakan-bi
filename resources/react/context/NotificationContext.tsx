@@ -66,23 +66,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 setNotifications(data.notifications || []);
 
                 // Check for new incoming notification (compared to baseline)
-                if (lastUnreadCount.current !== null && count > lastUnreadCount.current) {
+                const hasNewNotif = lastUnreadCount.current !== null && count > lastUnreadCount.current;
+                const hasNewPending = role === 'admin' && lastPendingCount.current !== null && currentPending > lastPendingCount.current;
+
+                if (hasNewNotif || hasNewPending) {
                     playNotificationChime();
                     if (data.notifications && data.notifications.length > 0) {
                         const top = data.notifications[0];
-                        showToast(top.judul || 'Notifikasi Baru', top.pesan || '', `/pemesanan/${top.pemesanan_id || ''}`, top.waktu);
+                        const targetUrl = role === 'admin'
+                            ? (top.pemesanan_id ? `/admin/approval/${top.pemesanan_id}` : '/admin/approval')
+                            : (top.pemesanan_id ? `/pemesanan/${top.pemesanan_id}` : '/pemesanan');
+                        showToast(top.judul || 'Notifikasi Baru', top.pesan || '', targetUrl, top.waktu);
+                    } else if (hasNewPending) {
+                        showToast(
+                            'Pengajuan Pemesanan Baru',
+                            'Terdapat pengajuan pemesanan ruangan baru yang menunggu verifikasi Anda.',
+                            '/admin/approval',
+                            'Baru saja'
+                        );
                     }
-                }
-
-                // Check for new pending booking for admin
-                if (role === 'admin' && lastPendingCount.current !== null && currentPending > lastPendingCount.current) {
-                    playNotificationChime();
-                    showToast(
-                        'Pengajuan Pemesanan Baru',
-                        'Terdapat pengajuan pemesanan ruangan baru yang menunggu verifikasi Anda.',
-                        '/admin/approval',
-                        'Baru saja'
-                    );
                 }
 
                 lastUnreadCount.current = count;
@@ -108,8 +110,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         // Initial sync
         performSync();
 
-        // 8-second interval sync matching existing system
-        const interval = setInterval(performSync, 8000);
+        // 5-second interval sync for fast, responsive in-app notifications
+        const interval = setInterval(performSync, 5000);
         return () => clearInterval(interval);
     }, [isAuthenticated, role]);
 

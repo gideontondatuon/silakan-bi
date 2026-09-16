@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Navbar } from '../components/layout/Navbar';
 import { ToastContainer } from '../components/feedback/ToastContainer';
+import { CommandPalette } from '../components/common/CommandPalette';
 
 interface AppLayoutProps {
     children?: React.ReactNode;
@@ -21,6 +22,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
     // Track mobile open state
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+    // Global Command Palette state
+    const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+    // Global keyboard shortcut: Ctrl+K or Cmd+K
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                setIsCommandPaletteOpen((prev) => !prev);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     // Sync body classes with state
     useEffect(() => {
@@ -121,6 +138,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     {children || <Outlet />}
                 </section>
             </main>
+
+            <CommandPalette
+                isOpen={isCommandPaletteOpen}
+                onClose={() => setIsCommandPaletteOpen(false)}
+            />
 
             <ToastContainer />
         </div>

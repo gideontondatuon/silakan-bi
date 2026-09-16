@@ -142,9 +142,9 @@ export const RuanganList: React.FC = () => {
                                                     <span className="badge badge-success">
                                                         <i className="bi bi-circle-fill" style={{ fontSize: '8px', marginRight: '4px' }}></i> Aktif
                                                     </span>
-                                                ) : ruangan.status === 'perawatan' ? (
+                                                ) : (ruangan.status === 'perawatan' || (ruangan.status as any) === 'pemeliharaan') ? (
                                                     <span className="badge badge-warning">
-                                                        <i className="bi bi-tools" style={{ fontSize: '10px', marginRight: '4px' }}></i> Perawatan
+                                                        <i className="bi bi-tools" style={{ fontSize: '10px', marginRight: '4px' }}></i> Pemeliharaan
                                                     </span>
                                                 ) : (
                                                     <span className="badge badge-danger">

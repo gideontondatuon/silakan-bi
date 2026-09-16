@@ -35,6 +35,7 @@ export const LaporanPage: React.FC = () => {
     // Excel & Print state
     const [isDownloadingExcel, setIsDownloadingExcel] = useState(false);
     const [excelDownloaded, setExcelDownloaded] = useState(false);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     // Delete modal state
     const [deleteTarget, setDeleteTarget] = useState<Pemesanan | null>(null);
@@ -176,16 +177,154 @@ export const LaporanPage: React.FC = () => {
         }
     };
 
-    const handlePrintPreview = () => {
-        const query = new URLSearchParams();
-        if (appliedFilters.tanggal_mulai) query.append('tanggal_mulai', appliedFilters.tanggal_mulai);
-        if (appliedFilters.tanggal_selesai) query.append('tanggal_selesai', appliedFilters.tanggal_selesai);
-        if (appliedFilters.ruangan_id) query.append('ruangan_id', appliedFilters.ruangan_id);
-        if (appliedFilters.user_id) query.append('user_id', appliedFilters.user_id);
-        if (appliedFilters.jenis_pic) query.append('jenis_pic', appliedFilters.jenis_pic);
-        if (appliedFilters.status) query.append('status', appliedFilters.status);
+    const handlePrintPreview = async () => {
+        if (isPrinting) return;
+        setIsPrinting(true);
+        let printData: any[] = [];
+        try {
+            const params: any = {
+                page: 1,
+                per_page: 9999,
+                tanggal_mulai: appliedFilters.tanggal_mulai || undefined,
+                tanggal_selesai: appliedFilters.tanggal_selesai || undefined,
+                ruangan_id: appliedFilters.ruangan_id || undefined,
+                user_id: appliedFilters.user_id || undefined,
+                jenis_pic: appliedFilters.jenis_pic || undefined,
+                status: appliedFilters.status || undefined,
+            };
+            const res = await adminService.getLaporanData(params);
+            printData = res.data?.items?.data || res.data?.items || [];
+        } catch {
+            printData = paginatedData?.data || [];
+        } finally {
+            setIsPrinting(false);
+        }
 
-        window.open(`/admin/laporan/cetak?${query.toString()}`, '_blank');
+        const statusColor: Record<string, string> = {
+            Disetujui: '#166534',
+            Ditolak: '#991b1b',
+            Menunggu: '#854d0e',
+            Selesai: '#075985',
+        };
+        const statusBg: Record<string, string> = {
+            Disetujui: '#dcfce7',
+            Ditolak: '#fee2e2',
+            Menunggu: '#fef9c3',
+            Selesai: '#e0f2fe',
+        };
+
+        const rows = printData.map((p: any, i: number) => {
+            const tgl = p.tanggal_kegiatan
+                ? new Date(p.tanggal_kegiatan).toLocaleDateString('id-ID', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                  })
+                : '-';
+            const waktu = `${(p.waktu_mulai ?? '').slice(0, 5)} \u2013 ${(p.waktu_selesai ?? '').slice(0, 5)}`;
+            const sc = statusColor[p.status] || '#374151';
+            const sb = statusBg[p.status] || '#f1f5f9';
+            const rowBg = i % 2 === 0 ? '#f8fafc' : '#ffffff';
+            return `<tr style="background:${rowBg}"><td style="text-align:center;font-weight:600">${i + 1}</td><td style="font-weight:600;color:#003366">${p.kode_pemesanan ?? '-'}</td><td>${tgl}</td><td style="white-space:nowrap">${waktu} WITA</td><td style="font-weight:600">${p.ruangan?.nama_ruangan ?? '-'}</td><td>${p.judul_kegiatan ?? '-'}</td><td>${p.pic_kegiatan ?? '-'}</td><td>${p.users?.nama_unit ?? p.users?.name ?? '-'}</td><td style="text-align:center">${p.jumlah_tamu ?? 0}</td><td style="text-align:center"><span style="background:${sb};color:${sc};font-weight:700;padding:2px 8px;border-radius:12px;display:inline-block;font-size:8pt">${p.status ?? '-'}</span></td></tr>`;
+        }).join('');
+
+        const filterInfo = [
+            appliedFilters.tanggal_mulai && `Periode: ${appliedFilters.tanggal_mulai}`,
+            appliedFilters.tanggal_selesai && `s.d ${appliedFilters.tanggal_selesai}`,
+            appliedFilters.status && `Status: ${appliedFilters.status}`,
+        ].filter(Boolean).join(' | ');
+
+        const printDateStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' });
+        const logoUrl = window.location.origin + '/images/SILAKAN.png';
+
+        const html = `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Laporan Pemesanan Ruangan — SILAKAN</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; font-size: 9.5pt; color: #1e293b; background: #fff; padding: 12mm 14mm; }
+.toolbar { position: sticky; top: 0; background: #003366; color: #fff; padding: 10px 16mm; margin: -12mm -14mm 16px -14mm; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.15); z-index: 999; }
+.toolbar span { font-size: 13px; font-weight: 600; }
+.toolbar button { background: #2563eb; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; margin-left: 8px; }
+.toolbar button.close { background: #64748b; }
+.toolbar button:hover { opacity: 0.9; }
+.header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #003366; padding-bottom: 12px; margin-bottom: 14px; }
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header-left img { height: 48px; object-fit: contain; }
+.header-titles h1 { font-size: 14pt; font-weight: 800; color: #003366; letter-spacing: 0.5px; margin-bottom: 2px; }
+.header-titles p { font-size: 9pt; color: #475569; font-weight: 500; }
+.meta { display: flex; justify-content: space-between; font-size: 8.5pt; color: #64748b; margin-bottom: 10px; padding: 4px 0; border-bottom: 1px dashed #cbd5e1; }
+table { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 16px; }
+thead tr { background: #003366; color: #ffffff; }
+thead th { padding: 6px 5px; text-align: left; font-weight: 700; border: 1px solid #004080; }
+tbody td { padding: 5px 5px; border: 1px solid #e2e8f0; vertical-align: middle; }
+.footer { margin-top: 14px; padding-top: 10px; border-top: 1px solid #cbd5e1; display: flex; justify-content: space-between; font-size: 8pt; color: #94a3b8; }
+@media print {
+  .no-print { display: none !important; }
+  body { padding: 0; }
+  @page { size: A4 landscape; margin: 10mm; }
+}
+</style>
+</head>
+<body>
+<div class="toolbar no-print">
+  <span>Pratinjau Cetak Laporan SILAKAN</span>
+  <div>
+    <button onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+    <button class="close" onclick="window.close()">❌ Tutup</button>
+  </div>
+</div>
+<div class="header">
+  <div class="header-left">
+    <img src="${logoUrl}" alt="SILAKAN" onerror="this.style.display='none'">
+    <div class="header-titles">
+      <h1>LAPORAN PEMESANAN RUANGAN</h1>
+      <p>Sistem Informasi Layanan Kantor — Kantor Perwakilan Provinsi Sulawesi Utara</p>
+    </div>
+  </div>
+</div>
+<div class="meta">
+  <span>${filterInfo ? 'Filter: ' + filterInfo : 'Filter: Semua Data'}</span>
+  <span>Dicetak: ${printDateStr} WITA</span>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:26px;text-align:center">No</th>
+      <th style="width:90px">Kode</th>
+      <th style="width:80px">Tanggal</th>
+      <th style="width:105px">Waktu</th>
+      <th style="width:110px">Ruangan</th>
+      <th>Agenda / Kegiatan</th>
+      <th style="width:100px">PIC</th>
+      <th style="width:110px">Unit</th>
+      <th style="width:38px;text-align:center">Tamu</th>
+      <th style="width:75px;text-align:center">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${rows || '<tr><td colspan="10" style="text-align:center;padding:24px;color:#94a3b8">Tidak ada data pemesanan yang sesuai</td></tr>'}
+  </tbody>
+</table>
+<div class="footer">
+  <span>Total: ${printData.length} data pemesanan</span>
+  <span>SILAKAN &mdash; Kantor Perwakilan Prov. Sulut</span>
+</div>
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() { window.print(); }, 400);
+});
+<\/script>
+</body>
+</html>`;
+
+        const pw = window.open('', '_blank', 'width=1200,height=800');
+        if (pw) {
+            pw.document.write(html);
+            pw.document.close();
+        }
     };
 
     const handleDelete = async () => {
@@ -295,6 +434,7 @@ export const LaporanPage: React.FC = () => {
                         <button
                             type="button"
                             onClick={handlePrintPreview}
+                            disabled={isPrinting}
                             style={{
                                 background: 'linear-gradient(135deg,#005baa,#003b73)',
                                 color: 'white',
@@ -309,10 +449,30 @@ export const LaporanPage: React.FC = () => {
                                 textDecoration: 'none',
                                 boxShadow: '0 4px 12px rgba(0,91,170,0.3)',
                                 transition: 'all .2s',
-                                cursor: 'pointer',
+                                cursor: isPrinting ? 'not-allowed' : 'pointer',
+                                opacity: isPrinting ? 0.9 : 1,
                             }}
                         >
-                            <i className="bi bi-printer-fill"></i> Cetak / Pratinjau PDF
+                            {isPrinting ? (
+                                <>
+                                    <span
+                                        style={{
+                                            display: 'inline-block',
+                                            width: '14px',
+                                            height: '14px',
+                                            border: '2px solid #ffffff',
+                                            borderRightColor: 'transparent',
+                                            borderRadius: '50%',
+                                            animation: 'spin 0.75s linear infinite',
+                                        }}
+                                    ></span>
+                                    <span>Menyiapkan PDF...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <i className="bi bi-printer-fill"></i> <span>Cetak / Pratinjau PDF</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>

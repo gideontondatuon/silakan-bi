@@ -32,27 +32,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onCloseMo
     return (
         <aside className={`sidebar ${isOpen ? 'show-mobile' : ''}`} id="sidebar">
             {/* Fixed Sidebar Brand */}
-            <div className="sidebar-brand" style={{ position: 'relative' }}>
+            <div className="sidebar-brand">
                 <img
-                    src="/images/logo-bi2.png"
+                    src="/images/SILAKAN.png"
                     className="sidebar-logo"
-                    alt="Bank Indonesia"
+                    alt="SILAKAN"
                 />
                 <div className="sidebar-brand-text">
                     <strong>SILAKAN</strong>
                     <span>Sistem Informasi Layanan Kantor</span>
-                    <small>KPwBI Prov. Sulut</small>
+                    <small>Kantor Perwakilan Prov. Sulut</small>
                 </div>
-                {/* Mobile Close Button */}
-                <button
-                    type="button"
-                    className="sidebar-close-btn"
-                    id="sidebarCloseBtn"
-                    onClick={onCloseMobile}
-                    aria-label="Tutup Menu"
-                >
-                    <i className="bi bi-x-lg"></i>
-                </button>
             </div>
 
             {/* Scrollable Sidebar Menu */}
@@ -273,6 +263,52 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onCloseMo
                         </Link>
                     </>
                 )}
+
+                <div className="menu-section">DISPLAY KIOSK TV</div>
+
+                <a
+                    href="/display/internal"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={onCloseMobile}
+                    title="Buka Layar Display Rapat Internal (Tab Baru)"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px 16px',
+                        color: 'inherit',
+                        textDecoration: 'none',
+                        borderRadius: '10px',
+                        transition: 'background 0.2s',
+                    }}
+                >
+                    <i className="bi bi-display" style={{ color: '#0284c7', fontSize: '18px' }}></i>
+                    <span>Display Internal</span>
+                    <i className="bi bi-box-arrow-up-right" style={{ fontSize: '11px', marginLeft: 'auto', opacity: 0.6 }}></i>
+                </a>
+
+                <a
+                    href="/display/eksternal"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={onCloseMobile}
+                    title="Buka Layar Display Rapat Eksternal (Tab Baru)"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px 16px',
+                        color: 'inherit',
+                        textDecoration: 'none',
+                        borderRadius: '10px',
+                        transition: 'background 0.2s',
+                    }}
+                >
+                    <i className="bi bi-tv-fill" style={{ color: '#d97706', fontSize: '18px' }}></i>
+                    <span>Display Eksternal</span>
+                    <i className="bi bi-box-arrow-up-right" style={{ fontSize: '11px', marginLeft: 'auto', opacity: 0.6 }}></i>
+                </a>
             </nav>
 
             {/* Sidebar Footer */}

@@ -2,8 +2,12 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "dev": "vite",
         "build": "vite build",
-        "dev": "vite"
+        "preview": "vite preview",
+        "server": "npm --prefix server run start:dev",
+        "server:prod": "npm --prefix server run start:prod",
+        "start": "concurrently \"npm run dev\" \"npm run server\""
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
@@ -15,10 +19,7 @@
         "autoprefixer": "^10.4.2",
         "axios": "^1.7.4",
         "concurrently": "^9.0.1",
-        "laravel-vite-plugin": "^1.2.0",
         "postcss": "^8.4.31",
-        "pptxgenjs": "^4.0.1",
-        "puppeteer-core": "^25.9.0",
         "tailwindcss": "^3.1.0",
         "typescript": "^7.0.2",
         "vite": "^6.0.11"

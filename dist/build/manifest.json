@@ -1,0 +1,13 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-CocUJXFP.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/react/main.tsx": {
+    "file": "assets/main-Dxg0FLap.js",
+    "name": "main",
+    "src": "resources/react/main.tsx",
+    "isEntry": true
+  }
+}

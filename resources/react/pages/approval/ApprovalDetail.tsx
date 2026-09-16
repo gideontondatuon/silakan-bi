@@ -191,6 +191,11 @@ export const ApprovalDetail: React.FC = () => {
     if (!pemesanan) {
         return (
             <div style={{ padding: '48px', textAlign: 'center' }}>
+                {alertMessage && (
+                    <div style={{ maxWidth: '600px', margin: '0 auto 20px auto' }}>
+                        <AlertBanner type={alertMessage.type} message={alertMessage.text} onClose={() => setAlertMessage(null)} />
+                    </div>
+                )}
                 <p style={{ color: '#64748b' }}>Data pemesanan tidak ditemukan.</p>
                 <Link to="/admin/approval" className="btn-secondary">Kembali ke Daftar</Link>
             </div>
@@ -244,11 +249,11 @@ export const ApprovalDetail: React.FC = () => {
                     <div className="detail-grid">
                         <div>
                             <label>Nama Pemohon</label>
-                            <p>{pemesanan.user?.name ?? '-'}</p>
+                            <p>{pemesanan.user?.name || (pemesanan as any).users?.name || pemesanan.pic_kegiatan || '-'}</p>
                         </div>
                         <div>
                             <label>Unit Kerja</label>
-                            <p>{pemesanan.user?.nama_unit ?? '-'}</p>
+                            <p>{pemesanan.user?.nama_unit || (pemesanan as any).users?.nama_unit || (pemesanan as any).nama_unit || '-'}</p>
                         </div>
                         <div>
                             <label>Kode Pemesanan</label>
@@ -318,6 +323,27 @@ export const ApprovalDetail: React.FC = () => {
                         <div>
                             <label>Waktu</label>
                             <p>{pemesanan.waktu_mulai?.substring(0, 5)} – {pemesanan.waktu_selesai?.substring(0, 5)} WITA</p>
+                        </div>
+                        <div>
+                            <label>Sifat / Jenis Kegiatan</label>
+                            <p>
+                                <span
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '4px 10px',
+                                        borderRadius: '8px',
+                                        fontSize: '12px',
+                                        fontWeight: 700,
+                                        background: pemesanan.jenis_kegiatan === 'Eksternal' ? '#fef3c7' : '#e0f2fe',
+                                        color: pemesanan.jenis_kegiatan === 'Eksternal' ? '#92400e' : '#0369a1',
+                                    }}
+                                >
+                                    <i className={`bi ${pemesanan.jenis_kegiatan === 'Eksternal' ? 'bi-globe2' : 'bi-building'}`}></i>
+                                    {pemesanan.jenis_kegiatan === 'Eksternal' ? 'Rapat Eksternal' : 'Rapat Internal'}
+                                </span>
+                            </p>
                         </div>
                     </div>
                 </div>

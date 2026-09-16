@@ -5,6 +5,7 @@ import { bookingService, UserDashboardData } from '../../services/bookingService
 import { StatCard } from '../../components/common/StatCard';
 import { Badge } from '../../components/common/Badge';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { Skeleton, StatCardSkeleton } from '../../components/common/Skeleton';
 import { Modal } from '../../components/common/Modal';
 import { AlertBanner } from '../../components/feedback/AlertBanner';
 
@@ -53,7 +54,27 @@ export const UserDashboard: React.FC = () => {
     };
 
     if (isLoading && !data) {
-        return <LoadingSpinner message="Memuat Dashboard..." />;
+        return (
+            <div>
+                <div className="dashboard-header">
+                    <div>
+                        <Skeleton width={260} height={32} style={{ marginBottom: '8px' }} />
+                        <Skeleton width={320} height={18} />
+                    </div>
+                    <Skeleton width={140} height={36} borderRadius={10} />
+                </div>
+                <div className="stat-grid" style={{ marginTop: '20px' }}>
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                </div>
+                <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                    <Skeleton height={260} borderRadius={14} />
+                    <Skeleton height={260} borderRadius={14} />
+                </div>
+            </div>
+        );
     }
 
     const todayDate = new Date().toLocaleDateString('id-ID', {
@@ -95,7 +116,7 @@ export const UserDashboard: React.FC = () => {
                 <div className="live-banner">
                     <div className="live-banner-header">
                         <div className="live-banner-title">
-                            <span className="live-indicator-dot"></span>
+                            <span className="live-indicator-radar" style={{ marginRight: '6px' }}></span>
                             Kegiatan Sedang Berlangsung — Live Saat Ini
                         </div>
                         <span className="live-count">
@@ -120,7 +141,7 @@ export const UserDashboard: React.FC = () => {
                                         <i className="bi bi-building"></i> {live.ruangan?.nama_ruangan}
                                     </strong>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                                        <span className="live-card-time">
+                                        <span className="live-card-time tabular-nums">
                                             <i className="bi bi-clock-history"></i> {live.waktu_mulai?.substring(0, 5)} –{' '}
                                             {live.waktu_selesai?.substring(0, 5)} WITA
                                         </span>
@@ -170,7 +191,7 @@ export const UserDashboard: React.FC = () => {
                                         )}
                                     </div>
 
-                                    {live.user_id === user?.id && (
+                                    {(Number(live.user_id) === Number(user?.id) || user?.role === 'admin') && (
                                         <button
                                             type="button"
                                             onClick={() => setSelectedLive(live)}

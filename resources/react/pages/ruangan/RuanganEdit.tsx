@@ -19,7 +19,7 @@ export const RuanganEdit: React.FC = () => {
         nama_ruangan: '',
         lokasi: '',
         kapasitas: '',
-        status: 'aktif' as 'aktif' | 'nonaktif' | 'perawatan',
+        status: 'aktif' as 'aktif' | 'nonaktif' | 'perawatan' | 'pemeliharaan',
     });
     const [selectedLayouts, setSelectedLayouts] = useState<number[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -38,11 +38,12 @@ export const RuanganEdit: React.FC = () => {
                 if (roomRes.status === 'success' && roomRes.data) {
                     const r = roomRes.data;
                     setRuangan(r);
+                    const loadedStatus = r.status === 'perawatan' ? 'pemeliharaan' : (r.status || 'aktif');
                     setFormData({
                         nama_ruangan: r.nama_ruangan || '',
                         lokasi: r.lokasi || '',
                         kapasitas: String(r.kapasitas || ''),
-                        status: r.status || 'aktif',
+                        status: loadedStatus,
                     });
                     setSelectedLayouts(r.layouts?.map((l) => l.id) || []);
                 }
@@ -223,7 +224,7 @@ export const RuanganEdit: React.FC = () => {
                                 >
                                     <option value="aktif">Aktif</option>
                                     <option value="nonaktif">Nonaktif</option>
-                                    <option value="perawatan">Perawatan</option>
+                                    <option value="pemeliharaan">Pemeliharaan</option>
                                 </select>
                                 {errors.status && (
                                     <span className="form-error">

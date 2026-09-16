@@ -221,6 +221,27 @@ export const PemesananDetail: React.FC = () => {
                             <label>Waktu</label>
                             <p>{pemesanan.waktu_mulai?.substring(0, 5)} – {pemesanan.waktu_selesai?.substring(0, 5)} WITA</p>
                         </div>
+                        <div>
+                            <label>Sifat / Jenis Kegiatan</label>
+                            <p>
+                                <span
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '4px 10px',
+                                        borderRadius: '8px',
+                                        fontSize: '12.5px',
+                                        fontWeight: 700,
+                                        background: pemesanan.jenis_kegiatan === 'Eksternal' ? '#fef3c7' : '#e0f2fe',
+                                        color: pemesanan.jenis_kegiatan === 'Eksternal' ? '#92400e' : '#0369a1',
+                                    }}
+                                >
+                                    <i className={`bi ${pemesanan.jenis_kegiatan === 'Eksternal' ? 'bi-globe2' : 'bi-building'}`}></i>
+                                    {pemesanan.jenis_kegiatan === 'Eksternal' ? 'Rapat Eksternal' : 'Rapat Internal'}
+                                </span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 

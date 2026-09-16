@@ -35,7 +35,7 @@ export const StatCard: React.FC<StatCardProps> = ({
                     <i className={`bi ${iconClass}`}></i>
                 </div>
             </div>
-            <div className="stat-value">{formattedValue}</div>
+            <div className="stat-value tabular-nums">{formattedValue}</div>
             <div className="stat-footer">
                 {trend !== null ? (
                     <>

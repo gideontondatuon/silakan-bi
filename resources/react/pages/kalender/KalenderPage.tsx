@@ -17,6 +17,17 @@ export const KalenderPage: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [calendarView, setCalendarView] = useState<'month' | 'week'>('month');
     const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+    const [hoveredEventData, setHoveredEventData] = useState<{
+        event: any;
+        rect: DOMRect;
+    } | null>(null);
+
+    // Dismiss hover tooltip on window scroll
+    useEffect(() => {
+        const handleScroll = () => setHoveredEventData(null);
+        window.addEventListener('scroll', handleScroll, true);
+        return () => window.removeEventListener('scroll', handleScroll, true);
+    }, []);
 
     // Load initial index data (rooms, summary stats, upcoming bookings)
     useEffect(() => {
@@ -32,9 +43,10 @@ export const KalenderPage: React.FC = () => {
         setIsLoading(true);
         try {
             const data = await bookingService.getKalenderEvents(selectedRuanganId || undefined);
-            setEvents(data);
+            setEvents(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error('Failed to load calendar events:', e);
+            setEvents([]);
         } finally {
             setIsLoading(false);
         }
@@ -84,10 +96,9 @@ export const KalenderPage: React.FC = () => {
 
     // Filter events for specific day (YYYY-MM-DD)
     const getEventsForDate = (dateStr: string) => {
+        if (!Array.isArray(events)) return [];
         return events.filter((e) => {
-            if (e.allDay) {
-                return e.start.startsWith(dateStr);
-            }
+            if (!e || !e.start) return false;
             return e.start.startsWith(dateStr);
         });
     };
@@ -140,16 +151,16 @@ export const KalenderPage: React.FC = () => {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     flexWrap: 'wrap',
-                    gap: '16px',
-                    marginBottom: '20px',
+                    gap: '12px',
+                    marginBottom: '10px',
                 }}
             >
                 <div>
-                    <h1>
+                    <h1 style={{ fontSize: '18px', margin: 0, display: 'flex', alignItems: 'center' }}>
                         <i className="bi bi-calendar3" style={{ color: '#005baa', marginRight: '8px' }}></i>
                         Kalender Ruangan
                     </h1>
-                    <p>Monitoring jadwal penggunaan ruangan kantor secara visual dan terpusat.</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>Monitoring jadwal penggunaan ruangan kantor secara visual dan terpusat.</p>
                 </div>
 
                 {/* Room Filter Dropdown */}
@@ -157,20 +168,20 @@ export const KalenderPage: React.FC = () => {
                     style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '10px',
+                        gap: '8px',
                         background: '#ffffff',
-                        padding: '8px 16px',
-                        borderRadius: '12px',
+                        padding: '4px 12px',
+                        borderRadius: '10px',
                         border: '1px solid #cbd5e1',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
                         flexWrap: 'wrap',
                         maxWidth: '100%',
                     }}
                 >
-                    <i className="bi bi-funnel-fill" style={{ color: '#005baa', fontSize: '16px' }}></i>
+                    <i className="bi bi-funnel-fill" style={{ color: '#005baa', fontSize: '13px' }}></i>
                     <label
                         htmlFor="filter-ruangan"
-                        style={{ fontSize: '13px', fontWeight: 700, color: '#334155', whiteSpace: 'nowrap', margin: 0 }}
+                        style={{ fontSize: '12px', fontWeight: 700, color: '#334155', whiteSpace: 'nowrap', margin: 0 }}
                     >
                         Filter Ruangan:
                     </label>
@@ -179,17 +190,17 @@ export const KalenderPage: React.FC = () => {
                         value={selectedRuanganId}
                         onChange={(e) => setSelectedRuanganId(e.target.value)}
                         style={{
-                            padding: '6px 12px',
+                            padding: '4px 10px',
                             border: '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            fontSize: '13px',
+                            borderRadius: '6px',
+                            fontSize: '12.5px',
                             fontWeight: 600,
                             color: '#003b73',
                             background: '#f8fafc',
                             outline: 'none',
                             cursor: 'pointer',
                             flex: 1,
-                            minWidth: '160px',
+                            minWidth: '150px',
                         }}
                     >
                         <option value="">-- Seluruh Ruangan Rapat --</option>
@@ -202,43 +213,43 @@ export const KalenderPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Calendar Summary Stats matching Blade 1:1 */}
-            <div className="calendar-summary">
-                <div className="calendar-stat">
-                    <div className="calendar-stat-icon">
+            {/* Calendar Summary Stats matching Blade 1:1 - Compact Mode */}
+            <div className="calendar-summary" style={{ marginBottom: '10px', gap: '10px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}>
+                <div className="calendar-stat" style={{ padding: '8px 14px', gap: '10px', borderRadius: '10px' }}>
+                    <div className="calendar-stat-icon" style={{ width: '32px', height: '32px', fontSize: '15px', borderRadius: '8px' }}>
                         <i className="bi bi-building"></i>
                     </div>
                     <div>
-                        <span>Total Ruangan</span>
-                        <strong>{stats.total_ruangan}</strong>
+                        <span style={{ fontSize: '10.5px' }}>Total Ruangan</span>
+                        <strong style={{ fontSize: '17px', marginTop: '1px' }}>{stats.total_ruangan}</strong>
                     </div>
                 </div>
 
-                <div className="calendar-stat">
-                    <div className="calendar-stat-icon">
+                <div className="calendar-stat" style={{ padding: '8px 14px', gap: '10px', borderRadius: '10px' }}>
+                    <div className="calendar-stat-icon" style={{ width: '32px', height: '32px', fontSize: '15px', borderRadius: '8px' }}>
                         <i className="bi bi-calendar-check"></i>
                     </div>
                     <div>
-                        <span>Jadwal Aktif</span>
-                        <strong>{stats.jadwal_aktif}</strong>
+                        <span style={{ fontSize: '10.5px' }}>Jadwal Aktif</span>
+                        <strong style={{ fontSize: '17px', marginTop: '1px' }}>{stats.jadwal_aktif}</strong>
                     </div>
                 </div>
 
-                <div className="calendar-stat">
-                    <div className="calendar-stat-icon">
+                <div className="calendar-stat" style={{ padding: '8px 14px', gap: '10px', borderRadius: '10px' }}>
+                    <div className="calendar-stat-icon" style={{ width: '32px', height: '32px', fontSize: '15px', borderRadius: '8px' }}>
                         <i className="bi bi-calendar-event"></i>
                     </div>
                     <div>
-                        <span>Akan Datang</span>
-                        <strong>{stats.akan_datang}</strong>
+                        <span style={{ fontSize: '10.5px' }}>Akan Datang</span>
+                        <strong style={{ fontSize: '17px', marginTop: '1px' }}>{stats.akan_datang}</strong>
                     </div>
                 </div>
             </div>
 
             {/* Calendar Layout: Main + Sidebar matching Blade 1:1 */}
-            <div className="calendar-layout">
+            <div className="calendar-layout" style={{ gap: '16px' }}>
                 {/* Main Calendar View */}
-                <div className="calendar-main">
+                <div className="calendar-main" style={{ padding: '14px 16px', borderRadius: '12px' }}>
                     {/* Toolbar */}
                     <div
                         style={{
@@ -246,8 +257,8 @@ export const KalenderPage: React.FC = () => {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             flexWrap: 'wrap',
-                            gap: '12px',
-                            marginBottom: '18px',
+                            gap: '10px',
+                            marginBottom: '10px',
                         }}
                     >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -336,7 +347,7 @@ export const KalenderPage: React.FC = () => {
                                         borderBottom: '1px solid #e2e8f0',
                                         textAlign: 'center',
                                         fontWeight: 700,
-                                        fontSize: '12.5px',
+                                        fontSize: '11.5px',
                                         color: '#475569',
                                     }}
                                 >
@@ -346,7 +357,7 @@ export const KalenderPage: React.FC = () => {
                                             <div
                                                 key={dh}
                                                 style={{
-                                                    padding: '10px 0',
+                                                    padding: '6px 0',
                                                     background: isWeekend ? '#fee2e2' : '#f8fafc',
                                                     color: isWeekend ? '#991b1b' : '#475569',
                                                     borderRight: idx < 6 ? '1px solid #e2e8f0' : 'none',
@@ -363,7 +374,7 @@ export const KalenderPage: React.FC = () => {
                                     style={{
                                         display: 'grid',
                                         gridTemplateColumns: 'repeat(7, 1fr)',
-                                        gridAutoRows: 'minmax(105px, auto)',
+                                        gridAutoRows: 'minmax(58px, auto)',
                                     }}
                                 >
                                     {/* Empty days before 1st of month */}
@@ -392,7 +403,7 @@ export const KalenderPage: React.FC = () => {
                                                 style={{
                                                     borderRight: dayOfWeek === 6 ? 'none' : '1px solid #f1f5f9',
                                                     borderBottom: '1px solid #f1f5f9',
-                                                    padding: '8px',
+                                                    padding: '3px 5px',
                                                     background: today
                                                         ? '#f0f9ff'
                                                         : isWeekend
@@ -400,8 +411,8 @@ export const KalenderPage: React.FC = () => {
                                                         : '#ffffff',
                                                     display: 'flex',
                                                     flexDirection: 'column',
-                                                    gap: '4px',
-                                                    minHeight: '105px',
+                                                    gap: '2px',
+                                                    minHeight: '58px',
                                                     boxSizing: 'border-box',
                                                 }}
                                             >
@@ -410,19 +421,19 @@ export const KalenderPage: React.FC = () => {
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
-                                                        marginBottom: '2px',
+                                                        lineHeight: 1,
                                                     }}
                                                 >
                                                     <span
                                                         style={{
-                                                            fontSize: '13px',
+                                                            fontSize: '11.5px',
                                                             fontWeight: today ? 800 : 700,
                                                             color: today ? '#0284c7' : isWeekend ? '#dc2626' : '#1e293b',
                                                             display: 'inline-flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
-                                                            width: today ? '24px' : 'auto',
-                                                            height: today ? '24px' : 'auto',
+                                                            width: today ? '20px' : 'auto',
+                                                            height: today ? '20px' : 'auto',
                                                             borderRadius: today ? '50%' : '0',
                                                             background: today ? '#e0f2fe' : 'transparent',
                                                         }}
@@ -432,8 +443,8 @@ export const KalenderPage: React.FC = () => {
                                                     {dayEvents.some((e) => e.type === 'holiday') && (
                                                         <span
                                                             style={{
-                                                                width: '6px',
-                                                                height: '6px',
+                                                                width: '5px',
+                                                                height: '5px',
                                                                 borderRadius: '50%',
                                                                 background: '#ef4444',
                                                                 display: 'inline-block',
@@ -443,32 +454,65 @@ export const KalenderPage: React.FC = () => {
                                                     )}
                                                 </div>
 
-                                                {/* Event Badges */}
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                                    {dayEvents.slice(0, 3).map((ev) => (
-                                                        <div
-                                                            key={ev.id}
-                                                            onClick={() => setSelectedEvent(ev)}
-                                                            style={{
-                                                                fontSize: '11px',
-                                                                padding: '2px 5px',
-                                                                borderRadius: '4px',
-                                                                background: ev.color,
-                                                                color: '#ffffff',
-                                                                cursor: 'pointer',
-                                                                whiteSpace: 'nowrap',
-                                                                overflow: 'hidden',
-                                                                textOverflow: 'ellipsis',
-                                                                fontWeight: ev.type === 'holiday' ? 700 : 600,
-                                                                transition: 'transform 0.15s ease',
-                                                            }}
-                                                            title={ev.title}
-                                                        >
-                                                            {ev.title}
-                                                        </div>
-                                                    ))}
+                                                {/* Event Badges: Cukup Jamnya Saja */}
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    {dayEvents.slice(0, 3).map((ev) => {
+                                                        const isBooking = ev.type === 'booking';
+                                                        const timeDisplay = isBooking
+                                                            ? (ev.extendedProps?.waktu || (ev.start ? ev.start.substring(11, 16) : 'Jadwal'))
+                                                            : (ev.extendedProps?.kategori_label || 'Libur');
+
+                                                        return (
+                                                            <div
+                                                                key={ev.id}
+                                                                onClick={() => setSelectedEvent(ev)}
+                                                                onMouseEnter={(e) => {
+                                                                    setHoveredEventData({
+                                                                        event: ev,
+                                                                        rect: e.currentTarget.getBoundingClientRect(),
+                                                                    });
+                                                                }}
+                                                                onMouseLeave={() => setHoveredEventData(null)}
+                                                                style={{
+                                                                    fontSize: '10px',
+                                                                    padding: '1.5px 5px',
+                                                                    borderRadius: '4px',
+                                                                    background: ev.color || '#005baa',
+                                                                    color: '#ffffff',
+                                                                    cursor: 'pointer',
+                                                                    whiteSpace: 'nowrap',
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis',
+                                                                    fontWeight: 600,
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '3px',
+                                                                    lineHeight: 1.3,
+                                                                    transition: 'transform 0.1s ease, filter 0.1s ease',
+                                                                }}
+                                                                title={`${ev.extendedProps?.judul || ev.title} (${timeDisplay})`}
+                                                            >
+                                                                <i
+                                                                    className={isBooking ? 'bi bi-clock-fill' : 'bi bi-flag-fill'}
+                                                                    style={{ fontSize: '8.5px', opacity: 0.9, flexShrink: 0 }}
+                                                                ></i>
+                                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                    {timeDisplay}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
                                                     {dayEvents.length > 3 && (
-                                                        <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
+                                                        <span
+                                                            style={{
+                                                                fontSize: '9.5px',
+                                                                color: '#0284c7',
+                                                                fontWeight: 700,
+                                                                paddingLeft: '2px',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                            onClick={() => setSelectedEvent(dayEvents[3])}
+                                                        >
                                                             +{dayEvents.length - 3} lainnya
                                                         </span>
                                                     )}
@@ -549,6 +593,13 @@ export const KalenderPage: React.FC = () => {
                                                         <div
                                                             key={ev.id}
                                                             onClick={() => setSelectedEvent(ev)}
+                                                            onMouseEnter={(e) => {
+                                                                setHoveredEventData({
+                                                                    event: ev,
+                                                                    rect: e.currentTarget.getBoundingClientRect(),
+                                                                });
+                                                            }}
+                                                            onMouseLeave={() => setHoveredEventData(null)}
                                                             style={{
                                                                 fontSize: '11.5px',
                                                                 padding: '6px 8px',
@@ -582,97 +633,266 @@ export const KalenderPage: React.FC = () => {
                     )}
                 </div>
 
-                {/* Sidebar: Jadwal yang Akan Datang matching Blade 1:1 */}
-                <div className="calendar-sidebar" style={{ overflow: 'hidden', boxSizing: 'border-box' }}>
-                    <h3>
-                        <i className="bi bi-calendar-event" style={{ color: '#005baa', marginRight: '6px' }}></i>
-                        Jadwal yang Akan Datang
-                    </h3>
+                {/* Sidebar: Jadwal yang Akan Datang - Compact & Always visible at 100% */}
+                <div
+                    className="calendar-sidebar"
+                    style={{
+                        maxHeight: 'calc(100vh - 120px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: '14px',
+                        position: 'sticky',
+                        top: '14px',
+                        borderRadius: '12px',
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                        boxSizing: 'border-box',
+                        overflow: 'hidden',
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '10px',
+                            paddingBottom: '8px',
+                            borderBottom: '2px solid #e0f2fe',
+                        }}
+                    >
+                        <h3 style={{ margin: 0, padding: 0, border: 'none', fontSize: '13.5px', fontWeight: 800, color: '#003b73', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <i className="bi bi-calendar-event" style={{ color: '#005baa' }}></i>
+                            Jadwal yang Akan Datang
+                        </h3>
+                        <span
+                            style={{
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                color: '#005baa',
+                                background: '#e0f2fe',
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                            }}
+                        >
+                            {upcomingSchedule.length}
+                        </span>
+                    </div>
 
-                    {upcomingSchedule.length > 0 ? (
-                        upcomingSchedule.map((item) => (
-                            <div
-                                key={item.id}
-                                style={{
-                                    marginBottom: '12px',
-                                    padding: '12px 14px',
-                                    borderRadius: '12px',
-                                    background: '#ffffff',
-                                    border: '1px solid #e2e8f0',
-                                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
-                                    boxSizing: 'border-box',
-                                    maxWidth: '100%',
-                                    overflow: 'hidden',
-                                    transition: 'all .2s',
-                                }}
-                            >
-                                {/* Header: Ruangan & Tanggal Badge */}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '8px' }}>
+                    <div
+                        style={{
+                            overflowY: 'auto',
+                            flex: 1,
+                            paddingRight: '3px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                        }}
+                    >
+                        {upcomingSchedule.length > 0 ? (
+                            upcomingSchedule.map((item) => (
+                                <div
+                                    key={item.id}
+                                    style={{
+                                        padding: '9px 11px',
+                                        borderRadius: '10px',
+                                        background: '#ffffff',
+                                        border: '1px solid #e2e8f0',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                                        boxSizing: 'border-box',
+                                        maxWidth: '100%',
+                                        transition: 'all .2s',
+                                    }}
+                                >
+                                    {/* Header: Ruangan & Tanggal Badge */}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '6px' }}>
+                                        <span
+                                            style={{
+                                                fontSize: '10.5px',
+                                                fontWeight: 700,
+                                                color: '#005baa',
+                                                background: '#e0f2fe',
+                                                padding: '2px 6px',
+                                                borderRadius: '5px',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                maxWidth: '140px',
+                                            }}
+                                        >
+                                            <i className="bi bi-door-open-fill"></i> {item.nama_ruangan}
+                                        </span>
+                                        <span
+                                            style={{
+                                                fontSize: '10.5px',
+                                                fontWeight: 700,
+                                                color: '#0369a1',
+                                                background: '#f0f9ff',
+                                                border: '1px solid #bae6fd',
+                                                padding: '1px 6px',
+                                                borderRadius: '5px',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '3px',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            <i className="bi bi-calendar3"></i> {item.tanggal_kegiatan}
+                                        </span>
+                                    </div>
+
+                                    {/* Judul Kegiatan */}
+                                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', lineHeight: 1.3, wordBreak: 'break-word' }}>
+                                        {item.judul_kegiatan}
+                                    </div>
+
+                                    {/* Footer Info: Waktu & PIC */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: '#64748b', paddingTop: '6px', borderTop: '1px dashed #e2e8f0' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#334155', fontWeight: 600 }}>
+                                            <i className="bi bi-clock-fill" style={{ color: '#0284c7', fontSize: '11px' }}></i>
+                                            <span>{item.waktu_mulai} – {item.waktu_selesai} WITA</span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#64748b', overflow: 'hidden' }}>
+                                            <i className="bi bi-person-fill" style={{ color: '#64748b', fontSize: '11px', flexShrink: 0 }}></i>
+                                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {item.pic_kegiatan} ({item.nama_unit})
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="empty-schedule" style={{ padding: '20px 10px' }}>
+                                <i className="bi bi-calendar-x" style={{ fontSize: '28px', marginBottom: '6px' }}></i>
+                                <p style={{ fontSize: '12px' }}>Tidak ada jadwal yang akan datang.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Hover Tooltip Popover (Muncul Otomatis saat Kursor Digeser ke Penanda Jam) */}
+            {hoveredEventData && (() => {
+                const ev = hoveredEventData.event;
+                const rect = hoveredEventData.rect;
+                const isBooking = ev.type === 'booking';
+
+                const tooltipWidth = 310;
+                let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+                if (left < 10) left = 10;
+                if (left + tooltipWidth > window.innerWidth - 10) {
+                    left = window.innerWidth - tooltipWidth - 10;
+                }
+
+                const tooltipEstHeight = isBooking ? 180 : 115;
+                const fitsBelow = rect.bottom + tooltipEstHeight + 10 < window.innerHeight;
+                const top = fitsBelow ? rect.bottom + 6 : Math.max(10, rect.top - tooltipEstHeight - 6);
+
+                return (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: `${top}px`,
+                            left: `${left}px`,
+                            width: `${tooltipWidth}px`,
+                            background: '#ffffff',
+                            borderRadius: '12px',
+                            boxShadow: '0 12px 30px rgba(15, 23, 42, 0.2), 0 2px 8px rgba(0, 91, 170, 0.08)',
+                            border: '1px solid #cbd5e1',
+                            borderLeft: `5px solid ${ev.color || '#005baa'}`,
+                            padding: '12px 14px',
+                            zIndex: 99999,
+                            pointerEvents: 'none',
+                            boxSizing: 'border-box',
+                            animation: 'fadeIn 0.1s ease-out',
+                        }}
+                    >
+                        {isBooking ? (
+                            <>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', marginBottom: '6px' }}>
                                     <span
                                         style={{
-                                            fontSize: '11.5px',
+                                            fontSize: '10px',
+                                            fontWeight: 800,
+                                            textTransform: 'uppercase',
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            background: ev.extendedProps?.status === 'Approved' ? '#dcfce7' : '#fef3c7',
+                                            color: ev.extendedProps?.status === 'Approved' ? '#15803d' : '#b45309',
+                                            letterSpacing: '0.4px',
+                                        }}
+                                    >
+                                        {ev.extendedProps?.status || 'Disetujui'}
+                                    </span>
+                                    <span
+                                        style={{
+                                            fontSize: '10.5px',
                                             fontWeight: 700,
                                             color: '#005baa',
                                             background: '#e0f2fe',
-                                            padding: '3px 8px',
-                                            borderRadius: '6px',
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
                                             display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '4px',
-                                            whiteSpace: 'nowrap',
+                                            maxWidth: '180px',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
-                                        }}
-                                    >
-                                        <i className="bi bi-door-open-fill"></i> {item.nama_ruangan}
-                                    </span>
-                                    <span
-                                        style={{
-                                            fontSize: '11px',
-                                            fontWeight: 700,
-                                            color: '#0369a1',
-                                            background: '#f0f9ff',
-                                            border: '1px solid #bae6fd',
-                                            padding: '2px 8px',
-                                            borderRadius: '6px',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
                                             whiteSpace: 'nowrap',
                                         }}
                                     >
-                                        <i className="bi bi-calendar3"></i> {item.tanggal_kegiatan}
+                                        <i className="bi bi-door-open-fill"></i> {ev.extendedProps?.ruangan || '-'}
                                     </span>
                                 </div>
 
-                                {/* Judul Kegiatan */}
-                                <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', marginBottom: '8px', lineHeight: 1.35, wordBreak: 'break-word' }}>
-                                    {item.judul_kegiatan}
+                                <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '6px', lineHeight: 1.35 }}>
+                                    {ev.extendedProps?.judul || ev.title}
                                 </div>
 
-                                {/* Footer Info: Waktu & PIC */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11.5px', color: '#64748b', paddingTop: '8px', borderTop: '1px dashed #e2e8f0' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155', fontWeight: 600 }}>
-                                        <i className="bi bi-clock-fill" style={{ color: '#0284c7', fontSize: '12px' }}></i>
-                                        <span>{item.waktu_mulai} – {item.waktu_selesai} WITA</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11px', color: '#475569', borderTop: '1px dashed #e2e8f0', paddingTop: '6px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#0284c7', fontWeight: 700 }}>
+                                        <i className="bi bi-clock-fill" style={{ fontSize: '11px' }}></i>
+                                        <span>{ev.extendedProps?.waktu || 'Waktu kegiatan'} WITA</span>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', overflow: 'hidden' }}>
-                                        <i className="bi bi-person-fill" style={{ color: '#64748b', fontSize: '12px', flexShrink: 0 }}></i>
-                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {item.pic_kegiatan} ({item.nama_unit})
-                                        </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <i className="bi bi-person-fill" style={{ color: '#64748b' }}></i>
+                                        <span>PIC: <strong>{ev.extendedProps?.pic || '-'}</strong> ({ev.extendedProps?.unit || '-'})</span>
                                     </div>
+                                    {ev.extendedProps?.layout && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#64748b' }}>
+                                            <i className="bi bi-grid-fill" style={{ color: '#64748b' }}></i>
+                                            <span>Layout: {ev.extendedProps?.layout} {ev.extendedProps?.jumlah_tamu ? `• ${ev.extendedProps.jumlah_tamu} Tamu` : ''}</span>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="empty-schedule">
-                            <i className="bi bi-calendar-x"></i>
-                            <p>Tidak ada jadwal penggunaan ruangan yang akan datang.</p>
-                        </div>
-                    )}
-                </div>
-            </div>
+
+                                <div style={{ marginTop: '6px', fontSize: '9.5px', color: '#94a3b8', fontStyle: 'italic', textAlign: 'right' }}>
+                                    Klik untuk buka rincian lengkap ↗
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                    <span style={{ fontSize: '12px' }}>🚩</span>
+                                    <span style={{ fontSize: '10.5px', fontWeight: 700, color: ev.color, textTransform: 'uppercase' }}>
+                                        {ev.extendedProps?.kategori_label || 'Hari Libur'}
+                                    </span>
+                                </div>
+                                <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                                    {ev.extendedProps?.keterangan || ev.title}
+                                </div>
+                                <div style={{ fontSize: '11px', color: '#64748b' }}>
+                                    <i className="bi bi-calendar3" style={{ marginRight: '4px' }}></i>
+                                    {ev.extendedProps?.tanggal || ev.start}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                );
+            })()}
 
             {/* Event Detail Modal matching Blade 1:1 */}
             {selectedEvent && (
@@ -765,7 +985,7 @@ export const KalenderPage: React.FC = () => {
                                             : selectedEvent.extendedProps?.ruangan || 'Rincian Jadwal'}
                                     </h3>
                                     <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748b' }}>
-                                        Sistem SILAKAN Bank Indonesia
+                                        Sistem SILAKAN Kantor Perwakilan
                                     </p>
                                 </div>
                             </div>

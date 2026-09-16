@@ -4,8 +4,10 @@ export type BookingStatus = 'Pending' | 'Disetujui' | 'Ditolak' | 'Cancel' | 'Se
 
 export interface Department {
     id: number;
-    nama_department: string;
-    kode_department: string;
+    nama_department?: string;
+    kode_department?: string;
+    nama_unit?: string;
+    kode_unit?: string;
     created_at?: string;
     updated_at?: string;
 }
@@ -72,6 +74,7 @@ export interface Pemesanan {
     waktu_mulai: string;
     waktu_selesai: string;
     judul_kegiatan: string;
+    jenis_kegiatan?: 'Internal' | 'Eksternal';
     pic_kegiatan: string;
     no_wa_pic?: string | null;
     jenis_pic: 'Organik' | 'Non Organik';
@@ -91,6 +94,7 @@ export interface Pemesanan {
     cancelled_at?: string | null;
     alasan_pembatalan?: string | null;
     user?: User;
+    users?: User;
     ruangan?: Ruangan;
     layout?: LayoutRuangan;
     approver?: User;

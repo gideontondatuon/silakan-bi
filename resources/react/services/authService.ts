@@ -18,6 +18,7 @@ export const authService = {
         }
 
         const response = await api.post<ApiResponse<LoginResponseData>>('/auth/login', {
+            username: loginInput,
             login_input: loginInput,
             password: password,
             remember: remember,
